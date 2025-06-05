@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Noctiluz",
+    "name": "noctiluz",
     "slug": "noctiluz",
     "version": "1.0.0",
     "scheme": "noctiluz",
@@ -24,7 +24,7 @@
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",

@@ -1,6 +1,6 @@
 {
   "cesVersion": "2.18.3",
-  "projectName": "mobile",
+  "projectName": "noctiluz",
   "packages": [
     {
       "name": "expo-router",
@@ -10,24 +10,8 @@
       }
     },
     {
-      "name": "nativewindui",
-      "type": "styling",
-      "options": {
-        "selectedComponents": [
-          "action-sheet",
-          "activity-indicator",
-          "activity-view",
-          "avatar",
-          "bottom-sheet",
-          "date-picker",
-          "picker",
-          "progress-indicator",
-          "ratings-indicator",
-          "slider",
-          "text",
-          "toggle"
-        ]
-      }
+      "name": "nativewind",
+      "type": "styling"
     }
   ],
   "flags": {
