@@ -6,8 +6,10 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
+    include: ['tests/integration/**/*.test.ts'],
+    exclude: ['tests/e2e/**'],
     environment: 'node',
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: ['./tests/integration/setup.ts'],
     alias: [
       { 
         find: '@/backend',
