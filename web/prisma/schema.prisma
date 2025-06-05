@@ -17,51 +17,54 @@ enum Role {
 }
 
 model User {
-  id              String    @id @default(uuid()) @map("_id")
-  name            String
-  email           String    @unique
-  password        String?
-  emailVerified   DateTime?             
-  image           String?               
-  role            Role     @default(USER)
+  id            String    @id @default(uuid()) @map("_id")
+  name          String
+  email         String    @unique
+  password      String?
+  emailVerified Boolean?
+  image         String?
+  role          Role      @default(USER)
 
-  accounts        Account[]             
-  sessions        Session[]             
-  progress        UserProgress[]        // Track progress p user
-  authenticators  Authenticator[]
+  progress UserProgress[] // Track progress p user
 
-  userCursos      UserCurso[]           // Cursos que o user tá cursando
+  userCursos UserCurso[] // Cursos que o user tá cursando
+  createdAt  DateTime
+  updatedAt  DateTime
+  sessions   Session[]
+  accounts   Account[]
+
+  @@map("user")
 }
 
 model Curso {
-  id                    String          @id @default(uuid()) @map("_id")
-  name                  String
-  descricao             String
-  slug                  String          @unique
+  id        String @id @default(uuid()) @map("_id")
+  name      String
+  descricao String
+  slug      String @unique
 
-  materiasRelacionadas  CursoMateriaRelacionada[]
-  cursoTopicos          CursoTopico[]
-  userCursos            UserCurso[]
+  materiasRelacionadas CursoMateriaRelacionada[]
+  cursoTopicos         CursoTopico[]
+  userCursos           UserCurso[]
 }
 
 model CursoTopico {
-  id        String @id @default(uuid()) @map("_id")
-  order     Int    @default(0)
+  id    String @id @default(uuid()) @map("_id")
+  order Int    @default(0)
 
-  curso     Curso  @relation(fields: [cursoId], references: [id])
-  cursoId   String
+  curso   Curso  @relation(fields: [cursoId], references: [id])
+  cursoId String
 
-  topico    Topico @relation(fields: [topicoId], references: [id])
-  topicoId  String
+  topico   Topico @relation(fields: [topicoId], references: [id])
+  topicoId String
 
   @@unique([cursoId, topicoId])
 }
 
 model CursoMateriaRelacionada {
-  id        String  @id @default(uuid()) @map("_id")
+  id String @id @default(uuid()) @map("_id")
 
-  curso     Curso   @relation(fields: [cursoId], references: [id])
-  cursoId   String
+  curso   Curso  @relation(fields: [cursoId], references: [id])
+  cursoId String
 
   materia   Materia @relation(fields: [materiaId], references: [id])
   materiaId String
@@ -70,141 +73,137 @@ model CursoMateriaRelacionada {
 }
 
 model UserCurso {
-  id            String  @id @default(uuid()) @map("_id")
-  completed     Boolean @default(false)
-  user          User    @relation(fields: [userId], references: [id])
-  userId        String
+  id        String  @id @default(uuid()) @map("_id")
+  completed Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
 
-  curso         Curso   @relation(fields: [cursoId], references: [id])
-  cursoId       String
+  curso   Curso  @relation(fields: [cursoId], references: [id])
+  cursoId String
 
   dataMatricula DateTime @default(now())
-  
+
   @@unique([userId, cursoId])
 }
 
 model Materia {
-  id                  String   @id @default(uuid()) @map("_id")
-  name                String
-  descricao           String
-  cor                 String
-  slug                String   @unique
-  topicos             Topico[]
-  cursosRelacionados  CursoMateriaRelacionada[]
+  id                 String                    @id @default(uuid()) @map("_id")
+  name               String
+  descricao          String
+  cor                String
+  slug               String                    @unique
+  topicos            Topico[]
+  cursosRelacionados CursoMateriaRelacionada[]
 }
 
 model Topico {
-  id              String    @id @default(uuid()) @map("_id")
-  name            String
-  descricao       String
-  slug            String    @unique
-  archived        Boolean?  @default(false)
+  id        String   @id @default(uuid()) @map("_id")
+  name      String
+  descricao String
+  slug      String   @unique
+  archived  Boolean? @default(false)
 
-  materia         Materia @relation(fields: [materiaId], references: [id])
-  materiaId       String
-  topicoLicoes    TopicoLicao[]  
-
+  materia      Materia        @relation(fields: [materiaId], references: [id])
+  materiaId    String
+  topicoLicoes TopicoLicao[]
   userProgress UserProgress[]
-  cursoTopicos    CursoTopico[] 
+  cursoTopicos CursoTopico[]
 }
 
 model Licao {
-  id            String   @id @default(uuid()) @map("_id")
-  name          String
-  descricao     String
-  archived      Boolean?  @default(false)
+  id        String   @id @default(uuid()) @map("_id")
+  name      String
+  descricao String
+  archived  Boolean? @default(false)
 
-  conteudo      Conteudo[]
-  topicoLicoes  TopicoLicao[]
+  conteudo     Conteudo[]
+  topicoLicoes TopicoLicao[]
 
   userProgress UserProgress[]
 }
 
 model TopicoLicao {
-  id        String @id @default(uuid()) @map("_id")
-  order     Int    @default(0)
+  id    String @id @default(uuid()) @map("_id")
+  order Int    @default(0)
 
-  topico    Topico @relation(fields: [topicoId], references: [id])
-  topicoId  String
-  licao     Licao @relation(fields: [licaoId], references: [id])
-  licaoId   String
+  topico   Topico @relation(fields: [topicoId], references: [id])
+  topicoId String
+  licao    Licao  @relation(fields: [licaoId], references: [id])
+  licaoId  String
 
   @@unique([topicoId, licaoId])
 }
 
 model Conteudo {
-  id              String    @id @default(uuid()) @map("_id")
-  name            String
-  type            String    
-  markdown        String
-  order           Int       @default(0) 
-  archived        Boolean?  @default(false)
+  id       String   @id @default(uuid()) @map("_id")
+  name     String
+  type     String
+  markdown String
+  order    Int      @default(0)
+  archived Boolean? @default(false)
 
-  licao         Licao?   @relation(fields: [licaoId], references: [id])
-  licaoId       String?
+  licao   Licao?  @relation(fields: [licaoId], references: [id])
+  licaoId String?
 }
 
 model UserProgress {
-  id             String    @id @default(uuid()) @map("_id")
-  user           User      @relation(fields: [userId], references: [id])
-  userId         String
+  id     String @id @default(uuid()) @map("_id")
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  licao          Licao?    @relation(fields: [licaoId], references: [id])
-  licaoId        String?
+  licao   Licao?  @relation(fields: [licaoId], references: [id])
+  licaoId String?
 
-  topico         Topico?   @relation(fields: [topicoId], references: [id])
-  topicoId       String?
+  topico   Topico? @relation(fields: [topicoId], references: [id])
+  topicoId String?
 
-  completed      Boolean   @default(false)
+  completed Boolean @default(false)
 
-  @@unique([userId, licaoId, topicoId]) // Track each user's progress uniquely
-}
-
-model Account {
-  id                 String   @id @default(uuid()) @map("_id")
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  // Add this
-  access_token       String?  // Add this
-  expires_at         Int?     // Add this
-  token_type         String?  // Add this
-  scope              String?  // Add this
-  id_token           String?  // Add this
-  session_state      String?  // Add this
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+  // Track each user's progress uniquely
+  @@unique([userId, licaoId, topicoId])
 }
 
 model Session {
-  id           String   @id @default(uuid()) @map("_id")
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
+  id        String   @id @map("_id")
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([token])
+  @@map("session")
 }
 
-model VerificationToken {
-  id         String   @id @default(uuid()) @map("_id")
+model Account {
+  id                    String    @id @map("_id")
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @map("_id")
   identifier String
-  token      String   @unique
-  expires    DateTime
-}
-model Authenticator {
-  credentialID         String  @id @map("_id")
-  userId               String
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, credentialID])
+  @@map("verification")
 }

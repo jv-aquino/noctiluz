@@ -1,70 +1,35 @@
-import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
+import { betterAuth } from "better-auth";
+import { nextCookies } from "better-auth/next-js";
+import { prismaAdapter } from "better-auth/adapters/prisma";
 
-import prisma from "@/backend/services/db";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { Role } from "@/generated/prisma";
+import { PrismaClient } from "@/generated/prisma";
 
-import { getUserByEmail } from "@/backend/services/auth";
-import { ZodError } from "zod"
-import { loginSchema } from "@/backend/schemas";
-
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers: [Google,
-    Credentials({
-      credentials: {
-        email: {},
-        password: {},
-      },
-      authorize: async (credentials) => {
-        try {
-          let user = null
+import { customSession } from "better-auth/plugins";
+import { getUserRole } from "@/backend/services/auth";
  
-          const { email, password } = await loginSchema.parseAsync(credentials);
+const prisma = new PrismaClient();
 
-          user = await getUserByEmail(email, password);
-
-          if (!user) {       
-            throw new Error("Invalid credentials.")
-          }
-        
-          return user
-        } catch (error) {
-          if (error instanceof ZodError) {
-            return null
-          }
-          return null;
-        }
-      },
+export const auth = betterAuth({
+    database: prismaAdapter(prisma, {
+        provider: "mongodb",
     }),
-  ],
-  callbacks: {
-    async jwt({ token, user, account }) {
-      if (account && user) {
-        token.role = user.role ?? Role.USER;
-        token.id = user.id;
-      }
-      return token
+    emailAndPassword: {  
+        enabled: true
     },
-    async session({ session, token }) {
-      if (token.sub) {
-        session.user.id = token.sub;
-      }
-      if (token.role) {
-        session.user.role = token.role as Role;
-      }
-      return session
-    },
-    async signIn({ user }) {
-      if (!user.role) {
-        user.role = Role.USER;
-      }
-      return true;
-    }
-  },
-  session: {
-    strategy: "jwt"
-  },
-})
+    socialProviders: { 
+        google: { 
+           clientId: process.env.GOOGLE_ID as string, 
+           clientSecret: process.env.GOOGLE_SECRET as string, 
+        }, 
+    }, 
+    plugins: [nextCookies(),
+        customSession(async ({ user, session }) => {
+            const role = await getUserRole(session.userId);
+            return {
+                role,
+                user,
+                session
+            };
+        }),
+    ]
+});

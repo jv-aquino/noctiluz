@@ -8,7 +8,8 @@ import GoogleAuthButton from "@/components/auth/GoogleLoginButton";
 
 import RequiredTag from "@/components/input/RequiredTag";
 import ValidatedInput from "@/components/input/ValidatedInput";
-import { loginAction } from "@/actions";
+import { authClient } from "@/utils/auth-client";
+import toast from "react-hot-toast";
 
 function LoginForm() {
   const [loading, setLoading] = useState(true);
@@ -19,10 +20,31 @@ function LoginForm() {
     setLoading(false);
   }, []);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: "/",
+      });
+
+      if (result.error) {
+        toast.error((result.error?.message || 'Erro desconhecido'))
+      }
+    } catch (error) {
+      toast.error('Erro: ' + String(error))
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return ( 
     <div className="lg:w-[90%] xl:w-[80%]">
       <h2 className="font-bold text-[40px] text-center leading-12">Continue seu aprendizado</h2>
-      <form className="mt-6" action={loginAction}>
+      <form className="mt-6" onSubmit={handleSubmit}>
         <ValidatedInput 
           title="E-mail"
           placeholder="exemplo@noctiluz.com.br"

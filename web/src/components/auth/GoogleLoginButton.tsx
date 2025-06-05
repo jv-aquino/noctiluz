@@ -3,10 +3,10 @@ import clsx from "clsx";
 import Image from "next/image";
 // import { useSearchParams } from "next/navigation";
 import { isSafeRedirect } from "@/utils";
-import { signIn } from "next-auth/react";
 
 import { HTMLMotionProps } from "motion/react";
 import BaseMotionButton from "../common/BaseMotionButton";
+import { authClient } from "@/utils/auth-client";
 
 type GoogleAuthButtonProps = HTMLMotionProps<"button"> & {
   className?: string;
@@ -20,15 +20,21 @@ function GoogleAuthButton({ className, text, ...props }: GoogleAuthButtonProps) 
   const safeCallbackUrl = isSafeRedirect(callbackUrl) ? callbackUrl : "/";
   
   return ( 
-      <form
+      <div
         className={clsx("w-full flex-1", className)}
-        action={() => {
-          return signIn("google", { callbackUrl: safeCallbackUrl })
-        }}
       >
         <input type="hidden" name="type" value="google" />
 
-        <BaseMotionButton type="submit" className='login-button tracking-4' {...props}>
+        <BaseMotionButton type="submit" className='login-button tracking-4' {...props}
+        onClick={async () => {
+          if (props.disabled) {
+            return
+          } 
+          await authClient.signIn.social({
+            provider: "google",
+            callbackURL: safeCallbackUrl,
+          });
+        }}>
             <Image
               src={`/icons/google-logo.png`}
               alt={`Google logo`}
@@ -38,7 +44,7 @@ function GoogleAuthButton({ className, text, ...props }: GoogleAuthButtonProps) 
 
           {text}
         </BaseMotionButton>
-      </form>
+      </div>
     );
 }
 

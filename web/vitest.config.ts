@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: 'node',
+    setupFiles: ['./tests/setup.ts'],
     alias: [
       { 
         find: '@/backend',
@@ -19,7 +20,7 @@ export default defineConfig({
       {
         find: '@',
         replacement: resolve(__dirname, './src')
-      }
+      },
     ],
   server: {
     deps: {

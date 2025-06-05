@@ -1,10 +1,18 @@
 import InitialNav from "@/components/nav/InitialNav";
 import Embarcar from "./Embarcar";
+import { headers } from "next/headers";
+import { auth } from "@/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+  
+  const isLogged = !!session?.user;
+
   return (
     <div className="min-h-screen">
-      <InitialNav />
+      <InitialNav isLogged={isLogged} />
       
       <main className="h-[70vh] w-full pt-20 pb-16
       flex items-center justify-center gap-24 xl:gap-30">
@@ -22,7 +30,7 @@ export default function Home() {
         </div>
       </main>
 
-      <Embarcar />
+      <Embarcar isLogged={isLogged} />
     </div>
   );
 }

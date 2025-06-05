@@ -3,17 +3,7 @@ import * as materiaService from '@/backend/services/materia'
 import { GET, POST } from '@/backend/api/materia/route'
 import { NextRequest } from 'next/server'
 import { getMateriasMock, postMateriaMock } from '../../mocks/materia'
-import { getCurrentAuth, setCurrentRole } from '../../mocks/auth'
-
-vi.mock('@/auth', () => ({
-  auth: vi.fn().mockImplementation((handler) =>
-    (req: NextRequest, ctx: any) => {
-      const newReq = req;
-      (newReq as any).auth = getCurrentAuth();
-      return handler(newReq, ctx);
-    }
-  ),
-}));
+import { setCurrentRole } from '../../mocks/auth'
 
 vi.mock('@/backend/services/materia', () => ({
   getAllMaterias: vi.fn(),
@@ -56,13 +46,13 @@ describe('POST /api/materia', () => {
 
   it('should fail if unauthenticated', async () => {
     setCurrentRole(null);
-    const response = await POST(createRequest(), {} as any);
+    const response = await POST(createRequest());
     expect(response?.status).toBe(401);
   });
 
   it('should fail if user is not ADMIN or SUPER_ADMIN', async () => {
     setCurrentRole('USER');
-    const response = await POST(createRequest(), {} as any);
+    const response = await POST(createRequest());
     expect(response?.status).toBe(403);
   });
 
@@ -70,7 +60,7 @@ describe('POST /api/materia', () => {
     setCurrentRole('ADMIN');
     (materiaService.createMateria as Mock).mockResolvedValue(postMateriaMock);
 
-    const response = await POST(createRequest(), {} as any);
+    const response = await POST(createRequest());
     expect(response?.status).toBe(201);
     
     const data = await response?.json();
@@ -82,7 +72,7 @@ describe('POST /api/materia', () => {
     setCurrentRole('SUPER_ADMIN');
     (materiaService.createMateria as Mock).mockResolvedValue(postMateriaMock);
 
-    const response = await POST(createRequest(), {} as any);
+    const response = await POST(createRequest());
     expect(response?.status).toBe(201);
     
     const data = await response?.json();

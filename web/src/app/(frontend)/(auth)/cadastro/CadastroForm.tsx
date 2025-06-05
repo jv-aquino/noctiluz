@@ -6,12 +6,12 @@ import PasswordRequirement from "./PasswordRequirement";
 import GoogleAuthButton from "@/components/auth/GoogleLoginButton";
 import RequiredTag from "@/components/input/RequiredTag";
 import ValidatedInput from "@/components/input/ValidatedInput";
-import { registerAction } from "@/actions";
 import { hasLowercase, hasMinLength, hasNumber, hasUppercase, validatePassword, validateConfirmPassword } from "@/utils";
 
 import { toast } from "react-hot-toast";
 import { redirect } from "next/navigation";
 import CredentialsButton from "@/components/auth/CredentialsButton";
+import { authClient } from "@/utils/auth-client";
 
 function CadastroForm() {
   const [loading, setLoading] = useState(true);
@@ -20,31 +20,49 @@ function CadastroForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const credentialsAction = async (formData: FormData) => {
-    let data;
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      setLoading(true);
-      
-      data = await registerAction(formData);
-      
-      if (data.error) {
-        throw new Error("Erro inesperado");
+      if (password !== confirmPassword) {
+        toast.error("As senhas não coincidem");
+        return;
       }
 
-      toast.success(`Bem-vindo(a), ${data.user.name}`);
+      if (!validatePassword(password)) {
+        toast.error("A senha não atende aos requisitos mínimos");
+        return;
+      }
+
+      const result = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: "/",
+      });
+
+      if (result.error) {
+        if (result.error.message?.includes('already exists') || result.error.message?.includes('duplicate')) {
+          toast.error("Este email já está cadastrado");
+        } else {
+          toast.error(result.error.message || "Erro inesperado");
+        }
+      } else {
+        toast.success(`Bem-vindo(a), ${name}!`);
+        
+        setTimeout(() => {
+          redirect('/');
+        }, 1000);
+      }
     } catch (error: unknown) {
+      console.error('Signup error:', error);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      toast.error((error as any).message ?? String(error));
+      toast.error((error as any).message ?? "Erro inesperado");
     } finally {
       setLoading(false);
     }
-
-    if (!data.error) {
-      setTimeout(() => {
-        redirect('/')
-      }, 1000);
-    };
-  }
+  };
 
   useEffect(() => {
     setLoading(false);
@@ -64,7 +82,7 @@ function CadastroForm() {
           <div className="flex-grow h-0.5 bg-gray-400" />
         </div>
 
-        <form className="" action={credentialsAction}>
+        <form className="" onSubmit={handleCredentialsSubmit}>
           <div className="flex flex-col gap-4">
             <ValidatedInput
               title="Nome"

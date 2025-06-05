@@ -3,7 +3,7 @@ import Link from "next/link";
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { useEffect, useRef } from "react";
 
-function Embarcar() {
+function Embarcar({ isLogged }: { isLogged: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
 
   // Mouse motion values
@@ -69,10 +69,10 @@ function Embarcar() {
         className="perspective-1000"
       >
         <Link 
-          href='/cadastro' 
+          href={isLogged ? '/aprender' :'/cadastro'}
           className="text-pink-50 text-4xl button-lg border-pink-200 bg-pink-500 colorTransition hover:bg-pink-400"
         >
-          Embarque agora
+          {isLogged ? "Continue Aprendendo" : "Embarque agora"}
         </Link>
       </motion.div>
     </motion.div>
