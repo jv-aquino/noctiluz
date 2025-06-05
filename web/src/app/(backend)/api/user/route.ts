@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
         name: validatedData.name,
         email: validatedData.email,
         password: hashedPassword,
-        role: "USER"
+        role: "USER",
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       select: {
         id: true,
