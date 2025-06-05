@@ -22,7 +22,7 @@ export const auth = betterAuth({
            clientSecret: process.env.GOOGLE_SECRET as string, 
         }, 
     }, 
-    plugins: [nextCookies(),
+    plugins: [
         customSession(async ({ user, session }) => {
             const role = await getUserRole(session.userId);
             return {
@@ -31,5 +31,6 @@ export const auth = betterAuth({
                 session
             };
         }),
+        nextCookies(),
     ]
 });

@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import { mockAuth, mockGetUserRole } from './mocks/auth'
+import { mockAuth } from './mocks/auth'
 
 vi.mock('better-auth/next-js', () => ({
   nextCookies: () => ({})
