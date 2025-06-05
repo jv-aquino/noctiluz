@@ -6,6 +6,8 @@
     "lint": "next lint --fix",
     "lint:check": "next lint",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:complete": "vitest run && playwright test",
     "test:watch": "vitest watch",
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.52.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
