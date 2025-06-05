@@ -5,7 +5,9 @@
   "scripts": {
     "lint": "next lint --fix",
     "lint:check": "next lint",
-    "test": "vitest run && playwright test",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:complete": "vitest run && playwright test",
     "test:watch": "vitest watch",
     "dev": "next dev --turbopack",
     "build": "next build",

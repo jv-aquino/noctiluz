@@ -9,6 +9,7 @@ if [ "$BRANCH" = "main" ]; then
   # Check if any changed file is under the web/ folder
   if echo "$CHANGED_FILES" | grep -q "^web/"; then
     echo "Detected changes in /web. Running build..."
+    pnpm --filter web test:e2e
     pnpm --filter web build
   else
     echo "No changes in /web. Skipping web build."
