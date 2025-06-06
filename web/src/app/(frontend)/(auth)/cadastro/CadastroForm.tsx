@@ -3,15 +3,18 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 import PasswordRequirement from "./PasswordRequirement";
-import GoogleAuthButton from "@/components/auth/GoogleLoginButton";
 import RequiredTag from "@/components/input/RequiredTag";
 import ValidatedInput from "@/components/input/ValidatedInput";
 import { hasLowercase, hasMinLength, hasNumber, hasUppercase, validatePassword, validateConfirmPassword } from "@/utils";
 
 import { toast } from "react-hot-toast";
 import { redirect } from "next/navigation";
-import CredentialsButton from "@/components/auth/CredentialsButton";
 import { authClient } from "@/utils/auth-client";
+
+import dynamic from 'next/dynamic';
+
+const GoogleAuthButton = dynamic(() => import('@/components/auth/GoogleLoginButton'));
+const CredentialsButton = dynamic(() => import('@/components/auth/CredentialsButton'));
 
 function CadastroForm() {
   const [loading, setLoading] = useState(true);

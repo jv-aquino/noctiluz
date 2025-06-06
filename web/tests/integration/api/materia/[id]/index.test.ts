@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as materiaService from '@/backend/services/materia'
 import { GET } from '@/backend/api/materia/[id]/route'
@@ -30,7 +31,6 @@ describe('GET /api/materia/[id]', () => {
     (materiaService.getMateriaById as Mock).mockResolvedValue(null);
     const response = await GET(mockRequest, returnParams(fakeParams) as any);
     
-    const data = await response.json();
     expect(response.status).toBe(404);
     expect(materiaService.getMateriaById).toHaveBeenCalled();
   });

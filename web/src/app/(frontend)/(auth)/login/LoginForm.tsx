@@ -3,13 +3,17 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 import LoginOptionals from "@/components/auth/LoginOptionals";
-import CredentialsButton from "@/components/auth/CredentialsButton";
-import GoogleAuthButton from "@/components/auth/GoogleLoginButton";
 
 import RequiredTag from "@/components/input/RequiredTag";
 import ValidatedInput from "@/components/input/ValidatedInput";
 import { authClient } from "@/utils/auth-client";
 import toast from "react-hot-toast";
+
+import dynamic from 'next/dynamic';
+
+const GoogleAuthButton = dynamic(() => import('@/components/auth/GoogleLoginButton'));
+const CredentialsButton = dynamic(() => import('@/components/auth/CredentialsButton'));
+
 
 function LoginForm() {
   const [loading, setLoading] = useState(true);
