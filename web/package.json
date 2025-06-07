@@ -26,7 +26,7 @@
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.511.0",
     "motion": "^12.15.0",
-    "next": "^15.3.3",
+    "next": "15.4.0-canary.70",
     "posthog-js": "^1.249.4",
     "posthog-node": "^4.18.0",
     "react": "^19.0.0",

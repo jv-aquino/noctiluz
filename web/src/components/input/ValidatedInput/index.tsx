@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import styles from './input.module.css';
-import { cn, validateEmail } from '@/utils';
+import { cn } from '@/lib/utils';
+import { validateEmail } from '@/utils';
 import type { InputHTMLAttributes } from 'react';
 
 interface ValidatedInputProps extends InputHTMLAttributes<HTMLInputElement> {
