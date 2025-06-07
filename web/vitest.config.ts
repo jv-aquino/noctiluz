@@ -6,10 +6,12 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
+    environment: 'node',
     include: ['tests/integration/**/*.test.ts'],
     exclude: ['tests/e2e/**'],
-    environment: 'node',
+
     setupFiles: ['./tests/integration/setup.ts'],
+
     alias: [
       { 
         find: '@/backend',
@@ -24,6 +26,20 @@ export default defineConfig({
         replacement: resolve(__dirname, './src')
       },
     ],
+  
+  coverage: {
+    reporter: ['text', 'json', 'html'],
+    reportsDirectory: './tests/coverage',
+    include: [
+      'src/**',
+    ],
+    exclude: [
+      'src/generated/**',       // exclude prisma-generated files
+      'src/components/ui/**',   // exclude shadcn components
+      '**/*.d.ts',              // exclude type defs
+    ],
+  },
+
   server: {
     deps: {
       inline: ['next']
