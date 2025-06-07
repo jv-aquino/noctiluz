@@ -2,7 +2,7 @@ import Link from "next/link";
 import NavbarLogo from "../NavbarLogo";
 import { UserRound } from "lucide-react";
 
-function InitialNav({ isLogged }: { isLogged: boolean }) {
+function LandingPagesNav({ isLogged }: { isLogged: boolean }) {
   return ( 
     <nav className="w-full py-6 px-8
     flex items-center justify-between">
@@ -36,4 +36,4 @@ function InitialNav({ isLogged }: { isLogged: boolean }) {
    );
 }
 
-export default InitialNav;
+export default LandingPagesNav;

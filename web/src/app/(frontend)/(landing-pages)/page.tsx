@@ -1,4 +1,4 @@
-import InitialNav from "@/components/nav/InitialNav";
+import LandingPagesNav from "@/components/nav/InitialNav";
 import Embarcar from "./Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
@@ -13,7 +13,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <InitialNav isLogged={isLogged} />
+      <LandingPagesNav isLogged={isLogged} />
       
       <main className="h-[70vh] w-full pt-20 pb-16
       flex items-center justify-center gap-24 xl:gap-30">
