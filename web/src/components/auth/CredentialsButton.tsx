@@ -1,4 +1,4 @@
-import { cn } from "@/utils";
+import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 import { type HTMLMotionProps } from "motion/react";
