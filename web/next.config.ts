@@ -32,7 +32,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // This is required to support PostHog trailing slash API requests
+  experimental: {
+    nodeMiddleware: true,
+  },
   skipTrailingSlashRedirect: true,
 };
 
