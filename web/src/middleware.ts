@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
   if (matchesAnyPattern(pathname, ROUTE_CONFIG.adminRequired)) {
     if (!isAuthenticated) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     
     if (!hasRequiredRole(userRole, ["ADMIN", "SUPER_ADMIN"])) {
