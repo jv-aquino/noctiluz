@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as materiaService from '@/backend/services/materia'
 import { GET } from '@/backend/api/materia/[id]/route'
-import { returnParams } from '../../../mocks/params';
+import { returnParams } from '../../../mocks/requests';
 
 vi.mock('@/backend/services/materia', () => ({
   getMateriaById: vi.fn(),
