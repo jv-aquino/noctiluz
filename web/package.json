@@ -18,7 +18,10 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.0",
     "@prisma/client": "^6.9.0",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tooltip": "^1.2.7",
     "@uiw/react-md-editor": "^4.0.6",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.2.8",
