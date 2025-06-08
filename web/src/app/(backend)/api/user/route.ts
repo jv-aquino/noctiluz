@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { saltAndHashPassword } from "@/backend/services/auth";
-import prisma from "@/backend/services/db";
 import { registerSchema } from "@/backend/schemas";
-import { zodErrorHandler } from "@/utils/api";
+import { returnInvalidDataErrors, validBody, zodErrorHandler } from "@/utils/api";
+import { createUser, findUserByEmail } from "../../services/user";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const validatedData = registerSchema.parse(body);
+    const body = await validBody(request);
+    const validationResult = registerSchema.safeParse(body);
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    });
+    if (!validationResult.success) {
+      return returnInvalidDataErrors(validationResult);
+    }
+    
+    const validatedData = validationResult.data
+
+    const { name, email, password } = validatedData;
+
+    const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
       return NextResponse.json(
@@ -24,24 +30,9 @@ export async function POST(req: NextRequest) {
       );
     }    
     
-    const hashedPassword = await saltAndHashPassword(validatedData.password);
+    const hashedPassword = await saltAndHashPassword(password);
 
-    const user = await prisma.user.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        password: hashedPassword,
-        role: "USER",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      }
-    });
+    const user = await createUser({ name, email, password: hashedPassword, role: "USER" });
     
     return NextResponse.json(
       { 
@@ -51,6 +42,10 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
+
     return zodErrorHandler(error);    
   }
 }

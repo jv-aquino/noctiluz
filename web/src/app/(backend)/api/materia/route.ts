@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createMateria, getAllMaterias } from '@/backend/services/materia'
 import { createMateriaSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, validBody, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -35,18 +35,7 @@ export async function POST (request: NextRequest) {
     const validationResult = createMateriaSchema.safeParse(body)
     
     if (!validationResult.success) {
-      const errors = validationResult.error.errors.map(err => ({
-        campo: err.path.join('.'),
-        mensagem: err.message
-      }))
-      
-      return NextResponse.json(
-        { 
-          error: 'Dados inválidos',
-          detalhes: errors
-        },
-        { status: 400 }
-      )
+      return returnInvalidDataErrors(validationResult);
     }
 
     const validatedData = validationResult.data
