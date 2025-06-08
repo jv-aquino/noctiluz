@@ -1,9 +1,12 @@
 import { authClient } from "@/utils/auth-client";
 import toast from "react-hot-toast";
-import CredentialsButton from "../auth/CredentialsButton";
 import LoginOptionals from "../auth/LoginOptionals";
 import RequiredTag from "../input/RequiredTag";
-import ValidatedInput from "../input/ValidatedInput";
+
+import dynamic from 'next/dynamic';
+
+const CredentialsButton = dynamic(() => import('@/components/auth/CredentialsButton'));
+const ValidatedInput = dynamic(() => import('@/components/input/ValidatedInput'));
 
 interface CredentialsLoginFormProps {
   setEmail: (email: string) => void;
