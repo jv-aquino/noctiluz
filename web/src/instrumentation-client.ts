@@ -6,5 +6,5 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   capture_pageview: 'history_change',
   capture_pageleave: true, // Enable pageleave capture
   capture_exceptions: true, // Enable capturing exceptions (Error Tracking)
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
 });
