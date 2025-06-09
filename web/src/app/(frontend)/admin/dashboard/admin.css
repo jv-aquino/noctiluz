@@ -34,3 +34,22 @@
   font-size: 14px;
   line-height: 1.3em;
 }
+
+.admin-header-button {
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 16px;
+  background-color: var(--color-pink-500);
+  border: 1px solid var(--color-pink-950);
+  border-radius: 8px;
+}
+.admin-header-button:hover {
+  border-color: var(--color-pink-400);
+  background-color: var(--color-pink-400);
+}

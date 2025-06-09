@@ -1,5 +1,5 @@
 import { ChartPie } from "lucide-react";
-import AdminHeader from "../components/AdminHeader";
+import AdminHeader from "../components/header/AdminHeader";
 
 function DashboardPage() {
   const Paragraph = () => (
