@@ -1,3 +1,4 @@
+import './admin.css'
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./components/AdminSidebar";
 
@@ -5,10 +6,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <AdminSidebar />
-      <main>
-        <SidebarTrigger iconClassName="size-5" />
-        {children}
-      </main>
+      <div className="flex w-full">
+        <SidebarTrigger className='m-1' iconClassName="size-5" />
+        <main className="admin-container">
+          {children}
+        </main>
+      </div>
     </SidebarProvider>
   )
 }

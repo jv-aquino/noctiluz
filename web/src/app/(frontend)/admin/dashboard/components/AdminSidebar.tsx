@@ -13,7 +13,7 @@ export function AdminSidebar() {
             <h2 className="text-xl">Dashboard</h2>
           </div>
 
-          <div className="w-full h-[1px] bg-pink-800"></div>
+          <div className="divisor bg-pink-800"></div>
         </div>
         <SidebarGroup className="p-0">
           <SidebarGroupContent className="p-0">
