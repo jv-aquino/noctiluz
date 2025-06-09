@@ -1,17 +1,16 @@
-import { SidebarMenuItem, SidebarMenuButton, SidebarMenu } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
-import AdminLink from "./AdminLink";
+'use client'
+import { SidebarMenu } from "@/components/ui/sidebar";
 import { items } from "./items";
+import { usePathname } from "next/navigation";
+import AdminLink from "./AdminLink";
 
 function AdminMenuList() {
+  const pathname = usePathname();
+  
   return ( 
     <SidebarMenu>
       {items.map((item) => (
-        <SidebarMenuItem key={item.title} className={cn("pr-7", item.marginTop && 'mt-2')}>
-          <SidebarMenuButton asChild className="pl-7 rounded-l-none">
-            <AdminLink item={item} selected={false} />
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        <AdminLink key={item.title} item={item} pathname={pathname} />
       ))}
     </SidebarMenu>
    );
