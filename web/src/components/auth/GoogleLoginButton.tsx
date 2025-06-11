@@ -6,7 +6,7 @@ import { isSafeRedirect } from "@/utils";
 
 import { HTMLMotionProps } from "motion/react";
 import BaseMotionButton from "../common/BaseMotionButton";
-import { authClient } from "@/utils/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 type GoogleAuthButtonProps = HTMLMotionProps<"button"> & {
   className?: string;

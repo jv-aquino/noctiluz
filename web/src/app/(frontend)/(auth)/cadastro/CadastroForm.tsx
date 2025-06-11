@@ -8,7 +8,7 @@ import { hasLowercase, hasMinLength, hasNumber, hasUppercase, validatePassword, 
 
 import { toast } from "react-hot-toast";
 import { redirect } from "next/navigation";
-import { authClient } from "@/utils/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 import dynamic from 'next/dynamic';
 
