@@ -1,4 +1,4 @@
-import { authClient } from "@/utils/auth-client";
+import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import LoginOptionals from "../auth/LoginOptionals";
 import RequiredTag from "../input/RequiredTag";

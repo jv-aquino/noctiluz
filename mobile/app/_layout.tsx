@@ -1,20 +1,10 @@
 import '../global.css';
 
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
+import { AuthProvider } from '~/contexts/AuthContext';
 
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(drawer)',
-};
-
-export default function RootLayout() {
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
-      </Stack>
-    </GestureHandlerRootView>
-  );
+export default function Layout() {
+  return <AuthProvider>
+    <Stack screenOptions={{ headerShown: false }} />
+  </AuthProvider>;
 }

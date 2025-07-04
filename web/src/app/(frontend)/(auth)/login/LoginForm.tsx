@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import LoginOptionals from "@/components/auth/LoginOptionals";
 
 import RequiredTag from "@/components/input/RequiredTag";
-import { authClient } from "@/utils/auth-client";
+import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
 import dynamic from 'next/dynamic';

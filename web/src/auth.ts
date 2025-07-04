@@ -5,6 +5,7 @@ import prisma from "./app/(backend)/services/db";
 
 import { customSession } from "better-auth/plugins";
 import { getUserRole } from "@/backend/services/auth";
+import { expo } from "@better-auth/expo";
  
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -20,6 +21,7 @@ export const auth = betterAuth({
         }, 
     }, 
     plugins: [
+        expo(),
         customSession(async ({ user, session }) => {
             const role = await getUserRole(session.userId);
             return {
@@ -29,5 +31,9 @@ export const auth = betterAuth({
             };
         }),
         nextCookies(),
+    ],
+    trustedOrigins: [
+        "noctiluz://",
+        "noctiluz://*",
     ]
 });

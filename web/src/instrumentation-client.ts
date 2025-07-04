@@ -1,3 +1,4 @@
+// isso é do posthog que usei no meu projeto pessoal, favor desconsiderar
 import posthog from "posthog-js"
 
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
