@@ -68,6 +68,9 @@ function LoginForm() {
           type="password"
           value={password}
           setValue={setPassword}
+
+          overrideValidate={(val) => val.length >= 6}
+
           containerClassName="mt-4"
           labelClassName="auth-label"
           inputClassName="auth-input"

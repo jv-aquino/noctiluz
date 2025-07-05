@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useEffect, useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, Eye, EyeOff, X } from 'lucide-react';
 import styles from './input.module.css';
 import { cn } from '@/lib/utils';
 import { validateEmail } from '@/utils';
@@ -42,6 +42,7 @@ function ValidatedInput({
 }: ValidatedInputProps) {
   const [inputValue, setInputValue] = useState<string | number | readonly string[]>(value || '');
   const [internalValid, setInternalValid] = useState<boolean | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isControlled = value !== undefined && setValue !== undefined;
 
@@ -75,6 +76,10 @@ function ValidatedInput({
 
   const showValid = externallyControlledValid ?? internalValid;
   const inputCurrentValue = isControlled ? value : inputValue;
+  
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className={cn('flex flex-col', containerClassName)}>
@@ -87,12 +92,30 @@ function ValidatedInput({
         <input
           {...rest}
           className={cn('outline-none text-slate-900 placeholder:text-gray-500', inputClassName)}
-          type={type}
+          type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
           name={name}
           id={name}
           value={inputCurrentValue}
           onChange={handleChange}
         />
+
+        {type === 'password' && (
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            className={cn(
+              'cursor-pointer absolute top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none',
+              showValid !== null ? 'right-10' : 'right-3'
+            )}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        )}
 
         {showValid !== null && (
           <span className={cn(styles.icon_container, iconContainerClassName)}>
