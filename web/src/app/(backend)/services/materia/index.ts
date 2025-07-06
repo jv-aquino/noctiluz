@@ -5,6 +5,9 @@ export async function getAllMaterias() {
     const materias = await prisma.materia.findMany({
       orderBy: {
         name: 'asc'
+      },
+      include: {
+        topicos: true
       }
     })
     return materias

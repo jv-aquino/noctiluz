@@ -1,4 +1,4 @@
-import type { Role } from '@/generated/prisma';
+import type { Materia, Role, Topico } from '@/generated/prisma';
 
 export type AllowedRoutes = { 
   GET?: Role[]
@@ -6,3 +6,5 @@ export type AllowedRoutes = {
   PATCH?: Role[]
   DELETE?: Role[]
 }
+
+export type MateriaWithTopico = Materia & { topicos: Topico[] };
