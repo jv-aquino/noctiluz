@@ -4,6 +4,7 @@ import { LibraryBig, Plus } from "lucide-react";
 
 import useSWR from 'swr'
 import AdminHeader from "../components/header/AdminHeader";
+import MateriaCard from "./MateriaCard";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -33,10 +34,12 @@ function DashboardPage() {
         </button>
       </AdminHeader>
 
-      <main className="grid">
+      <main className="grid gap-4 justify-center grid-cols-[repeat(auto-fit,_minmax(0,_260px))]">
         {isLoading && <p>Carregando matérias...</p>}
         {error && <p>Erro ao carregar matérias.</p>}
-        {materias?.forEach(materia => console.log(materia))}
+        {materias?.map(materia => (
+          <MateriaCard key={materia.id} materia={materia} />
+        ))}
       </main>
     </>
    );
