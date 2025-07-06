@@ -17,6 +17,7 @@ enum Role {
 }
 
 model User {
+  // nao mexer >
   id            String    @id @default(uuid()) @map("_id")
   name          String
   email         String    @unique
@@ -24,6 +25,7 @@ model User {
   emailVerified Boolean?
   image         String?
   role          Role      @default(USER)
+  // < nao mexer 
 
   progress UserProgress[] // Track progress p user
 
@@ -163,6 +165,8 @@ model UserProgress {
   @@unique([userId, licaoId, topicoId])
 }
 
+
+// evitar mexer daqui pra baixo:
 model Session {
   id        String   @id @map("_id")
   expiresAt DateTime
