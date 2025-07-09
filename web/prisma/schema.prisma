@@ -39,14 +39,15 @@ model User {
 }
 
 model Curso {
-  id        String @id @default(uuid()) @map("_id")
-  name      String
-  descricao String
-  slug      String @unique
+  id                    String @id @default(uuid()) @map("_id")
+  name                  String
+  descricao             String
+  tags                  String[]
+  slug                  String @unique
 
-  materiasRelacionadas CursoMateriaRelacionada[]
-  cursoTopicos         CursoTopico[]
-  userCursos           UserCurso[]
+  materiasRelacionadas  CursoMateriaRelacionada[]
+  cursoTopicos          CursoTopico[]
+  userCursos            UserCurso[]
 }
 
 model CursoTopico {
@@ -94,6 +95,8 @@ model Materia {
   descricao          String
   cor                String
   slug               String                    @unique
+  imgUrl             String
+  tags               String[]
   topicos            Topico[]
   cursosRelacionados CursoMateriaRelacionada[]
 }

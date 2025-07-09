@@ -47,6 +47,7 @@ export async function createMateria(data: {
   descricao: string; 
   cor: string; 
   slug: string; 
+  imgUrl: string;
 }) {
   try {
     const materia = await prisma.materia.create({
@@ -54,11 +55,25 @@ export async function createMateria(data: {
         name: data.name,
         descricao: data.descricao,
         cor: data.cor,
-        slug: data.slug
+        slug: data.slug,
+        imgUrl: data.imgUrl
       }
     })
     return materia
   } catch (error) {
     throw new Error(String(error) || 'Falha ao criar matéria')
+  }
+}
+
+export async function deleteMateria(id: string) {
+  try {
+    const materia = await prisma.materia.delete({
+      where: {
+        id,
+      }
+    })
+    return materia
+  } catch (error) {
+    throw new Error(String(error) || 'Falha ao buscar matéria')
   }
 }
