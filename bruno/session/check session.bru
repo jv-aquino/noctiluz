@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/session
+  url: {{baseUrl}}/session
   body: none
   auth: inherit
 }
 
 headers {
-  Cookie: {{cookie}}
+  Cookie: better-auth.session_token={{sessionValue}}
 }
