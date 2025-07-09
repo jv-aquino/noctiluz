@@ -9,7 +9,7 @@ const allowedRoles: AllowedRoutes = {
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -74,7 +74,7 @@ export async function DELETE (
 
     await deleteMateria(id)
 
-    return NextResponse.json(materia, { status: 201 })
+    return NextResponse.json(materia, { status: 200 })
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
