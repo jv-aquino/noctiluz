@@ -1,10 +1,15 @@
-import { NextResponse } from 'next/server'
-import { getMateriaById } from '@/backend/services/materia'
+import { NextRequest, NextResponse } from 'next/server'
+import { deleteMateria, getMateriaById } from '@/backend/services/materia'
 import { idSchema } from '@/backend/schemas';
-import { zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
+import { AllowedRoutes } from '@/types';
+
+const allowedRoles: AllowedRoutes = {
+  DELETE: ["SUPER_ADMIN", "ADMIN"]
+}
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -32,6 +37,56 @@ export async function GET(
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
+    }
+
+    return zodErrorHandler(error);
+  }
+}
+
+export async function DELETE (
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const forbidden = await blockForbiddenRequests(request, allowedRoles.DELETE);
+
+    if (forbidden) {
+      return forbidden;
+    }
+    
+    const { id } = await params;
+    
+    const validationResult = idSchema.safeParse(id);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'ID inválido', details: validationResult.error.errors },
+        { status: 400 }
+      )
+    }
+
+    const materia = await getMateriaById(id);
+    if (!materia) {
+      return NextResponse.json(
+        { error: 'Matéria não encontrada' },
+        { status: 404 }
+      )
+    }
+
+    await deleteMateria(id)
+
+    return NextResponse.json(materia, { status: 200 })
+  } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Prisma')) {
+        return NextResponse.json(
+          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          { status: 400 }
+        )
+      }
     }
 
     return zodErrorHandler(error);

@@ -14,7 +14,8 @@ export const createMateriaSchema = z.object({
     .trim(),
   
   cor: corSchema,
-  slug: slugSchema
+  slug: slugSchema,
+  imgUrl: z.string()
 })
 
 export const patchMateriaSchema = createMateriaSchema
