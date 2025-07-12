@@ -60,7 +60,7 @@ function ValidatedInput({
       setInternalValid(valid);
       onValidChange?.(valid);
     }
-  }, [dependencies, validate]);
+  }, [dependencies, validate, onValidChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.value;
