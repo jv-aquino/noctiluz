@@ -17,6 +17,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { generateSlug } from "@/utils";
+import toast from "react-hot-toast";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -25,11 +27,12 @@ const fetcher = (url: string) =>
   })
 
 const EMPTY_MATERIA = {
-    nome: '',
-    slug: '',
-    cor: '#ffffff',
-    imgUrl: null as File | null
-  }
+  name: '',
+  slug: '',
+  cor: '#ffffff',
+  descricao: '',
+  imgUrl: '' as string
+}
 
 function DashboardPage() {
   const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materia', fetcher)
@@ -38,75 +41,59 @@ function DashboardPage() {
   const [formData, setFormData] = useState(EMPTY_MATERIA);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Função para gerar slug automaticamente
-  const generateSlug = (nome: string) => {
-    return nome
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
-
-  // Handler para mudança no nome
-  const handleNomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const nome = e.target.value;
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
     setFormData(prev => ({
       ...prev,
-      nome,
-      slug: generateSlug(nome)
+      name,
+      slug: generateSlug(name)
     }));
   };
 
-  // Handler para upload de arquivo
-  const handleFileUpload = (file: File | null) => {
+  const handleFileUpload = (file: { url: string } | null) => {
     setFormData(prev => ({
       ...prev,
-      imgUrl: file
+      imgUrl: file?.url || ''
     }));
   };
 
-  // Handler para submissão do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('nome', formData.nome);
-      formDataToSend.append('slug', formData.slug);
-      formDataToSend.append('cor', formData.cor);
-      
-      if (formData.imgUrl) {
-        formDataToSend.append('imgUrl', formData.imgUrl);
-      }
+      const body = {
+        name: formData.name,
+        slug: formData.slug,
+        cor: formData.cor,
+        descricao: formData.descricao,
+        imgUrl: formData.imgUrl,
+      };
 
       const response = await fetch('/api/materia', {
         method: 'POST',
-        body: formDataToSend
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao criar matéria');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Response error data:', errorData);
+        throw new Error(errorData.error || 'Erro ao criar matéria');
       }
 
-      // Atualizar a lista de matérias
+      const result = await response.json();
+
       mutate();
-      
-      // Resetar o formulário e fechar o dialog
       setFormData(EMPTY_MATERIA);
       setIsDialogOpen(false);
     } catch (error) {
-      console.error('Erro ao criar matéria:', error);
-      // Aqui você pode adicionar uma notificação de erro
+      toast.error('Erro ao criar matéria: ' + String(error))
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handler para cancelar
   const handleCancel = () => {
     setFormData(EMPTY_MATERIA);
     setIsDialogOpen(false);
@@ -114,8 +101,7 @@ function DashboardPage() {
 
   const Paragraph = () => (
     <>
-      São as bases/grandes áreas de conhecimento. A edição aqui é mais estética<br/>
-      e serve para depois adicionar tópicos cuja origem é essa matéria
+      São as bases/grandes áreas de conhecimento. A edição aqui é mais estética e serve para depois adicionar tópicos cuja origem é essa matéria
     </>
   )
 
@@ -142,15 +128,30 @@ function DashboardPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Nome da Matéria */}
               <div className="space-y-2">
-                <Label htmlFor="nome" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
                   Nome da Matéria*
                 </Label>
                 <Input
-                  id="nome"
+                  id="name"
                   type="text"
-                  value={formData.nome}
-                  onChange={handleNomeChange}
+                  value={formData.name}
+                  onChange={handleNameChange}
                   placeholder="Astronomia"
+                  className="w-full"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="descricao" className="text-sm font-medium text-gray-700">
+                  Descrição*
+                </Label>
+                <Input
+                  id="descricao"
+                  type="text"
+                  value={formData.descricao}
+                  onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
+                  placeholder="Descrição da matéria"
                   className="w-full"
                   required
                 />
@@ -171,9 +172,8 @@ function DashboardPage() {
                 />
               </div>
 
-              {/* Ícone/Logo */}
               <FileUploadInput
-                arquivo={formData.imgUrl}
+                arquivo={formData.imgUrl ? { name: formData.imgUrl.split('/').pop() || '', url: formData.imgUrl } : null}
                 handleFileUpload={handleFileUpload}
                 accept=".svg,.webp,.avif,.png,.jpg,.jpeg"
                 maxSize={5}
@@ -183,7 +183,6 @@ function DashboardPage() {
                 </Label>
               </FileUploadInput>
 
-              {/* Cor da Matéria */}
               <div className="space-y-2">
                 <Label htmlFor="cor" className="text-sm font-medium text-gray-700">
                   Cor da Matéria*
@@ -215,7 +214,6 @@ function DashboardPage() {
                 </div>
               </div>
 
-              {/* Botões */}
               <div className="flex justify-end space-x-3 pt-4">
                 <Button
                   type="button"
@@ -228,7 +226,7 @@ function DashboardPage() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !formData.nome || !formData.slug}
+                  disabled={isSubmitting || !formData.name || !formData.slug || !formData.descricao}
                   className="px-6 bg-pink-500 hover:bg-pink-600 text-white"
                 >
                   {isSubmitting ? 'Adicionando...' : 'Adicionar Matéria →'}
