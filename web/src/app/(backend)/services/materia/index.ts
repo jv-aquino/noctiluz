@@ -77,3 +77,29 @@ export async function deleteMateria(id: string) {
     throw new Error(String(error) || 'Falha ao buscar matéria')
   }
 }
+
+export async function updateMateria(id: string, data: { 
+  name: string; 
+  descricao: string; 
+  cor: string; 
+  slug: string; 
+  imgUrl: string;
+}) {
+  try {
+    const materia = await prisma.materia.update({
+      where: {
+        id,
+      },
+      data: {
+        name: data.name,
+        descricao: data.descricao,
+        cor: data.cor,
+        slug: data.slug,
+        imgUrl: data.imgUrl
+      }
+    })
+    return materia
+  } catch (error) {
+    throw new Error(String(error) || 'Falha ao atualizar matéria')
+  }
+}
