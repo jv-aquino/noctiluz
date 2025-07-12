@@ -130,7 +130,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
           <DialogHeader>
             <DialogTitle>Deletar Matéria</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja deletar a matéria "{materia.name}"? 
+              Tem certeza que deseja deletar a matéria &quot;{materia.name}&quot;? 
               Esta ação não pode ser desfeita e também deletará o arquivo de imagem associado.
             </DialogDescription>
           </DialogHeader>

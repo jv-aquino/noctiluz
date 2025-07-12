@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
@@ -93,7 +93,6 @@ export function MultiStepForm<T = Record<string, unknown>>({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Step Indicators */}
       <div className="flex items-center justify-center space-x-2">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">
