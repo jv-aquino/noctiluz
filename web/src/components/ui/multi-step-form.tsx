@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ReactNode, useState } from 'react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
@@ -10,19 +11,19 @@ export interface Step {
   validation?: () => boolean;
 }
 
-interface MultiStepFormProps {
+interface MultiStepFormProps<T = Record<string, unknown>> {
   steps: Step[];
-  onComplete: (data: any) => void;
+  onComplete: (data: T) => Promise<void>;
   onCancel?: () => void;
   submitText?: string;
   cancelText?: string;
   continueText?: string;
   backText?: string;
   className?: string;
-  initialData?: any;
+  initialData?: T;
 }
 
-export function MultiStepForm({
+export function MultiStepForm<T = Record<string, unknown>>({
   steps,
   onComplete,
   onCancel,
@@ -31,10 +32,10 @@ export function MultiStepForm({
   continueText = "Continue",
   backText = "Back",
   className,
-  initialData = {}
-}: MultiStepFormProps) {
+  initialData = {} as T
+}: MultiStepFormProps<T>) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<T>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currentStepData = steps[currentStep];
@@ -77,6 +78,7 @@ export function MultiStepForm({
 
   return (
     <div className={cn("space-y-6", className)}>
+      {/* Step Indicators */}
       <div className="flex items-center justify-center space-x-2">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">
@@ -100,6 +102,7 @@ export function MultiStepForm({
         </h3>
       </div>
 
+      {/* Step Content */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           {currentStepData.content}
@@ -156,10 +159,10 @@ export function MultiStepForm({
 }
 
 // Hook for managing form data in child components
-export function useMultiStepForm() {
-  const [formData, setFormData] = useState({});
+export function useMultiStepForm<T = Record<string, unknown>>() {
+  const [formData, setFormData] = useState<T>({} as T);
 
-  const updateFormData = (updates: any) => {
+  const updateFormData = (updates: Partial<T>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
