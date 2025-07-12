@@ -87,7 +87,7 @@ function FileUploadInput({
             reject(new Error(`Falha ao enviar arquivo para S3. Status: ${xhr.status}`));
           }
         };
-        xhr.onerror = (e) => {
+        xhr.onerror = () => {
           reject(new Error("Erro de rede ao enviar arquivo"));
         };
         xhr.ontimeout = () => {
@@ -95,9 +95,9 @@ function FileUploadInput({
         };
         xhr.send(file);
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err);
-      setError(err.message || "Erro desconhecido ao fazer upload");
+      setError(err instanceof Error ? err.message : "Erro desconhecido ao fazer upload");
       handleFileUpload(null);
     } finally {
       setUploading(false);

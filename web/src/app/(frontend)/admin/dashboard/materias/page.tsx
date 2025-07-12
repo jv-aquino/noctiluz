@@ -56,7 +56,7 @@ function DashboardPage() {
     }));
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: typeof EMPTY_MATERIA) => {
     try {
       const body = {
         name: data.name,

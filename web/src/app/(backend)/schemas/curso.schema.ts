@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { corSchema, slugSchema } from './base.schema';
+import { slugSchema } from './base.schema';
 
 export const createCursoSchema = z.object({
   name: z.string().min(2, 'Nome obrigatório'),
