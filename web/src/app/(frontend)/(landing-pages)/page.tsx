@@ -24,8 +24,8 @@ export default async function Home() {
         <div className="flex flex-col gap-6">
           <h1 className="font-bold text-5xl">Aprenda do seu jeito</h1>
           <p className="text-xl font-medium [&>span]:text-pink-500 [&>span]:font-bold">
-            Escolha o que <span>te interessa</span> e customize para o seu modo<br/>
-            preferido de aprender, com <span>vídeos</span>, <span>textos</span>, <span>podcasts</span>,<br/>
+            Escolha o que <span>te interessa</span> e customize para o seu modo
+            preferido de aprender, com <span>vídeos</span>, <span>textos</span>, <span>podcasts</span>,
             <span>exercícios</span>, <span>simulações</span> e <span>muita interatividade!</span>
           </p>
         </div>

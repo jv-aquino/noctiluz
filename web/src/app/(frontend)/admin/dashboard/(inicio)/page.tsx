@@ -4,8 +4,7 @@ import AdminHeader from "../components/header/AdminHeader";
 function DashboardPage() {
   const Paragraph = () => (
     <>
-      Estatísticas, gráficos e afins<br />
-      relacionados a plataforma Noctiluz
+      Estatísticas, gráficos e afins relacionados a plataforma Noctiluz
     </>
   )
   return ( 
