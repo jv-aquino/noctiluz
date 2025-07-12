@@ -27,8 +27,14 @@ function DashboardPage() {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMateria, setEditingMateria] = useState<MateriaWithTopico | null>(null);
-
-  const handleSubmit = async (data: any) => {
+  
+  const handleSubmit = async (data: {
+    name: string;
+    slug: string;
+    cor: string;
+    descricao: string;
+    imgUrl: string;
+  }) => {
     try {
       const body = {
         name: data.name,
@@ -78,8 +84,7 @@ function DashboardPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (materiaId: string) => {
-    // The deletion is handled in MateriaCard, this just triggers a refresh
+  const handleDelete = () => {
     mutate();
   };
 
