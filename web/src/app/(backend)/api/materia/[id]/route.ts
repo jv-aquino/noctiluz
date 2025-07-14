@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteMateria, getMateriaById, updateMateria } from '@/backend/services/materia'
-import { idSchema, createMateriaSchema } from '@/backend/schemas';
+import { idSchema, createMateriaSchema, patchMateriaSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import { AllowedRoutes } from '@/types';
 
@@ -146,7 +146,7 @@ export async function PATCH (
     }
 
     const body = await validBody(request);
-    const validationDataResult = createMateriaSchema.safeParse(body);
+    const validationDataResult = patchMateriaSchema.safeParse(body);
     
     if (!validationDataResult.success) {
       return returnInvalidDataErrors(validationDataResult);

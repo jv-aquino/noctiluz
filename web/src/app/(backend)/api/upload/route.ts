@@ -34,15 +34,12 @@ const extractS3KeyFromUrl = (url: string): string | null => {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Upload route called');
     const forbidden = await blockForbiddenRequests(request, allowedRoles.POST);
     if (forbidden) {
-      console.log('Request forbidden');
       return forbidden;
     }
 
     const { fileName, fileType } = await request.json();
-    console.log('Request body:', { fileName, fileType });
     
     if (!fileName || typeof fileName !== 'string' || fileName.length > 200) {
       console.log('Invalid fileName');
@@ -59,13 +56,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Configuração AWS incompleta' }, { status: 500 });
     }
 
-    console.log('AWS config check passed');
-    console.log('Bucket:', process.env.AWS_S3_BUCKET);
-    console.log('Region:', process.env.AWS_REGION);
-
-    // Optionally, add a folder prefix or unique ID to fileName
     const key = `uploads/${Date.now()}-${fileName}`;
-    console.log('S3 key:', key);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET,
@@ -77,9 +68,6 @@ export async function POST(request: NextRequest) {
     const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // 5 minutes
     const fileUrl = `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     
-    console.log('Presigned URL generated successfully');
-    console.log('File URL:', fileUrl);
-
     return NextResponse.json({ uploadUrl, fileUrl }, { status: 200 });
   } catch (error) {
     console.error('Error generating S3 signed URL:', error);

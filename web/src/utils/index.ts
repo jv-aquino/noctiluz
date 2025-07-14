@@ -11,3 +11,9 @@ export const generateSlug = (name: string) => {
     .replace(/-+/g, '-')
     .trim();
 };
+
+export const fetcher = (url: string, errorMessage: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error(errorMessage)
+    return res.json()
+  })

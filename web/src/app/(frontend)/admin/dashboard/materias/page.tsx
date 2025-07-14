@@ -2,6 +2,7 @@
 import type { MateriaWithTopico } from "@/types";
 import { LibraryBig, Plus } from "lucide-react";
 import { useState } from "react";
+import { fetcher } from "@/utils";
 import useSWR from 'swr'
 import AdminHeader from "../components/header/AdminHeader";
 import MateriaCard from "./MateriaCard";
@@ -15,47 +16,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
+import { Materia } from "@/generated/prisma";
 
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) throw new Error("Erro ao buscar matérias")
-    return res.json()
-  })
 
-function DashboardPage() {
-  const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materia', fetcher)
+function MateriasPage() {
+  const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materia', (url: string) => fetcher(url, 'Erro ao criar matéria'))
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMateria, setEditingMateria] = useState<MateriaWithTopico | null>(null);
   
-  const handleSubmit = async (data: {
-    name: string;
-    slug: string;
-    cor: string;
-    descricao: string;
-    imgUrl: string;
-  }) => {
+  const handleSubmit = async (data: Omit<Materia, 'id'>) => {
     try {
-      const body = {
-        name: data.name,
-        slug: data.slug,
-        cor: data.cor,
-        descricao: data.descricao,
-        imgUrl: data.imgUrl,
-      };
-
       let response;
       if (editingMateria) {
         response = await fetch(`/api/materia/${editingMateria.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(data)
         });
       } else {
         response = await fetch('/api/materia', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(data)
         });
       }
 
@@ -140,4 +123,4 @@ function DashboardPage() {
    );
 }
 
-export default DashboardPage;
+export default MateriasPage;

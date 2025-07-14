@@ -7,14 +7,16 @@ import { MultiStepForm, type Step } from "@/components/ui/multi-step-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { MateriaWithTopico } from "@/types";
+import TagEditor from '@/components/common/TagEditor';
 
 const EMPTY_MATERIA = {
   name: '',
   slug: '',
   cor: '#ffffff',
   descricao: '',
-  imgUrl: '' as string
-}
+  imgUrl: '' as string,
+  tags: [] as string[],
+};
 
 interface MateriaFormProps {
   editingMateria?: MateriaWithTopico | null;
@@ -37,6 +39,7 @@ export function MateriaForm({
         cor: editingMateria.cor,
         descricao: editingMateria.descricao,
         imgUrl: editingMateria.imgUrl,
+        tags: editingMateria.tags || [],
       };
     }
     return EMPTY_MATERIA;
@@ -170,6 +173,20 @@ export function MateriaForm({
             </Label>
           </FileUploadInput>
         </>
+      )
+    },
+    {
+      id: 'tags',
+      title: 'Tags',
+      validation: () => true,
+      content: (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Tags</Label>
+          <TagEditor
+            tags={formData.tags}
+            onChange={tags => setFormData(prev => ({ ...prev, tags }))}
+          />
+        </div>
       )
     }
   ];
