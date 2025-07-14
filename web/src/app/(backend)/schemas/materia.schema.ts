@@ -15,11 +15,13 @@ export const createMateriaSchema = z.object({
   
   cor: corSchema,
   slug: slugSchema,
-  imgUrl: z.string()
+  imgUrl: z.string(),
+
+  tags: z.array(z.string()).default([]),
 })
 
 export const patchMateriaSchema = createMateriaSchema
-  .partial()                               
+  .partial()
   .refine((obj) => Object.keys(obj).length > 0, {
     message: "Pelo menos um campo precisa ser fornecido para atualização",
   });
