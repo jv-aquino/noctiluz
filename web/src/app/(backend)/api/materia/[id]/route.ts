@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteMateria, getMateriaById, updateMateria } from '@/backend/services/materia'
-import { idSchema, createMateriaSchema, patchMateriaSchema } from '@/backend/schemas';
+import { idSchema, patchMateriaSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import { AllowedRoutes } from '@/types';
 
