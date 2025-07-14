@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ReactNode, useState } from 'react';
+ 
+import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +37,19 @@ export function MultiStepForm<T = Record<string, unknown>>({
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<T>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isInitialMount = useRef(true);
+
+  // Sync formData with initialData when it changes (for editing)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    // Only reset step if this is a new edit (different editingMateria)
+    // For now, just sync the data without resetting step
+    setFormData(initialData);
+  }, [initialData]);
 
   const currentStepData = steps[currentStep];
   const isFirstStep = currentStep === 0;
@@ -44,7 +57,9 @@ export function MultiStepForm<T = Record<string, unknown>>({
 
   const canProceed = currentStepData.validation ? currentStepData.validation() : true;
 
-  const handleNext = () => {
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (canProceed && !isLastStep) {
       setCurrentStep(currentStep + 1);
     }
@@ -78,7 +93,6 @@ export function MultiStepForm<T = Record<string, unknown>>({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Step Indicators */}
       <div className="flex items-center justify-center space-x-2">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">

@@ -1,3 +1,4 @@
+import { Materia } from '@/generated/prisma';
 import prisma from '../db';
 
 export async function getAllMaterias() {
@@ -42,22 +43,10 @@ export async function getMateriaBySlug(slug: string) {
   }
 }
 
-export async function createMateria(data: { 
-  name: string; 
-  descricao: string; 
-  cor: string; 
-  slug: string; 
-  imgUrl: string;
-}) {
+export async function createMateria(data: Omit<Materia, "id">) {
   try {
     const materia = await prisma.materia.create({
-      data: {
-        name: data.name,
-        descricao: data.descricao,
-        cor: data.cor,
-        slug: data.slug,
-        imgUrl: data.imgUrl
-      }
+      data
     })
     return materia
   } catch (error) {
@@ -75,5 +64,19 @@ export async function deleteMateria(id: string) {
     return materia
   } catch (error) {
     throw new Error(String(error) || 'Falha ao buscar matéria')
+  }
+}
+
+export async function updateMateria(id: string, data: Partial<Omit<Materia, "id">>) {
+  try {
+    const materia = await prisma.materia.update({
+      where: {
+        id,
+      },
+      data
+    })
+    return materia
+  } catch (error) {
+    throw new Error(String(error) || 'Falha ao atualizar matéria')
   }
 }
