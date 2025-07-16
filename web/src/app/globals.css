@@ -238,3 +238,23 @@ body {
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* Table utility classes */
+.table-th {
+  background: transparent;
+  font-weight: 600;
+  color: inherit;
+}
+.table-td {
+  background: transparent;
+  color: inherit;
+}
+.table-tr {
+  transition: background 0.2s;
+}
+.last-row-rounded td:first-child {
+  @apply rounded-bl-xl;
+}
+.last-row-rounded td:last-child {
+  @apply rounded-br-xl;
+}
