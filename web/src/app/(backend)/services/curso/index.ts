@@ -47,4 +47,14 @@ export async function getCursosByMateriaId(materiaId: string) {
     include: { curso: true },
   });
   return relacoes.map(r => r.curso);
+}
+
+export async function createCursoMateriaRelacionada(cursoId: string, materiaId: string) {
+  // todo: validate IDs here if needed
+  return prisma.cursoMateriaRelacionada.create({
+    data: {
+      cursoId,
+      materiaId,
+    },
+  });
 } 

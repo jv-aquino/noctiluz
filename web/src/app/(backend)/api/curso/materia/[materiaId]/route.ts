@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCursosByMateriaId } from '@/backend/services/curso';
 import { idSchema } from '@/backend/schemas';
 import { zodErrorHandler } from '@/utils';
+import { createCursoMateriaRelacionada } from '@/backend/services/curso';
+import { blockForbiddenRequests } from '@/utils';
+import type { AllowedRoutes } from '@/types';
+
+const allowedRoles: AllowedRoutes = {
+  POST: ["SUPER_ADMIN", "ADMIN"]
+};
 
 export async function GET(
   request: NextRequest,
@@ -30,6 +37,58 @@ export async function GET(
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
+    }
+    return zodErrorHandler(error);
+  }
+} 
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ materiaId: string }> }
+) {
+  try {
+    const forbidden = await blockForbiddenRequests(request, allowedRoles.POST);
+    if (forbidden) {
+      return forbidden;
+    }
+    const { materiaId } = await params;
+    const validationResult = idSchema.safeParse(materiaId);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'ID de matéria inválido', details: validationResult.error.errors },
+        { status: 400 }
+      );
+    }
+    const body = await request.json();
+
+    const { cursoId } = body;
+    const cursoIdValidation = idSchema.safeParse(cursoId);
+    if (!cursoIdValidation.success) {
+      return NextResponse.json(
+        { error: 'ID de curso inválido', details: cursoIdValidation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const relation = await createCursoMateriaRelacionada(cursoId, materiaId);
+    return NextResponse.json(relation, { status: 201 });
+  } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('Unique constraint')) {
+        return NextResponse.json(
+          { error: 'Esta relação já existe' },
+          { status: 409 }
+        );
+      }
+      if (error.message.includes('Prisma')) {
+        return NextResponse.json(
+          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          { status: 400 }
+        );
+      }
     }
     return zodErrorHandler(error);
   }
