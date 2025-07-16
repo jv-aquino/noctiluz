@@ -13,11 +13,12 @@ import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
 import { GraduationCap } from "lucide-react";
 import CursosTable from './CursosTable';
-import { Curso, Materia } from '@/generated/prisma';
+import { Curso, Materia, Topico } from '@/generated/prisma';
 import { useState } from "react";
 import { CursoForm } from "./CursoForm";
+import { CursoWithMateria } from "@/types";
 
-type CursoWithMateria = Curso & { alunosAtivos?: number; materiasRelacionadas?: { materiaId: string }[]; topicos?: any[] };
+type CursoCompleto = CursoWithMateria & { alunosAtivos?: number; topicos?: Topico[] };
 
 function CursosPage() {
   const { data: cursos, error: cursosError, isLoading: cursosLoading, mutate: mutateCursos } = useSWR<Curso[]>(
@@ -30,7 +31,7 @@ function CursosPage() {
   );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCurso, setEditingCurso] = useState<CursoWithMateria | null>(null);
+  const [editingCurso, setEditingCurso] = useState<CursoCompleto | null>(null);
 
   const handleSubmit = async (data: Omit<Curso, 'id'>) => {
     try {
@@ -67,16 +68,17 @@ function CursosPage() {
     setIsDialogOpen(false);
   };
 
-  const handleEdit = (curso: CursoWithMateria) => {
+  const handleEdit = (curso: CursoCompleto) => {
     setEditingCurso(curso);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (curso: CursoWithMateria) => {
-    // TODO: implement delete logic
-    mutateCursos();
-  };
-  const handleTagsUpdate = async (curso: CursoWithMateria, tags: string[]) => {
+  const handleDelete = () => {}
+  // const handleDelete = async (curso: CursoWithMateria) => {
+  //   // TODO: implement delete logic
+  //   mutateCursos();
+  // };
+  const handleTagsUpdate = async (curso: CursoCompleto, tags: string[]) => {
     await fetch(`/api/curso/${curso.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -120,7 +122,7 @@ function CursosPage() {
           cursos={cursos.map(c => ({
             ...c,
             alunosAtivos: 0,
-            materiasRelacionadas: Array.isArray((c as any).materiasRelacionadas) ? (c as any).materiasRelacionadas : [],
+            materiasRelacionadas: Array.isArray((c as CursoWithMateria).materiasRelacionadas) ? (c as CursoWithMateria).materiasRelacionadas : [],
           }))}
           materias={materias}
           onEdit={handleEdit}

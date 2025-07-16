@@ -1,29 +1,28 @@
 import { useState, useMemo } from "react";
 import { Pencil, Check, X } from "lucide-react";
-import { Curso, CursoMateriaRelacionada } from "@/generated/prisma";
+import { CursoMateriaRelacionada, Topico } from "@/generated/prisma";
 import TagEditor from '@/components/common/TagEditor';
 import RowMenu from '@/components/table/RowMenu';
 import DataTable, { DataTableColumn } from '@/components/table/DataTable';
 import { Button } from "@/components/ui/button";
 import CursoFilterBar from './CursoFilterBar';
+import { CursoWithMateria } from "@/types";
 
 interface Materia {
   id: string;
   name: string;
 }
-type MateriaRelacionada = CursoMateriaRelacionada;
-type CursoWithMateria = Curso & {
+type CursoCompleto = CursoWithMateria & {
   alunosAtivos?: number;
-  materiasRelacionadas?: MateriaRelacionada[];
-  topicos?: any[];
+  topicos?: Topico[];
 }
 
 interface CursosTableProps {
-  cursos: CursoWithMateria[];
+  cursos: CursoCompleto[];
   materias: Materia[];
-  onEdit: (curso: CursoWithMateria) => void;
-  onDelete: (curso: CursoWithMateria) => void;
-  onTagsUpdate: (curso: CursoWithMateria, tags: string[]) => void;
+  onEdit: (curso: CursoCompleto) => void;
+  onDelete: (curso: CursoCompleto) => void;
+  onTagsUpdate: (curso: CursoCompleto, tags: string[]) => void;
 }
 
 const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: CursosTableProps) => {
@@ -37,13 +36,13 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
     return cursos.filter(c =>
       (!materiaFilter ||
         (Array.isArray(c.materiasRelacionadas) &&
-          c.materiasRelacionadas.some((rel: any) => rel.materiaId === materiaFilter))
+          c.materiasRelacionadas.some((rel: CursoMateriaRelacionada) => rel.materiaId === materiaFilter))
       ) &&
       (!search || c.name.toLowerCase().includes(search.toLowerCase()))
     );
   }, [cursos, materiaFilter, search]);
 
-  const startEditTags = (curso: CursoWithMateria) => {
+  const startEditTags = (curso: CursoCompleto) => {
     setEditingTagsId(curso.id);
     setTagsDraft(curso.tags || []);
   };
@@ -51,7 +50,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
     setEditingTagsId(null);
     setTagsDraft([]);
   };
-  const saveTags = async (curso: CursoWithMateria) => {
+  const saveTags = async (curso: CursoCompleto) => {
     setTagsLoading(true);
     try {
       await onTagsUpdate(curso, tagsDraft);
@@ -61,7 +60,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
     }
   };
 
-  const columns: DataTableColumn<CursoWithMateria>[] = [
+  const columns: DataTableColumn<CursoCompleto>[] = [
     {
       key: "name",
       header: "Nome",

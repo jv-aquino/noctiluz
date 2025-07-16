@@ -1,4 +1,4 @@
-import type { Materia, Role, Topico } from '@/generated/prisma';
+import type { Curso, CursoMateriaRelacionada, Materia, Role, Topico } from '@/generated/prisma';
 
 export type AllowedRoutes = { 
   GET?: Role[]
@@ -8,3 +8,5 @@ export type AllowedRoutes = {
 }
 
 export type MateriaWithTopico = Materia & { topicos: Topico[] };
+
+export type CursoWithMateria = Curso & { materiasRelacionadas?: CursoMateriaRelacionada[] };
