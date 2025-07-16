@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCursoById, deleteCurso, updateCurso } from '@/backend/services/curso';
+import { getCursoById, deleteCurso, updateCurso, setCursoMaterias } from '@/backend/services/curso';
 import { idSchema, patchCursoSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
@@ -116,6 +116,9 @@ export async function PATCH(
     }
     const validatedData = validationDataResult.data;
     const curso = await updateCurso(id, validatedData);
+    if (Array.isArray(body.materiaIds)) {
+      await setCursoMaterias(id, body.materiaIds);
+    }
     return NextResponse.json(curso, { status: 200 });
   } catch (error) {
     if (error instanceof NextResponse) {
