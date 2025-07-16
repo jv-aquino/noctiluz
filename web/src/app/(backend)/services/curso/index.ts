@@ -1,5 +1,5 @@
 import prisma from '@/backend/services/db';
-import { createCursoSchema } from '@/backend/schemas';
+import { createCursoSchema, patchCursoSchema } from '@/backend/schemas';
 
 export async function getAllCursos() {
   return prisma.curso.findMany({
@@ -29,6 +29,14 @@ export async function deleteCurso(id: string) {
   // Retorna o curso deletado (ou null)
   return prisma.curso.delete({
     where: { id },
+  });
+}
+
+export async function updateCurso(id: string, data: unknown) {
+  const parsed = patchCursoSchema.parse(data);
+  return prisma.curso.update({
+    where: { id },
+    data: parsed,
   });
 }
 
