@@ -1,5 +1,5 @@
 import prisma from '@/backend/services/db';
-import { createCursoSchema } from '@/backend/schemas';
+import { createCursoSchema, patchCursoSchema } from '@/backend/schemas';
 
 export async function getAllCursos() {
   return prisma.curso.findMany({
@@ -26,9 +26,19 @@ export async function getCursoById(id: string) {
 }
 
 export async function deleteCurso(id: string) {
-  // Retorna o curso deletado (ou null)
+  // Remove all related materia relations first
+  await prisma.cursoMateriaRelacionada.deleteMany({ where: { cursoId: id } });
+  // Then delete the curso
   return prisma.curso.delete({
     where: { id },
+  });
+}
+
+export async function updateCurso(id: string, data: unknown) {
+  const parsed = patchCursoSchema.parse(data);
+  return prisma.curso.update({
+    where: { id },
+    data: parsed,
   });
 }
 
@@ -39,4 +49,25 @@ export async function getCursosByMateriaId(materiaId: string) {
     include: { curso: true },
   });
   return relacoes.map(r => r.curso);
+}
+
+export async function createCursoMateriaRelacionada(cursoId: string, materiaId: string) {
+  // todo: validate IDs here if needed
+  return prisma.cursoMateriaRelacionada.create({
+    data: {
+      cursoId,
+      materiaId,
+    },
+  });
+}
+
+export async function setCursoMaterias(cursoId: string, materiaIds: string[]) {
+  // Remove all current relations
+  await prisma.cursoMateriaRelacionada.deleteMany({ where: { cursoId } });
+  // Add new relations
+  if (materiaIds.length > 0) {
+    await prisma.cursoMateriaRelacionada.createMany({
+      data: materiaIds.map(materiaId => ({ cursoId, materiaId })),
+    });
+  }
 } 

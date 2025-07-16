@@ -29,9 +29,12 @@ body {
   background-color: var(--color-pink-500);
 }
 
+button {
+  cursor: pointer;
+}
+
 @utility button-md {
   font-weight: 600;
-  cursor: pointer;
   padding: 8px 24px;
 
   border-width: 1px 1px 3px;
@@ -41,7 +44,6 @@ body {
 }
 @utility button-lg {
   font-weight: 600;
-  cursor: pointer;
   padding: 8px 32px;
 
   border-width: 1px 1px 3px;
@@ -57,7 +59,6 @@ body {
 @utility login-button {
   width: 100%;
   padding: 8px;
-  cursor: pointer;
 
   border-width: 1px 1px 3px;
   border-style: solid;
@@ -237,4 +238,27 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Table utility classes */
+.table-th {
+  background: transparent;
+  font-weight: 600;
+  color: inherit;
+  padding: 8px;
+}
+.table-td {
+  background: transparent;
+  color: inherit;
+  padding: 8px;
+}
+.table-tr {
+  padding: 8px;
+  transition: background 0.2s;
+}
+.last-row-rounded td:first-child {
+  @apply rounded-bl-xl;
+}
+.last-row-rounded td:last-child {
+  @apply rounded-br-xl;
 }
