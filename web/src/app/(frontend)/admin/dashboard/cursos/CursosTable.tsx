@@ -1,0 +1,125 @@
+import { useState, useMemo } from "react";
+import { Pencil, Check, X } from "lucide-react";
+import { Curso, CursoMateriaRelacionada } from "@/generated/prisma";
+import TagEditor from '@/components/common/TagEditor';
+import RowMenu from '@/components/table/RowMenu';
+import DataTable, { DataTableColumn } from '@/components/table/DataTable';
+import { Button } from "@/components/ui/button";
+import CursoFilterBar from './CursoFilterBar';
+
+interface Materia {
+  id: string;
+  name: string;
+}
+type MateriaRelacionada = CursoMateriaRelacionada;
+type CursoWithMateria = Curso & {
+  alunosAtivos?: number;
+  materiasRelacionadas?: MateriaRelacionada[];
+  topicos?: any[];
+}
+
+interface CursosTableProps {
+  cursos: CursoWithMateria[];
+  materias: Materia[];
+  onEdit: (curso: CursoWithMateria) => void;
+  onDelete: (curso: CursoWithMateria) => void;
+  onTagsUpdate: (curso: CursoWithMateria, tags: string[]) => void;
+}
+
+const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: CursosTableProps) => {
+  const [editingTagsId, setEditingTagsId] = useState<string | null>(null);
+  const [tagsDraft, setTagsDraft] = useState<string[]>([]);
+  const [tagsLoading, setTagsLoading] = useState(false);
+  const [materiaFilter, setMateriaFilter] = useState("");
+  const [search, setSearch] = useState("");
+
+  const filteredCursos = useMemo(() => {
+    return cursos.filter(c =>
+      (!materiaFilter ||
+        (Array.isArray(c.materiasRelacionadas) &&
+          c.materiasRelacionadas.some((rel: any) => rel.materiaId === materiaFilter))
+      ) &&
+      (!search || c.name.toLowerCase().includes(search.toLowerCase()))
+    );
+  }, [cursos, materiaFilter, search]);
+
+  const startEditTags = (curso: CursoWithMateria) => {
+    setEditingTagsId(curso.id);
+    setTagsDraft(curso.tags || []);
+  };
+  const cancelEditTags = () => {
+    setEditingTagsId(null);
+    setTagsDraft([]);
+  };
+  const saveTags = async (curso: CursoWithMateria) => {
+    setTagsLoading(true);
+    try {
+      await onTagsUpdate(curso, tagsDraft);
+      setEditingTagsId(null);
+    } finally {
+      setTagsLoading(false);
+    }
+  };
+
+  const columns: DataTableColumn<CursoWithMateria>[] = [
+    {
+      key: "name",
+      header: "Nome",
+      className: "font-semibold",
+    },
+    {
+      key: "topicos",
+      header: "Nº de Tópicos",
+      className: "text-center",
+      render: (curso) => curso.topicos?.length ?? 0,
+    },
+    {
+      key: "alunosAtivos",
+      header: "Alunos Ativos",
+      className: "text-center",
+      render: (curso) => curso.alunosAtivos ?? 0,
+    },
+    {
+      key: "tags",
+      header: "Tags",
+      className: "",
+      render: (curso) => editingTagsId === curso.id ? (
+        <div className="flex items-center gap-2">
+          <TagEditor tags={tagsDraft} onChange={setTagsDraft} loading={tagsLoading} />
+          <Button onClick={() => saveTags(curso)} disabled={tagsLoading} size="icon" variant="ghost" className="text-green-700"><Check /></Button>
+          <Button onClick={cancelEditTags} disabled={tagsLoading} size="icon" variant="ghost" className="text-gray-500"><X /></Button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-1 items-center">
+          {curso.tags?.map((tag: string) => (
+            <span key={tag} className="bg-pink-100 text-pink-800 rounded px-2 py-0.5 text-xs">{tag}</span>
+          ))}
+          <Button onClick={() => startEditTags(curso)} size="icon" variant="ghost" className="ml-2 text-pink-700"><Pencil className="w-4 h-4" /></Button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <CursoFilterBar
+        materias={materias}
+        selectedMateria={materiaFilter}
+        onMateriaChange={setMateriaFilter}
+        search={search}
+        onSearch={setSearch}
+      />
+      <DataTable
+        columns={columns}
+        data={filteredCursos}
+        getRowKey={curso => curso.id}
+        rowActions={curso => (
+          <RowMenu onEdit={() => onEdit(curso)} onDelete={() => onDelete(curso)} />
+        )}
+        className="rounded-xl"
+      />
+    </>
+  );
+};
+
+export default CursosTable; 
