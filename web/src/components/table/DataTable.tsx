@@ -28,7 +28,7 @@ export function DataTable<T>({
   tableClassName = '',
 }: DataTableProps<T>) {
   return (
-    <div className={`bg-pink-50 rounded-xl border border-gray-400 mt-4 ${className}`}>
+    <div className={`bg-pink-50 rounded-xl border border-gray-400 ${className}`}>
       <table className={`min-w-full text-sm rounded-xl ${tableClassName}`}>
         <thead>
           <tr className="border-gray-400">
