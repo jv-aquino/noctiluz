@@ -28,13 +28,13 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <div className={`bg-pink-50 rounded-xl border border-gray-400 mt-4 ${className}`}>
-      <table className={`min-w-full text-sm rounded-xl overflow-hidden ${tableClassName}`}>
+      <table className={`min-w-full text-sm rounded-xl ${tableClassName}`}>
         <thead>
-          <tr className="border-t border-gray-400">
+          <tr className="border-gray-400">
             {columns.map(col => (
-              <th key={col.key} className={`py-2 px-2 font-semibold text-left table-th ${col.className || ''}`}>{col.header}</th>
+              <th key={col.key} className={`font-semibold text-left table-th ${col.className || ''}`}>{col.header}</th>
             ))}
-            {rowActions && <th className="py-2 px-2 text-center table-th">Opções</th>}
+            {rowActions && <th className="text-center table-th">Opções</th>}
           </tr>
         </thead>
         <tbody>
@@ -47,10 +47,10 @@ export function DataTable<T>({
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map(col => (
-                  <td key={col.key} className={`py-2 px-2 table-td ${col.className || ''}`}>{col.render ? col.render(row) : (row as any)[col.key]}</td>
+                  <td key={col.key} className={`table-td ${col.className || ''}`}>{col.render ? col.render(row) : (row as any)[col.key]}</td>
                 ))}
                 {rowActions && (
-                  <td className="py-2 px-2 text-center table-td">{rowActions(row)}</td>
+                  <td className="text-center table-td">{rowActions(row)}</td>
                 )}
               </tr>
             );
