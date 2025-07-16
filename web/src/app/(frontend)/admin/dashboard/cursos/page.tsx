@@ -106,12 +106,16 @@ function CursosPage() {
                 {editingCurso ? 'Editar Curso' : 'Adicionar Curso'}
               </DialogTitle>
             </DialogHeader>
-            <CursoForm
-              editingCurso={editingCurso}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-              submitText={editingCurso ? "Salvar Alterações →" : "Adicionar Curso →"}
-            />
+            {materias && (
+              <CursoForm
+                editingCurso={editingCurso}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                submitText={editingCurso ? "Salvar Alterações →" : "Adicionar Curso →"}
+                materias={materias.map(m => ({ id: m.id, name: m.name }))}
+                initialRelatedMaterias={editingCurso ? (editingCurso.materiasRelacionadas?.map(rel => rel.materiaId) || []) : []}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </AdminHeader>
