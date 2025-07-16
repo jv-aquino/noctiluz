@@ -1,0 +1,21 @@
+meta {
+  name: post materiaRelacionada
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/curso/materia/{{materiaId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Cookie: better-auth.session_token={{sessionValue}}
+}
+
+body:json {
+  {
+    "cursoId": "e2c91854-a69a-4088-9c3c-789b790d1008"
+  }
+}
