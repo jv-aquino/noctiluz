@@ -26,7 +26,9 @@ export async function getCursoById(id: string) {
 }
 
 export async function deleteCurso(id: string) {
-  // Retorna o curso deletado (ou null)
+  // Remove all related materia relations first
+  await prisma.cursoMateriaRelacionada.deleteMany({ where: { cursoId: id } });
+  // Then delete the curso
   return prisma.curso.delete({
     where: { id },
   });
