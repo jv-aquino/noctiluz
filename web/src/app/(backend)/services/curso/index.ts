@@ -57,4 +57,15 @@ export async function createCursoMateriaRelacionada(cursoId: string, materiaId: 
       materiaId,
     },
   });
+}
+
+export async function setCursoMaterias(cursoId: string, materiaIds: string[]) {
+  // Remove all current relations
+  await prisma.cursoMateriaRelacionada.deleteMany({ where: { cursoId } });
+  // Add new relations
+  if (materiaIds.length > 0) {
+    await prisma.cursoMateriaRelacionada.createMany({
+      data: materiaIds.map(materiaId => ({ cursoId, materiaId })),
+    });
+  }
 } 
