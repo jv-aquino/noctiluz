@@ -7,6 +7,8 @@ import DataTable, { DataTableColumn } from '@/components/table/DataTable';
 import { Button } from "@/components/ui/button";
 import CursoFilterBar from './CursoFilterBar';
 import { CursoWithMateria } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 interface Materia {
   id: string;
@@ -31,6 +33,9 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
   const [tagsLoading, setTagsLoading] = useState(false);
   const [materiaFilter, setMateriaFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [cursoToDelete, setCursoToDelete] = useState<CursoWithMateria | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filteredCursos = useMemo(() => {
     return cursos.filter(c =>
@@ -57,6 +62,21 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
       setEditingTagsId(null);
     } finally {
       setTagsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!cursoToDelete) return;
+    setDeleting(true);
+    try {
+      await onDelete(cursoToDelete);
+      toast.success('Curso deletado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao deletar curso: ' + String(error));
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+      setCursoToDelete(null);
     }
   };
 
@@ -113,10 +133,32 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
         data={filteredCursos}
         getRowKey={curso => curso.id}
         rowActions={curso => (
-          <RowMenu onEdit={() => onEdit(curso)} onDelete={() => onDelete(curso)} />
+          <RowMenu
+            onEdit={() => onEdit(curso)}
+            onDelete={() => {
+              setCursoToDelete(curso);
+              setDeleteDialogOpen(true);
+            }}
+          />
         )}
         className="rounded-xl"
       />
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Deletar Curso</DialogTitle>
+          </DialogHeader>
+          <p>Tem certeza que deseja deletar o curso "{cursoToDelete?.name}"? Esta ação não pode ser desfeita.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+              Cancelar
+            </Button>
+            <Button onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+              {deleting ? 'Deletando...' : 'Deletar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
