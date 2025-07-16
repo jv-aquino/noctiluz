@@ -148,7 +148,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
           <DialogHeader>
             <DialogTitle>Deletar Curso</DialogTitle>
           </DialogHeader>
-          <p>Tem certeza que deseja deletar o curso "{cursoToDelete?.name}"? Esta ação não pode ser desfeita.</p>
+          <p>Tem certeza que deseja deletar o curso &quot;{cursoToDelete?.name}&quot;? Esta ação não pode ser desfeita.</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
               Cancelar

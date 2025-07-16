@@ -33,9 +33,9 @@ const RelatedMateriasEditor: React.FC<RelatedMateriasEditorProps> = ({ materias,
               checked={selected.includes(materia.id)}
               onChange={() => toggleMateria(materia.id)}
               disabled={disabled}
-              className="accent-pink-600"
+              className="accent-pink-600 peer"
             />
-            <span className="text-sm">{materia.name}</span>
+            <span className="text-sm peer-checked:text-pink-500">{materia.name}</span>
           </label>
         ))}
       </div>
