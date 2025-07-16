@@ -33,25 +33,43 @@ function CursosPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCurso, setEditingCurso] = useState<CursoCompleto | null>(null);
 
-  const handleSubmit = async (data: Omit<Curso, 'id'>) => {
+  const handleSubmit = async (data: Omit<Curso, 'id'>, materiaIds: string[]) => {
     try {
       let response;
+      let cursoId: string | undefined;
       if (editingCurso) {
         response = await fetch(`/api/curso/${editingCurso.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
+        cursoId = editingCurso.id;
       } else {
         response = await fetch('/api/curso', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
+        if (response.ok) {
+          const created = await response.json();
+          cursoId = created.id;
+        }
       }
-      if (!response.ok) {
+      if (!response.ok || !cursoId) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Erro ao salvar curso');
+      }
+      // Link materias after curso creation/update
+      if (materiaIds && materiaIds.length > 0) {
+        await Promise.all(
+          materiaIds.map(materiaId =>
+            fetch(`/api/curso/materia/${materiaId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ cursoId })
+            })
+          )
+        );
       }
       mutateCursos();
       setEditingCurso(null);
