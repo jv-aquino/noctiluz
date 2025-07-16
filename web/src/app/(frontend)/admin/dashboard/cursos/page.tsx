@@ -91,11 +91,16 @@ function CursosPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = () => {}
-  // const handleDelete = async (curso: CursoWithMateria) => {
-  //   // TODO: implement delete logic
-  //   mutateCursos();
-  // };
+  const handleDelete = async (curso: CursoWithMateria) => {
+    const response = await fetch(`/api/curso/${curso.id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Erro ao deletar curso');
+    }
+    mutateCursos();
+  };
   const handleTagsUpdate = async (curso: CursoCompleto, tags: string[]) => {
     await fetch(`/api/curso/${curso.id}`, {
       method: 'PATCH',
