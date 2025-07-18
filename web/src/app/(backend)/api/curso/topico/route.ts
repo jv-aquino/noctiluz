@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       data: { cursoId, topicoId, order },
     });
     return NextResponse.json(relation, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao associar tópico ao curso' }, { status: 500 });
   }
 } 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -24,8 +26,10 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
-function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
+function SortableItem({ id, children, onDelete }: { id: string; children: React.ReactNode; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -34,8 +38,23 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
     cursor: "grab",
   };
   return (
-    <li ref={setNodeRef} style={style} {...attributes} {...listeners} className="p-2 border rounded bg-white flex items-center gap-2">
-      {children}
+    <li ref={setNodeRef} style={style} className="p-2 border rounded bg-white flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2" {...attributes} {...listeners}>
+        {children}
+      </div>
+      <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
     </li>
   );
 }
@@ -52,13 +71,16 @@ function TopicosCursoPage() {
   const [loading, setLoading] = useState(false);
   const [topicosOrder, setTopicosOrder] = useState<string[]>([]);
   const [orderChanged, setOrderChanged] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [topicoToDelete, setTopicoToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (curso?.topicos) {
-      setTopicosOrder(curso.topicos.map((t: any) => t.id));
+    if (curso?.cursoTopicos) {
+      setTopicosOrder(curso.cursoTopicos.map((ct: any) => ct.topico.id));
       setOrderChanged(false);
     }
-  }, [curso?.topicos]);
+  }, [curso?.cursoTopicos]);
 
   useEffect(() => {
     if (curso && (!Array.isArray(curso.materiasRelacionadas) || curso.materiasRelacionadas.length === 0)) {
@@ -131,6 +153,40 @@ function TopicosCursoPage() {
     }
   };
 
+  const handleDeleteTopico = async (topicoId: string) => {
+    try {
+      const res = await fetch(`/api/topico/${topicoId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Erro ao deletar tópico");
+      }
+      setTopicosOrder((prev) => prev.filter(id => id !== topicoId));
+      toast.success("Tópico deletado com sucesso!");
+      mutate();
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao deletar tópico");
+    }
+  };
+
+  const confirmDelete = (topico: { id: string; name: string }) => {
+    setTopicoToDelete(topico);
+    setDeleteDialogOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!topicoToDelete) return;
+    setDeleting(true);
+    try {
+      await handleDeleteTopico(topicoToDelete.id);
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+      setTopicoToDelete(null);
+    }
+  };
+
   const Paragraph = () => (
     <>Visualize e organize os tópicos deste curso. Em breve: reordenação e gerenciamento de lições.</>
   );
@@ -167,7 +223,7 @@ function TopicosCursoPage() {
                     if (!ct) return null;
                     const topico = ct.topico;
                     return (
-                      <SortableItem key={topico.id} id={topico.id}>
+                      <SortableItem key={topico.id} id={topico.id} onDelete={() => confirmDelete({ id: topico.id, name: topico.name })}>
                         <span className="inline-block w-4 h-4 rounded-full mr-2 border" style={{ backgroundColor: topico.materia?.cor || '#eee' }} />
                         <span className="font-medium">{topico.name}</span>
                         <span className="ml-2 text-gray-500">({topico.slug})</span>
@@ -194,6 +250,23 @@ function TopicosCursoPage() {
           </p>
         </div>
       </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Deletar Tópico</DialogTitle>
+          </DialogHeader>
+          <p>Tem certeza que deseja deletar o tópico &quot;{topicoToDelete?.name}&quot;? Esta ação não pode ser desfeita.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+              Cancelar
+            </Button>
+            <Button onClick={executeDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">
+              {deleting ? 'Deletando...' : 'Deletar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
