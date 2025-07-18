@@ -1,5 +1,6 @@
 import { Materia } from '@/generated/prisma';
 import prisma from '../db';
+import { deleteTopico } from '../topico';
 
 export async function getAllMaterias() {
   try {
@@ -56,6 +57,15 @@ export async function createMateria(data: Omit<Materia, "id">) {
 
 export async function deleteMateria(id: string) {
   try {
+    // Remove all related curso-materia relations
+    await prisma.cursoMateriaRelacionada.deleteMany({ where: { materiaId: id } });
+
+    const topicos = await prisma.topico.findMany({ where: { materiaId: id } });
+    for (const topico of topicos) {
+      await deleteTopico(topico.id);
+    }
+
+    // Finally, delete the materia
     const materia = await prisma.materia.delete({
       where: {
         id,
