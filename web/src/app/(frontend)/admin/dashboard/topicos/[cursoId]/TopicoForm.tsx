@@ -31,7 +31,7 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
 
   useEffect(() => {
     setFormData(prev => ({ ...prev, materiaId: materias[0]?.id || "" }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [materias]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
