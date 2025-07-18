@@ -20,7 +20,17 @@ export async function getCursoById(id: string) {
   return prisma.curso.findUnique({
     where: { id },
     include: {
-      materiasRelacionadas: true,
+      materiasRelacionadas: { include: { materia: true } },
+      cursoTopicos: {
+        include: {
+          topico: {
+            include: {
+              materia: true
+            }
+          }
+        },
+        orderBy: { order: 'asc' }
+      },
     },
   });
 }
@@ -28,6 +38,9 @@ export async function getCursoById(id: string) {
 export async function deleteCurso(id: string) {
   // Remove all related materia relations first
   await prisma.cursoMateriaRelacionada.deleteMany({ where: { cursoId: id } });
+  await prisma.cursoTopico.deleteMany({ where: { cursoId: id } });
+  await prisma.userCurso.deleteMany({ where: { cursoId: id } });
+  
   // Then delete the curso
   return prisma.curso.delete({
     where: { id },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 
@@ -6,9 +6,10 @@ interface RowMenuProps {
   onEdit: () => void;
   onDelete: () => void;
   disabled?: boolean;
+  extraActions?: ReactNode;
 }
 
-const RowMenu = ({ onEdit, onDelete, disabled = false }: RowMenuProps) => {
+const RowMenu = ({ onEdit, onDelete, disabled = false, extraActions }: RowMenuProps) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -17,6 +18,7 @@ const RowMenu = ({ onEdit, onDelete, disabled = false }: RowMenuProps) => {
       </Button>
       {open && (
         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+          {extraActions}
           <Button variant="ghost" className="w-full flex gap-2 items-center" onClick={() => { onEdit(); setOpen(false); }} disabled={disabled}>
             <Pencil className="w-4 h-4" /> Editar
           </Button>
