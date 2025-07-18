@@ -21,6 +21,16 @@ export async function getCursoById(id: string) {
     where: { id },
     include: {
       materiasRelacionadas: { include: { materia: true } },
+      cursoTopicos: {
+        include: {
+          topico: {
+            include: {
+              materia: true
+            }
+          }
+        },
+        orderBy: { order: 'asc' }
+      },
     },
   });
 }
