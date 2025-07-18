@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, List } from "lucide-react";
 import { CursoMateriaRelacionada, Topico } from "@/generated/prisma";
 import TagEditor from '@/components/common/TagEditor';
 import RowMenu from '@/components/table/RowMenu';
@@ -139,6 +139,15 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
               setCursoToDelete(curso);
               setDeleteDialogOpen(true);
             }}
+            extraActions={
+              <a
+                href={`/admin/dashboard/topicos/${curso.id}`}
+                className="w-full flex gap-2 items-center font-medium px-3 py-2 text-sm hover:bg-pink-50 border-b border-gray-100 last:border-b-0"
+                style={{ textDecoration: 'none' }}
+              >
+                <List className="w-4 h-4" /> Editar tópicos
+              </a>
+            }
           />
         )}
         className="rounded-xl"
