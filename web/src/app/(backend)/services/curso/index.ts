@@ -20,7 +20,7 @@ export async function getCursoById(id: string) {
   return prisma.curso.findUnique({
     where: { id },
     include: {
-      materiasRelacionadas: true,
+      materiasRelacionadas: { include: { materia: true } },
     },
   });
 }
