@@ -16,7 +16,7 @@ enum Role {
   ESCOLA_ADMIN
 }
 
-enum LicaoType {
+enum LessonType {
   GERAL
   EXERCICIOS
   REVISAO
@@ -141,16 +141,16 @@ model Topico {
 
   materia      Materia        @relation(fields: [materiaId], references: [id])
   materiaId    String
-  topicoLicoes TopicoLicao[]
+  topicoLicoes TopicoLesson[]
   userProgress UserProgress[]
   cursoTopicos CursoTopico[]
 }
 
-model Licao {
+model Lesson {
   id        String   @id @default(uuid()) @map("_id")
   name      String
   descricao String
-  type      LicaoType @default(GERAL)
+  type      LessonType @default(GERAL)
   archived  Boolean? @default(false)
   
   // PFA-based knowledge tracking
@@ -164,9 +164,9 @@ model Licao {
 
   // Content structure - MISSING in your schema
   conteudoPages    ConteudoPage[]
-  licaoVariants    LicaoVariant[]
+  lessonVariants    LessonVariant[]
   
-  topicoLicoes     TopicoLicao[]
+  topicoLicoes     TopicoLesson[]
   userProgress     UserProgress[]
   userAttempts     UserAttempt[]
   
@@ -174,27 +174,27 @@ model Licao {
   conteudo         Conteudo[]
 }
 
-model TopicoLicao {
+model TopicoLesson {
   id    String @id @default(uuid()) @map("_id")
   order Int    @default(0)
 
   topico   Topico @relation(fields: [topicoId], references: [id])
   topicoId String
-  licao    Licao  @relation(fields: [licaoId], references: [id])
-  licaoId  String
+  lesson    Lesson  @relation(fields: [lessonId], references: [id])
+  lessonId  String
 
-  @@unique([topicoId, licaoId])
+  @@unique([topicoId, lessonId])
 }
 
 // MISSING MODEL: Variants for A/B testing, difficulty levels
-model LicaoVariant {
+model LessonVariant {
   id          String @id @default(uuid()) @map("_id")
   name        String
   description String?
   isDefault   Boolean @default(false)
   
-  licao   Licao  @relation(fields: [licaoId], references: [id])
-  licaoId String
+  lesson   Lesson  @relation(fields: [lessonId], references: [id])
+  lessonId String
   
   // Each variant can have its own content pages
   conteudoPages ConteudoPage[]
@@ -212,9 +212,9 @@ model ConteudoPage {
   archived Boolean? @default(false)
   
   // Flexible parent relationship
-  licao         Licao?        @relation(fields: [licaoId], references: [id])
-  licaoId       String?
-  licaoVariant  LicaoVariant? @relation(fields: [variantId], references: [id])
+  lesson         Lesson?        @relation(fields: [lessonId], references: [id])
+  lessonId       String?
+  lessonVariant  LessonVariant? @relation(fields: [variantId], references: [id])
   variantId     String?
   
   // Page content blocks
@@ -251,13 +251,13 @@ model LessonObjective {
   id       String @id @default(uuid()) @map("_id")
   weight   Float  @default(1.0) // How much this objective contributes to overall skill
   
-  licao   Licao  @relation(fields: [licaoId], references: [id])
-  licaoId String
+  lesson   Lesson  @relation(fields: [lessonId], references: [id])
+  lessonId String
   
   skill   Skill  @relation(fields: [skillId], references: [id])
   skillId String
   
-  @@unique([licaoId, skillId])
+  @@unique([lessonId, skillId])
 }
 
 // Enhanced skill model for PFA
@@ -332,8 +332,8 @@ model UserAttempt {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   
-  licao     Licao    @relation(fields: [licaoId], references: [id])
-  licaoId   String
+  lesson     Lesson    @relation(fields: [lessonId], references: [id])
+  lessonId   String
   
   // Attempt details
   skillsTested     String[]  // Skills involved in this attempt
@@ -360,8 +360,8 @@ model UserProgress {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  licao   Licao?  @relation(fields: [licaoId], references: [id])
-  licaoId String?
+  lesson   Lesson?  @relation(fields: [lessonId], references: [id])
+  lessonId String?
 
   topico   Topico? @relation(fields: [topicoId], references: [id])
   topicoId String?
@@ -380,7 +380,7 @@ model UserProgress {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, licaoId, topicoId])
+  @@unique([userId, lessonId, topicoId])
 }
 
 // Legacy content model (keep for backward compatibility)
@@ -392,8 +392,8 @@ model Conteudo {
   order    Int      @default(0)
   archived Boolean? @default(false)
 
-  licao   Licao?  @relation(fields: [licaoId], references: [id])
-  licaoId String?
+  lesson   Lesson?  @relation(fields: [lessonId], references: [id])
+  lessonId String?
 }
 
 // evitar mexer daqui pra baixo:
