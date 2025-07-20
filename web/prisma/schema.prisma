@@ -141,7 +141,7 @@ model Topico {
 
   materia      Materia        @relation(fields: [materiaId], references: [id])
   materiaId    String
-  topicoLicoes TopicoLesson[]
+  topicoLessons TopicoLesson[]
   userProgress UserProgress[]
   cursoTopicos CursoTopico[]
 }
@@ -166,7 +166,7 @@ model Lesson {
   conteudoPages    ConteudoPage[]
   lessonVariants    LessonVariant[]
   
-  topicoLicoes     TopicoLesson[]
+  topicoLessons     TopicoLesson[]
   userProgress     UserProgress[]
   userAttempts     UserAttempt[]
   
