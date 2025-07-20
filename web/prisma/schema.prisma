@@ -151,13 +151,13 @@ model Lesson {
   name      String
   descricao String
   type      LessonType @default(GERAL)
-  archived  Boolean? @default(false)
+  archived  Boolean @default(false)
   
   // PFA-based knowledge tracking
   knowledgeComponents String[] // Skills this lesson teaches
   prerequisites       String[] // Required skill IDs
   difficulty         Float     @default(1.0) // Continuous difficulty scale
-  estimatedDuration  Int?      // in minutes
+  estimatedDuration  Int      // in minutes
   
   // Learning objectives with weights
   learningObjectives LessonObjective[]
@@ -209,7 +209,7 @@ model ConteudoPage {
   id       String @id @default(uuid()) @map("_id")
   name     String
   order    Int    @default(0)
-  archived Boolean? @default(false)
+  archived Boolean @default(false)
   
   // Flexible parent relationship
   lesson         Lesson?        @relation(fields: [lessonId], references: [id])
@@ -243,7 +243,7 @@ model ContentBlock {
   page     ConteudoPage @relation(fields: [pageId], references: [id])
   pageId   String
   
-  archived Boolean? @default(false)
+  archived Boolean @default(false)
 }
 
 // Define learning objectives with weights for PFA
@@ -390,7 +390,7 @@ model Conteudo {
   type     String
   markdown String
   order    Int      @default(0)
-  archived Boolean? @default(false)
+  archived Boolean  @default(false)
 
   lesson   Lesson?  @relation(fields: [lessonId], references: [id])
   lessonId String?
