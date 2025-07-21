@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import LatexExamples from "@/components/markdown/LatexExamples";
 import toast from "react-hot-toast";
+import { ReorderableList } from "@/components/common/ReorderableList";
 
 interface ContentPage {
   id: string;
@@ -52,6 +53,11 @@ export default function LessonContentPage() {
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
   const [newPageName, setNewPageName] = useState("");
 
+  const [pageOrder, setPageOrder] = useState<string[]>([]);
+  const [pageOrderChanged, setPageOrderChanged] = useState(false);
+  const [blockOrder, setBlockOrder] = useState<string[]>([]);
+  const [blockOrderChanged, setBlockOrderChanged] = useState(false);
+
   const Paragraph = () => (
     <>Edite o conteúdo da lição usando Markdown e LaTeX para criar conteúdo educacional rico.</>
   );
@@ -63,6 +69,20 @@ export default function LessonContentPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
+
+  useEffect(() => {
+    if (contentPages) {
+      setPageOrder(contentPages.map(p => p.id));
+      setPageOrderChanged(false);
+    }
+  }, [contentPages]);
+
+  useEffect(() => {
+    if (selectedPage) {
+      setBlockOrder(selectedPage.contentBlocks.map(b => b.id));
+      setBlockOrderChanged(false);
+    }
+  }, [selectedPage]);
 
   const loadLesson = async () => {
     try {
@@ -87,13 +107,15 @@ export default function LessonContentPage() {
       const response = await fetch(`/api/lesson/${lessonId}/conteudo`);
       if (response.ok) {
         const data = await response.json();
-        setContentPages(data);
+        const sortedData = [...data].sort((a, b) => a.order - b.order);
+        setContentPages(sortedData);
         
         // Select first page by default
-        if (data.length > 0 && !selectedPage) {
-          setSelectedPage(data[0]);
-          if (data[0].contentBlocks.length > 0) {
-            const firstBlock = data[0].contentBlocks.find((block: ContentBlock) => block.type === 'MARKDOWN');
+        if (sortedData.length > 0 && !selectedPage) {
+          const firstPage = sortedData[0];
+          setSelectedPage(firstPage);
+          if (firstPage.contentBlocks.length > 0) {
+            const firstBlock = firstPage.contentBlocks.find((block: ContentBlock) => block.type === 'MARKDOWN');
             if (firstBlock) {
               setSelectedBlock(firstBlock);
               setMarkdown(firstBlock.markdown || "");
@@ -134,6 +156,7 @@ export default function LessonContentPage() {
         setShowNewPageDialog(false);
         setNewPageName("");
         toast.success('Página criada com sucesso!');
+        loadContent(); // Recarregar para garantir a ordem
       } else {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Erro ao criar página');
@@ -166,13 +189,11 @@ export default function LessonContentPage() {
 
       if (response.ok) {
         const newBlock = await response.json();
-        setContentPages(prev => prev.map(page => 
-          page.id === selectedPage.id 
-            ? { ...page, contentBlocks: [...page.contentBlocks, newBlock] }
-            : page
-        ));
+        // Recarregar tudo para simplicidade
+        await loadContent();
         setSelectedBlock(newBlock);
         setMarkdown(newBlock.markdown || "");
+
         toast.success('Bloco de conteúdo criado!');
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -234,7 +255,8 @@ export default function LessonContentPage() {
     setMarkdown("");
     
     // Select first markdown block if available
-    const firstMarkdownBlock = page.contentBlocks.find(block => block.type === 'MARKDOWN');
+    const sortedBlocks = [...page.contentBlocks].sort((a, b) => a.order - b.order);
+    const firstMarkdownBlock = sortedBlocks.find(block => block.type === 'MARKDOWN');
     if (firstMarkdownBlock) {
       setSelectedBlock(firstMarkdownBlock);
       setMarkdown(firstMarkdownBlock.markdown || "");
@@ -247,6 +269,94 @@ export default function LessonContentPage() {
       setMarkdown(block.markdown || "");
     }
   };
+
+  const handlePageOrderChange = (newOrder: string[]) => {
+    setPageOrder(newOrder);
+    setPageOrderChanged(true);
+  };
+
+  const handleBlockOrderChange = (newOrder: string[]) => {
+    setBlockOrder(newOrder);
+    setBlockOrderChanged(true);
+  };
+
+  const handleSavePageOrder = async () => {
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/lesson/${lessonId}/conteudo/order`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageIds: pageOrder }),
+      });
+      if (!res.ok) {
+        throw new Error('Erro ao salvar a ordem das páginas');
+      }
+      toast.success('Ordem das páginas salva com sucesso!');
+      setPageOrderChanged(false);
+      await loadContent(); // Recarregar para refletir a nova ordem
+    } catch (e) {
+      toast.error(String(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveBlockOrder = async () => {
+    if (!selectedPage) return;
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/lesson/${lessonId}/conteudo/${selectedPage.id}/order`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blockIds: blockOrder }),
+      });
+      if (!res.ok) {
+        throw new Error('Erro ao salvar a ordem dos blocos');
+      }
+      toast.success('Ordem dos blocos salva com sucesso!');
+      setBlockOrderChanged(false);
+      await loadContent(); // Recarregar
+    } catch (e) {
+      toast.error(String(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderPageItem = (page: ContentPage) => (
+    <div
+      className={`p-3 rounded-lg cursor-pointer transition-colors w-full ${
+        selectedPage?.id === page.id
+          ? 'bg-pink-100 border border-pink-300'
+          : 'bg-gray-50 hover:bg-gray-100'
+      }`}
+      onClick={() => handlePageSelect(page)}
+    >
+      <h4 className="font-medium text-sm">{page.name}</h4>
+      <p className="text-xs text-gray-500">
+        {page.contentBlocks.length} blocos
+      </p>
+    </div>
+  );
+
+  const renderBlockItem = (block: ContentBlock) => (
+    <div
+      className={`p-2 rounded cursor-pointer transition-colors text-sm w-full ${
+        selectedBlock?.id === block.id
+          ? 'bg-pink-200 border border-pink-400'
+          : 'bg-gray-50 hover:bg-gray-100'
+      }`}
+      onClick={() => handleBlockSelect(block)}
+    >
+      <div className="flex items-center justify-between">
+        <span className="capitalize">{block.type.toLowerCase().replace('_', ' ')}</span>
+        {block.type === 'MARKDOWN' && (
+          <Edit3 className="w-3 h-3 text-gray-400" />
+        )}
+      </div>
+    </div>
+  );
+
 
   if (loading) {
     return (
@@ -293,22 +403,20 @@ export default function LessonContentPage() {
                 </p>
               ) : (
                 <div className="space-y-2 mb-6">
-                  {contentPages.map((page) => (
-                    <div
-                      key={page.id}
-                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedPage?.id === page.id
-                          ? 'bg-pink-100 border border-pink-300'
-                          : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
-                      onClick={() => handlePageSelect(page)}
-                    >
-                      <h4 className="font-medium text-sm">{page.name}</h4>
-                      <p className="text-xs text-gray-500">
-                        {page.contentBlocks.length} blocos
-                      </p>
-                    </div>
-                  ))}
+                   <ReorderableList
+                    items={pageOrder.map(id => contentPages.find(p => p.id === id)).filter(Boolean) as ContentPage[]}
+                    onOrderChange={handlePageOrderChange}
+                    renderItem={renderPageItem}
+                    className="space-y-2"
+                  />
+                </div>
+              )}
+               {pageOrderChanged && (
+                <div className="flex justify-end mb-4">
+                  <Button onClick={handleSavePageOrder} disabled={saving}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvar Ordem
+                  </Button>
                 </div>
               )}
 
@@ -328,25 +436,21 @@ export default function LessonContentPage() {
                   </div>
                   
                   <div className="space-y-1">
-                    {selectedPage.contentBlocks.map((block) => (
-                      <div
-                        key={block.id}
-                        className={`p-2 rounded cursor-pointer transition-colors text-sm ${
-                          selectedBlock?.id === block.id
-                            ? 'bg-pink-200 border border-pink-400'
-                            : 'bg-gray-50 hover:bg-gray-100'
-                        }`}
-                        onClick={() => handleBlockSelect(block)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="capitalize">{block.type.toLowerCase()}</span>
-                          {block.type === 'MARKDOWN' && (
-                            <Edit3 className="w-3 h-3 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                    <ReorderableList
+                      items={blockOrder.map(id => selectedPage.contentBlocks.find(b => b.id === id)).filter(Boolean) as ContentBlock[]}
+                      onOrderChange={handleBlockOrderChange}
+                      renderItem={renderBlockItem}
+                      className="space-y-1"
+                    />
                   </div>
+                  {blockOrderChanged && (
+                    <div className="flex justify-end mt-4">
+                      <Button onClick={handleSaveBlockOrder} disabled={saving} size="sm">
+                         <Save className="w-4 h-4 mr-2" />
+                        Salvar Ordem
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -358,7 +462,7 @@ export default function LessonContentPage() {
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">
-                    Editando: {selectedPage?.name} - {selectedBlock.type}
+                    Editando: {selectedPage?.name} - {selectedBlock.type.toLowerCase().replace('_', ' ')}
                   </h3>
                   <Button
                     onClick={handleSaveMarkdown}
@@ -381,7 +485,7 @@ export default function LessonContentPage() {
                     Selecione um bloco de conteúdo
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    Escolha um bloco de conteúdo na barra lateral para começar a editar.
+                    Escolha um bloco de conteúdo na barra lateral para começar a editar ou crie um novo.
                   </p>
                   <Button onClick={handleCreateMarkdownBlock} disabled={saving}>
                     <Plus className="w-4 h-4 mr-2" />
