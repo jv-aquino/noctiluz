@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Clock, BarChart3, Tag, BookOpen, MoreVertical } from 'lucide-react';
 import { Lesson } from '@/generated/prisma';
+import Link from 'next/link';
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -109,17 +110,14 @@ export function LessonCard({ lesson, onEdit, onDelete }: LessonCardProps) {
                     Editar
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    setShowMenu(false);
-                    // This would open the content editor
-                    console.log('Open content editor for:', lesson.name);
-                  }}
+                <Link
+                  href={`/admin/dashboard/licoes/${lesson.id}/conteudo`}
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setShowMenu(false)}
                 >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Editar Conteúdo
-                </button>
+                </Link>
                 {onDelete && (
                   <button
                     onClick={() => {
