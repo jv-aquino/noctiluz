@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ReorderableList } from '@/components/common/ReorderableList';
-import { Lesson } from '@/generated/prisma';
+import { TopicoLesson, Lesson } from '@/generated/prisma';
 import toast from 'react-hot-toast';
 
 interface LessonsListProps {
@@ -60,8 +60,8 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
 
   useEffect(() => {
     if (topicoLessons) {
-      const sortedLessons = [...topicoLessons].sort((a, b) => a.order - b.order);
-      setLessonOrder(sortedLessons.filter((l: any) => l.lesson && l.lesson.id).map((l: any) => l.lesson.id));
+      const sortedLessons = [...topicoLessons as TopicoLessonWithLesson[]].sort((a, b) => a.order - b.order);
+      setLessonOrder(sortedLessons.filter((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id).map((l: TopicoLessonWithLesson) => l.lesson!.id));
       setOrderChanged(false);
     }
   }, [topicoLessons]);
@@ -81,8 +81,12 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
       toast.success('Ordem das lições salva!');
       setOrderChanged(false);
       mutateTopicoLessons();
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao salvar ordem');
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message || 'Erro ao salvar ordem');
+      } else {
+        toast.error('Erro ao salvar ordem');
+      }
     }
   };
 
@@ -100,8 +104,12 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
       toast.success('Lição adicionada!');
       setAddDialogOpen(false);
       mutateTopicoLessons();
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao adicionar lição');
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message || 'Erro ao adicionar lição');
+      } else {
+        toast.error('Erro ao adicionar lição');
+      }
     }
   };
 
@@ -114,13 +122,19 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
       });
       toast.success('Lição desvinculada!');
       mutateTopicoLessons();
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao desvincular lição');
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message || 'Erro ao desvincular lição');
+      } else {
+        toast.error('Erro ao desvincular lição');
+      }
     }
   };
 
+  type TopicoLessonWithLesson = TopicoLesson & { lesson?: Lesson };
+
   const availableLessons = allLessons?.filter(
-    (lesson: Lesson) => !topicoLessons?.some((tl: any) => tl.lesson && tl.lesson.id === lesson.id)
+    (lesson: Lesson) => !(topicoLessons as TopicoLessonWithLesson[])?.some((tl: TopicoLessonWithLesson) => tl.lesson && tl.lesson.id === lesson.id)
   ) || [];
 
   const filteredLessons = availableLessons.filter((lesson: Lesson) =>
@@ -132,12 +146,12 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
 
   return (
     <div className="space-y-4">
-      {topicoLessons.filter((l: any) => l.lesson && l.lesson.id).length > 0 ? (
+      {(topicoLessons as TopicoLessonWithLesson[]).filter((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id).length > 0 ? (
         <ReorderableList
           items={lessonOrder.map(id => {
-            const found = topicoLessons.find((l: any) => l.lesson && l.lesson.id === id);
+            const found = (topicoLessons as TopicoLessonWithLesson[]).find((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id === id);
             return found?.lesson;
-          }).filter(Boolean)}
+          }).filter((l): l is Lesson => Boolean(l))}
           onOrderChange={handleOrderChange}
           renderItem={(lesson: Lesson) => <LessonItem lesson={lesson} onRemove={handleRemoveLesson} />}
           className="space-y-2"
