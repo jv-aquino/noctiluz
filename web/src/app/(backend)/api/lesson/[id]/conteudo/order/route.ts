@@ -8,14 +8,15 @@ const allowedRoles: AllowedRoutes = {
   PATCH: ["SUPER_ADMIN", "ADMIN"]
 };
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const forbidden = await blockForbiddenRequests(request, allowedRoles.PATCH);
     if (forbidden) {
       return forbidden;
     }
 
-    const lessonIdValidation = idSchema.safeParse(params.id);
+    const { id } = await params;
+    const lessonIdValidation = idSchema.safeParse(id);
     if (!lessonIdValidation.success) {
       return NextResponse.json({ error: 'ID da lição inválido' }, { status: 400 });
     }
