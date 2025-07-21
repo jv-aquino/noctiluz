@@ -34,7 +34,7 @@ export async function GET(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { topicoId: string } }
+    { params }: { params: Promise<{ topicoId: string }> }
 ) {
     try {
         const forbidden = await blockForbiddenRequests(request, allowedRoles.DELETE);
@@ -42,7 +42,7 @@ export async function DELETE(
             return forbidden;
         }
 
-        const { topicoId } = params;
+        const { topicoId } = await params;
         const topicoIdValidation = idSchema.safeParse(topicoId);
         if (!topicoIdValidation.success) {
             return NextResponse.json({ error: 'ID do tópico inválido' }, { status: 400 });
