@@ -19,7 +19,7 @@ const EMPTY_LESSON: LessonFormData = {
   name: '',
   descricao: '',
   type: 'GERAL',
-  difficulty: 1.0,
+  difficulty: 2.5,
   estimatedDuration: 5,
   knowledgeComponents: [],
   prerequisites: [],
