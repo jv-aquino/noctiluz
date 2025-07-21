@@ -107,29 +107,10 @@ export async function updateLesson(id: string, data: unknown) {
 }
 
 export async function getLessonsByTopicoId(topicoId: string) {
-  return prisma.lesson.findMany({
-    where: {
-      topicoLessons: {
-        some: {
-          topicoId,
-        },
-      },
-    },
-    include: {
-      topicoLessons: {
-        where: {
-          topicoId,
-        },
-        orderBy: {
-          order: 'asc',
-        },
-      },
-      learningObjectives: {
-        include: {
-          skill: true,
-        },
-      },
-    },
+  return prisma.topicoLesson.findMany({
+    where: { topicoId },
+    include: { lesson: true },
+    orderBy: { order: 'asc' },
   });
 }
 
@@ -156,15 +137,25 @@ export async function addLessonToTopico(lessonId: string, topicoId: string, orde
 }
 
 export async function removeLessonFromTopico(lessonId: string, topicoId: string) {
-  return prisma.topicoLesson.delete({
-    where: {
-      topicoId_lessonId: {
-        topicoId,
-        lessonId,
+    const relation = await prisma.topicoLesson.findUnique({
+      where: {
+        topicoId_lessonId: {
+          topicoId,
+          lessonId,
+        }
+      }
+    });
+  
+    if (!relation) {
+      throw new Error("Relation Topico-Lesson not found");
+    }
+  
+    return await prisma.topicoLesson.delete({
+      where: {
+        id: relation.id,
       },
-    },
-  });
-}
+    });
+  }
 
 export async function reorderLessonsInTopico(topicoId: string, lessonIds: string[]) {
   // Update the order for each lesson in the topico
@@ -183,4 +174,56 @@ export async function reorderLessonsInTopico(topicoId: string, lessonIds: string
   );
   
   return prisma.$transaction(updates);
+} 
+
+export async function reorderConteudoPages(lessonId: string, pageIds: string[]) {
+  const updates = pageIds.map((pageId, index) =>
+    prisma.conteudoPage.updateMany({
+      where: {
+        id: pageId,
+        lessonId,
+      },
+      data: {
+        order: index,
+      },
+    })
+  );
+
+  return prisma.$transaction(updates);
+}
+
+export async function reorderContentBlocks(pageId: string, blockIds: string[]) {
+  const updates = blockIds.map((blockId, index) =>
+    prisma.contentBlock.updateMany({
+      where: {
+        id: blockId,
+        pageId,
+      },
+      data: {
+        order: index,
+      },
+    })
+  );
+
+  return prisma.$transaction(updates);
+} 
+
+export async function deleteConteudoPage(id: string) {
+  // First, delete all content blocks within the page
+  await prisma.contentBlock.deleteMany({
+    where: {
+      pageId: id,
+    },
+  });
+
+  // Then, delete the page itself
+  return prisma.conteudoPage.delete({
+    where: { id },
+  });
+}
+
+export async function deleteContentBlock(id: string) {
+  return prisma.contentBlock.delete({
+    where: { id },
+  });
 } 
