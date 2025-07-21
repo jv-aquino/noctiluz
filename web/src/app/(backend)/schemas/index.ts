@@ -3,3 +3,4 @@ export * from './base.schema';
 export * from './materia.schema'
 export * from './curso.schema'
 export * from './topico.schema';
+export * from './lesson.schema';

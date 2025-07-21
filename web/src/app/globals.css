@@ -33,6 +33,15 @@ button {
   cursor: pointer;
 }
 
+@utility loading-spin {
+  margin: auto;
+  border-radius: 9999px;
+  width: 2rem;
+  height: 2rem;
+  border-bottom: 2px solid var(--color-pink-500);
+  @apply animate-spin;
+}
+
 @utility button-md {
   font-weight: 600;
   padding: 8px 24px;

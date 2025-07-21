@@ -5,7 +5,7 @@ export async function getAllTopicos() {
   return prisma.topico.findMany({
     include: {
       cursoTopicos: true,
-      topicoLicoes: true,
+      topicoLessons: true,
       userProgress: true,
       materia: true,
     },
@@ -24,7 +24,7 @@ export async function getTopicoById(id: string) {
     where: { id },
     include: {
       cursoTopicos: true,
-      topicoLicoes: true,
+      topicoLessons: true,
       userProgress: true,
       materia: true,
     },
@@ -32,9 +32,9 @@ export async function getTopicoById(id: string) {
 }
 
 export async function deleteTopico(id: string) {
-  // Remove all related cursoTopicos and topicoLicoes first
+  // Remove all related cursoTopicos and topicoLessons first
   await prisma.cursoTopico.deleteMany({ where: { topicoId: id } });
-  await prisma.topicoLicao.deleteMany({ where: { topicoId: id } });
+  await prisma.topicoLesson.deleteMany({ where: { topicoId: id } });
   await prisma.userProgress.deleteMany({ where: { topicoId: id } });
   // Then delete the topico
   return prisma.topico.delete({

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Check, Eye, EyeOff, X } from 'lucide-react';
 import styles from './input.module.css';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,6 @@ function ValidatedInput({
   title,
   name,
   value,
-  dependencies,
   setValue,
   overrideValidate,
   isValid: externallyControlledValid,
@@ -46,21 +45,20 @@ function ValidatedInput({
 
   const isControlled = value !== undefined && setValue !== undefined;
 
-  const validate = overrideValidate ?? ((val: string) => {
+  const showValid = externallyControlledValid ?? internalValid;
+  const inputCurrentValue = isControlled ? value : inputValue;
+
+  const validate = useMemo(() => overrideValidate ?? ((val: string) => {
     if (type === 'email') return validateEmail(val);
     if (type === 'password') return /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(val);
     if (type === 'phone') return /^\+?[1-9]\d{1,14}$/.test(val);
     if (type === 'text') return val.trim().length >= 1;
     return true;
-  });
+  }), [overrideValidate, type]);
 
   useEffect(() => {
-    if (dependencies && (inputCurrentValue || inputCurrentValue === '')) {
-      const valid = validate(String(inputCurrentValue));
-      setInternalValid(valid);
-      onValidChange?.(valid);
-    }
-  }, [dependencies, validate, onValidChange]);
+    setInternalValid(validate(String(inputCurrentValue)));
+  }, [inputCurrentValue, validate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.value;
@@ -73,9 +71,6 @@ function ValidatedInput({
     setInternalValid(valid);
     onValidChange?.(valid);
   };
-
-  const showValid = externallyControlledValid ?? internalValid;
-  const inputCurrentValue = isControlled ? value : inputValue;
   
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
