@@ -107,29 +107,10 @@ export async function updateLesson(id: string, data: unknown) {
 }
 
 export async function getLessonsByTopicoId(topicoId: string) {
-  return prisma.lesson.findMany({
-    where: {
-      topicoLessons: {
-        some: {
-          topicoId,
-        },
-      },
-    },
-    include: {
-      topicoLessons: {
-        where: {
-          topicoId,
-        },
-        orderBy: {
-          order: 'asc',
-        },
-      },
-      learningObjectives: {
-        include: {
-          skill: true,
-        },
-      },
-    },
+  return prisma.topicoLesson.findMany({
+    where: { topicoId },
+    include: { lesson: true },
+    orderBy: { order: 'asc' },
   });
 }
 
@@ -156,15 +137,25 @@ export async function addLessonToTopico(lessonId: string, topicoId: string, orde
 }
 
 export async function removeLessonFromTopico(lessonId: string, topicoId: string) {
-  return prisma.topicoLesson.delete({
-    where: {
-      topicoId_lessonId: {
-        topicoId,
-        lessonId,
+    const relation = await prisma.topicoLesson.findUnique({
+      where: {
+        topicoId_lessonId: {
+          topicoId,
+          lessonId,
+        }
+      }
+    });
+  
+    if (!relation) {
+      throw new Error("Relation Topico-Lesson not found");
+    }
+  
+    return await prisma.topicoLesson.delete({
+      where: {
+        id: relation.id,
       },
-    },
-  });
-}
+    });
+  }
 
 export async function reorderLessonsInTopico(topicoId: string, lessonIds: string[]) {
   // Update the order for each lesson in the topico
