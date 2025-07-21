@@ -8,7 +8,7 @@ export const createLessonSchema = z.object({
   knowledgeComponents: z.array(z.string()).default([]),
   prerequisites: z.array(z.string()).default([]),
   difficulty: z.number().min(0).max(10).default(1.0),
-  estimatedDuration: z.number().positive().optional(),
+  estimatedDuration: z.number().positive(),
 });
 
 export const patchLessonSchema = z.object({
