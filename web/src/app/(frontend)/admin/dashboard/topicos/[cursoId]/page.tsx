@@ -12,7 +12,6 @@ import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ReorderableList } from "@/components/common/ReorderableList";
 import { TopicoItem } from "./TopicoItem";

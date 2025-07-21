@@ -38,14 +38,14 @@ import {
     );
   }
   
-  interface ReorderableListProps {
-    items: { id: string; [key: string]: any }[];
+  interface ReorderableListProps<T extends {id: string}> {
+    items: T[];
     onOrderChange: (newOrder: string[]) => void;
-    renderItem: (item: any) => React.ReactNode;
+    renderItem: (item: T) => React.ReactNode;
     className?: string;
   }
   
-  export function ReorderableList({ items, onOrderChange, renderItem, className }: ReorderableListProps) {
+  export function ReorderableList<T extends {id: string}>({ items, onOrderChange, renderItem, className }: ReorderableListProps<T>) {
     const sensors = useSensors(useSensor(PointerSensor));
     const itemIds = items.map(i => i.id);
   
