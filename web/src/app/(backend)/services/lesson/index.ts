@@ -184,3 +184,55 @@ export async function reorderLessonsInTopico(topicoId: string, lessonIds: string
   
   return prisma.$transaction(updates);
 } 
+
+export async function reorderConteudoPages(lessonId: string, pageIds: string[]) {
+  const updates = pageIds.map((pageId, index) =>
+    prisma.conteudoPage.updateMany({
+      where: {
+        id: pageId,
+        lessonId,
+      },
+      data: {
+        order: index,
+      },
+    })
+  );
+
+  return prisma.$transaction(updates);
+}
+
+export async function reorderContentBlocks(pageId: string, blockIds: string[]) {
+  const updates = blockIds.map((blockId, index) =>
+    prisma.contentBlock.updateMany({
+      where: {
+        id: blockId,
+        pageId,
+      },
+      data: {
+        order: index,
+      },
+    })
+  );
+
+  return prisma.$transaction(updates);
+} 
+
+export async function deleteConteudoPage(id: string) {
+  // First, delete all content blocks within the page
+  await prisma.contentBlock.deleteMany({
+    where: {
+      pageId: id,
+    },
+  });
+
+  // Then, delete the page itself
+  return prisma.conteudoPage.delete({
+    where: { id },
+  });
+}
+
+export async function deleteContentBlock(id: string) {
+  return prisma.contentBlock.delete({
+    where: { id },
+  });
+} 
