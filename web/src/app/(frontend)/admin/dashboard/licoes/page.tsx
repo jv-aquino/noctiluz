@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { LessonForm } from "./LessonForm";
 import { LessonCard } from "./LessonCard";
 import { LessonFilterBar } from "./LessonFilterBar";
-import MarkdownEditor from "./MarkdownEditor";
-import LatexExamples from "./LatexExamples";
 import { Lesson, TopicoLesson } from "@/generated/prisma";
 import {
   Dialog,
@@ -30,9 +28,6 @@ export default function LicoesPage() {
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<LessonWithRelations | null>(null);
-  const [showEditor, setShowEditor] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState<LessonWithRelations | null>(null);
-  const [markdown, setMarkdown] = useState<string>("");
 
   // Filter states
   const [search, setSearch] = useState('');
@@ -96,9 +91,6 @@ export default function LicoesPage() {
   const handleCancel = () => {
     setIsDialogOpen(false);
     setEditingLesson(null);
-    setShowEditor(false);
-    setSelectedLesson(null);
-    setMarkdown("");
   };
 
   const handleEdit = (lesson: Lesson) => {
@@ -127,12 +119,7 @@ export default function LicoesPage() {
     }
   };
 
-  // const handleOpenEditor = (lesson: LessonWithRelations) => {
-  //   setSelectedLesson(lesson);
-  //   setShowEditor(true);
-  //   // Here you would typically load the lesson's content
-  //   setMarkdown(`# ${lesson.name}\n\n${lesson.descricao}\n\n## Conteúdo da Lição\n\nDigite o conteúdo da lição aqui...`);
-  // };
+
 
   // Filter lessons based on search and filters
   const filteredLessons = lessons.filter(lesson => {
@@ -176,28 +163,6 @@ export default function LicoesPage() {
       </AdminHeader>
 
       <div className="w-full mx-2 mt-8">
-        {showEditor ? (
-          <div className="bg-white border border-gray-400 p-6 rounded shadow-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold">
-                Editor de Conteúdo - {selectedLesson?.name}
-              </h2>
-              <Button variant="outline" onClick={handleCancel}>
-                Voltar
-              </Button>
-            </div>
-            <LatexExamples />
-            <MarkdownEditor value={markdown} onChange={setMarkdown} />
-            <div className="mt-6 flex gap-4">
-              <Button onClick={() => console.log('Salvar conteúdo:', markdown)}>
-                Salvar Conteúdo
-              </Button>
-              <Button variant="outline" onClick={handleCancel}>
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        ) : (
           <>
             <LessonFilterBar
               search={search}
@@ -258,7 +223,6 @@ export default function LicoesPage() {
               </div>
             )}
           </>
-        )}
       </div>
     </>
   );
