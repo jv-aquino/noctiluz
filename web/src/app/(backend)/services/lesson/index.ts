@@ -78,7 +78,6 @@ export async function deleteLesson(id: string) {
   await prisma.userAttempt.deleteMany({ where: { lessonId: id } });
   await prisma.conteudoPage.deleteMany({ where: { lessonId: id } });
   await prisma.lessonVariant.deleteMany({ where: { lessonId: id } });
-  await prisma.conteudo.deleteMany({ where: { lessonId: id } });
   
   // Then delete the lesson
   return prisma.lesson.delete({
