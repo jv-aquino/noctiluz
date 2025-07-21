@@ -30,4 +30,12 @@ export const addLessonToTopicoSchema = z.object({
 
 export const reorderLessonsSchema = z.object({
   lessonIds: z.array(z.string()).min(1, 'Pelo menos uma lição deve ser fornecida'),
+});
+
+export const reorderConteudoPagesSchema = z.object({
+  pageIds: z.array(z.string()),
+});
+
+export const reorderContentBlocksSchema = z.object({
+  blockIds: z.array(z.string()),
 }); 
