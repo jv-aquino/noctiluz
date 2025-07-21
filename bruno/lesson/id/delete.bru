@@ -1,0 +1,15 @@
+meta {
+  name: delete
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/lesson/{{lessonId}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Cookie: better-auth.session_token={{sessionValue}}
+}
