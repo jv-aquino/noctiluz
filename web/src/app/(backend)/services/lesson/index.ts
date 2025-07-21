@@ -130,11 +130,6 @@ export async function getLessonsByTopicoId(topicoId: string) {
         },
       },
     },
-    orderBy: {
-      topicoLessons: {
-        order: 'asc',
-      },
-    },
   });
 }
 
