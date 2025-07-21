@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ReorderableList } from "@/components/common/ReorderableList";
+import { TopicoItem } from "./TopicoItem";
 
 function TopicosCursoPage() {
   const router = useRouter();
@@ -140,26 +141,7 @@ function TopicosCursoPage() {
 
   const renderTopicoItem = (topico: any) => {
     return (
-      <div className="p-2 border rounded bg-white flex items-center justify-between gap-2 w-full">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-4 h-4 rounded-full mr-2 border" style={{ backgroundColor: topico.materia?.cor || '#eee' }} />
-          <span className="font-medium">{topico.name}</span>
-          <span className="ml-2 text-gray-500">({topico.slug})</span>
-        </div>
-        <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={(e) => {
-              e.stopPropagation();
-              confirmDelete({ id: topico.id, name: topico.name });
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+     <TopicoItem topico={topico} onDelete={() => confirmDelete({ id: topico.id, name: topico.name })} />
     );
   };
 
@@ -185,7 +167,7 @@ function TopicosCursoPage() {
           loading={loading}
         />
       </AdminHeader>
-      <div className="max-w-2xl mx-auto mt-8">
+      <div className="mt-8">
         <h2 className="text-lg font-semibold mb-4">Tópicos em ordem:</h2>
         {isLoading && <p>Carregando curso...</p>}
         {error && <p>Erro ao carregar curso.</p>}
@@ -208,11 +190,6 @@ function TopicosCursoPage() {
         ) : (
           <p>Nenhum tópico cadastrado para este curso.</p>
         )}
-        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
-          <p className="text-yellow-800">
-            Funcionalidades de reordenação e gerenciamento de lições serão implementadas aqui.
-          </p>
-        </div>
       </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
