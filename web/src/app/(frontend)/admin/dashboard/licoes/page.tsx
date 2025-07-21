@@ -175,7 +175,7 @@ export default function LicoesPage() {
 
             {loading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500 mx-auto"></div>
+                <div className="loading-spin"></div>
                 <p className="mt-2 text-gray-600">Carregando lições...</p>
               </div>
             ) : filteredLessons.length === 0 ? (
