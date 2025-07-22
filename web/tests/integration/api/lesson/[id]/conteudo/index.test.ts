@@ -11,7 +11,7 @@ import prisma from '@/backend/services/db'
 
 vi.mock('@/backend/services/db', () => ({
   default: {
-    conteudoPage: {
+    contentPage: {
       findMany: vi.fn(),
       aggregate: vi.fn(),
       create: vi.fn(),
@@ -31,7 +31,7 @@ describe('GET /api/lesson/[id]/conteudo', () => {
   it('should return content pages for lesson', async () => {
     const lessonId = postLessonMock.id;
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findMany as Mock).mockResolvedValue([contentPageMock]);
+    (prisma.contentPage.findMany as Mock).mockResolvedValue([contentPageMock]);
     
     const request = createRequest({}, 'lesson');
     const response = await GET(request, { params: Promise.resolve({ id: lessonId }) });
@@ -40,7 +40,7 @@ describe('GET /api/lesson/[id]/conteudo', () => {
     const data = await response.json();
     expect(data).toEqual([contentPageMock]);
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.conteudoPage.findMany).toHaveBeenCalledWith({
+    expect(prisma.contentPage.findMany).toHaveBeenCalledWith({
       where: { lessonId },
       include: {
         contentBlocks: {
@@ -64,7 +64,7 @@ describe('GET /api/lesson/[id]/conteudo', () => {
   it('should return empty array if no content pages exist', async () => {
     const lessonId = postLessonMock.id;
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findMany as Mock).mockResolvedValue([]);
+    (prisma.contentPage.findMany as Mock).mockResolvedValue([]);
     
     const request = createRequest({}, 'lesson');
     const response = await GET(request, { params: Promise.resolve({ id: lessonId }) });
@@ -101,8 +101,8 @@ describe('POST /api/lesson/[id]/conteudo', () => {
   it('should create content page if user is ADMIN', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.aggregate as Mock).mockResolvedValue({ _max: { order: 0 } });
-    (prisma.conteudoPage.create as Mock).mockResolvedValue({
+    (prisma.contentPage.aggregate as Mock).mockResolvedValue({ _max: { order: 0 } });
+    (prisma.contentPage.create as Mock).mockResolvedValue({
       ...contentPageMock,
       ...createContentPageMock,
       contentBlocks: []
@@ -119,7 +119,7 @@ describe('POST /api/lesson/[id]/conteudo', () => {
       contentBlocks: []
     });
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.conteudoPage.create).toHaveBeenCalledWith({
+    expect(prisma.contentPage.create).toHaveBeenCalledWith({
       data: {
         name: createContentPageMock.name,
         order: 1, // maxOrder + 1
@@ -154,7 +154,7 @@ describe('POST /api/lesson/[id]/conteudo', () => {
   it('should use provided order if specified', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.create as Mock).mockResolvedValue({
+    (prisma.contentPage.create as Mock).mockResolvedValue({
       ...contentPageMock,
       ...createContentPageMock,
       order: 5,
@@ -165,7 +165,7 @@ describe('POST /api/lesson/[id]/conteudo', () => {
     const response = await POST(request, { params: Promise.resolve({ id: lessonId }) });
     
     expect(response?.status).toBe(201);
-    expect(prisma.conteudoPage.create).toHaveBeenCalledWith({
+    expect(prisma.contentPage.create).toHaveBeenCalledWith({
       data: {
         name: "Test Page",
         order: 5,

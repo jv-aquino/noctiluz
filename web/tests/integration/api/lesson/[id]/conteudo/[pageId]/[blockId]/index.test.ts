@@ -11,7 +11,7 @@ import prisma from '@/backend/services/db'
 
 vi.mock('@/backend/services/db', () => ({
   default: {
-    conteudoPage: {
+    contentPage: {
       findFirst: vi.fn(),
     },
     contentBlock: {
@@ -37,7 +37,7 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
     const blockId = contentBlockMock.id;
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(contentBlockMock);
     
     const request = createRequest({}, 'lesson');
@@ -49,7 +49,7 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
     const data = await response.json();
     expect(data).toEqual(contentBlockMock);
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.conteudoPage.findFirst).toHaveBeenCalledWith({
+    expect(prisma.contentPage.findFirst).toHaveBeenCalledWith({
       where: { 
         id: pageId,
         lessonId 
@@ -84,7 +84,7 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
     const blockId = contentBlockMock.id;
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(null);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(null);
     
     const request = createRequest({}, 'lesson');
     const response = await GET(request, { 
@@ -100,7 +100,7 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
     const blockId = "550e8400-e29b-41d4-a716-446655440999";
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(null);
     
     const request = createRequest({}, 'lesson');
@@ -144,7 +144,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should update content block if user is ADMIN', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(contentBlockMock);
     (prisma.contentBlock.update as Mock).mockResolvedValue({
       ...contentBlockMock,
@@ -163,7 +163,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
       ...updateContentBlockMock,
     });
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.conteudoPage.findFirst).toHaveBeenCalledWith({
+    expect(prisma.contentPage.findFirst).toHaveBeenCalledWith({
       where: { 
         id: pageId,
         lessonId 
@@ -199,7 +199,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should fail if page not found', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(null);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(null);
 
     const request = createPatchRequest();
     const response = await PATCH(request, { 
@@ -212,7 +212,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should fail if block not found', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(null);
 
     const request = createPatchRequest();
@@ -226,7 +226,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should fail if type is invalid', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(contentBlockMock);
 
     const request = createRequest({ type: "INVALID_TYPE" }, 'lesson');
@@ -240,7 +240,7 @@ describe('PATCH /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should handle partial updates', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(contentBlockMock);
     (prisma.contentBlock.update as Mock).mockResolvedValue({
       ...contentBlockMock,
@@ -294,7 +294,7 @@ describe('DELETE /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should delete content block if user is ADMIN', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(contentBlockMock);
     (prisma.contentBlock.delete as Mock).mockResolvedValue(contentBlockMock);
 
@@ -307,7 +307,7 @@ describe('DELETE /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
     const data = await response?.json();
     expect(data).toEqual({ message: 'Bloco de conteúdo excluído com sucesso' });
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.conteudoPage.findFirst).toHaveBeenCalledWith({
+    expect(prisma.contentPage.findFirst).toHaveBeenCalledWith({
       where: { 
         id: pageId,
         lessonId 
@@ -339,7 +339,7 @@ describe('DELETE /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should fail if page not found', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(null);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(null);
 
     const request = createDeleteRequest();
     const response = await DELETE(request, { 
@@ -352,7 +352,7 @@ describe('DELETE /api/lesson/[id]/conteudo/[pageId]/[blockId]', () => {
   it('should fail if block not found', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.conteudoPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
     (prisma.contentBlock.findFirst as Mock).mockResolvedValue(null);
 
     const request = createDeleteRequest();

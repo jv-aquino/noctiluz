@@ -16,7 +16,7 @@ export async function getAllLessons() {
           skill: true,
         },
       },
-      conteudoPages: true,
+      contentPages: true,
       lessonVariants: true,
       userProgress: true,
       userAttempts: true,
@@ -57,7 +57,7 @@ export async function getLessonById(id: string) {
           skill: true,
         },
       },
-      conteudoPages: {
+      contentPages: {
         include: {
           contentBlocks: true,
         },
@@ -78,7 +78,7 @@ export async function deleteLesson(id: string) {
   await prisma.lessonObjective.deleteMany({ where: { lessonId: id } });
   await prisma.userProgress.deleteMany({ where: { lessonId: id } });
   await prisma.userAttempt.deleteMany({ where: { lessonId: id } });
-  await prisma.conteudoPage.deleteMany({ where: { lessonId: id } });
+  await prisma.contentPage.deleteMany({ where: { lessonId: id } });
   await prisma.lessonVariant.deleteMany({ where: { lessonId: id } });
   
   // Then delete the lesson
@@ -177,9 +177,9 @@ export async function reorderLessonsInTopico(topicoId: string, lessonIds: string
   return prisma.$transaction(updates);
 } 
 
-export async function reorderConteudoPages(lessonId: string, pageIds: string[]) {
+export async function reorderContentPages(lessonId: string, pageIds: string[]) {
   const updates = pageIds.map((pageId, index) =>
-    prisma.conteudoPage.updateMany({
+    prisma.contentPage.updateMany({
       where: {
         id: pageId,
         lessonId,
@@ -209,7 +209,7 @@ export async function reorderContentBlocks(pageId: string, blockIds: string[]) {
   return prisma.$transaction(updates);
 } 
 
-export async function deleteConteudoPage(id: string) {
+export async function deletecontentPage(id: string) {
   // First, delete all content blocks within the page
   await prisma.contentBlock.deleteMany({
     where: {
@@ -218,7 +218,7 @@ export async function deleteConteudoPage(id: string) {
   });
 
   // Then, delete the page itself
-  return prisma.conteudoPage.delete({
+  return prisma.contentPage.delete({
     where: { id },
   });
 }

@@ -7,16 +7,14 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import { TabsContent } from "@/components/ui/tabs";
-import { Lesson, ConteudoPage, ContentBlock, LessonVariant } from "@/generated/prisma";
+import { Lesson, ContentPage, ContentBlock, LessonVariant } from "@/generated/prisma";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import LessonVariantsTabs from "./LessonVariantsTabs";
 import LessonContentSidebar from "./LessonContentSidebar";
 import LessonContentEditor from "./LessonContentEditor";
 import CreatePageDialog from "./CreatePageDialog";
 
-type ContentPage = ConteudoPage & {
-  contentBlocks: ContentBlock[];
-}
+type ContentPageWithBlocks = ContentPage & { contentBlocks: ContentBlock[] };
 
 export default function LessonContentPage() {
   const params = useParams();
@@ -24,10 +22,10 @@ export default function LessonContentPage() {
   const lessonId = params.lessonId as string;
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [contentPages, setContentPages] = useState<ContentPage[]>([]);
+  const [contentPages, setContentPages] = useState<ContentPageWithBlocks[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [selectedPage, setSelectedPage] = useState<ContentPage | null>(null);
+  const [selectedPage, setSelectedPage] = useState<ContentPageWithBlocks | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<ContentBlock | null>(null);
   const [markdown, setMarkdown] = useState("");
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
@@ -99,7 +97,7 @@ export default function LessonContentPage() {
       const response = await fetch(`/api/lesson/${lessonId}/conteudo`);
       if (response.ok) {
         const data = await response.json();
-        const sortedData = [...data].sort((a, b) => a.order - b.order);
+        const sortedData = [...data].sort((a: ContentPageWithBlocks, b: ContentPageWithBlocks) => a.order - b.order);
         setContentPages(sortedData);
         
         // Select first page by default
@@ -241,13 +239,13 @@ export default function LessonContentPage() {
     }
   };
 
-  const handlePageSelect = (page: ContentPage) => {
+  const handlePageSelect = (page: ContentPageWithBlocks) => {
     setSelectedPage(page);
     setSelectedBlock(null);
     setMarkdown("");
     
     // Select first markdown block if available
-    const sortedBlocks = [...page.contentBlocks].sort((a, b) => a.order - b.order);
+    const sortedBlocks = [...page.contentBlocks].sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
     const firstMarkdownBlock = sortedBlocks.find(block => block.type === 'MARKDOWN');
     if (firstMarkdownBlock) {
       setSelectedBlock(firstMarkdownBlock);

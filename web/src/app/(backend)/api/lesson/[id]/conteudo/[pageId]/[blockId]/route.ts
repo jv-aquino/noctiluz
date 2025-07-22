@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.conteudoPage.findFirst({
+    const page = await prisma.contentPage.findFirst({
       where: { 
         id: pageId,
         lessonId: id 
@@ -109,7 +109,7 @@ export async function PATCH(
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.conteudoPage.findFirst({
+    const page = await prisma.contentPage.findFirst({
       where: { 
         id: pageId,
         lessonId: id 
@@ -217,7 +217,7 @@ export async function DELETE(
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.conteudoPage.findFirst({
+    const page = await prisma.contentPage.findFirst({
       where: { 
         id: pageId,
         lessonId: id 

@@ -1,5 +1,5 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,26 +31,25 @@ interface ContentPage {
 
 export default function LessonViewPage() {
   const params = useParams();
-  const router = useRouter();
-  const { cursoSlug, topicoSlug, lessonId } = params as { cursoSlug: string; topicoSlug: string; lessonId: string };
+  const { lessonId } = params as { cursoSlug: string; topicoSlug: string; lessonId: string };
 
-  // Fetch lesson data (including conteudoPages)
+  // Fetch lesson data (including contentPages)
   const { data: lesson, error: lessonError } = useSWR(
     lessonId ? `/api/lesson/${lessonId}` : null,
     (url: string) => fetcher(url, "Erro ao buscar lição")
   );
   // Fetch content pages for the lesson
-  const { data: conteudoPages, error: conteudoError } = useSWR(
+  const { data: contentPages, error: contentError } = useSWR(
     lessonId ? `/api/lesson/${lessonId}/conteudo` : null,
     (url: string) => fetcher(url, "Erro ao buscar páginas de conteúdo")
   );
 
   const [currentStep, setCurrentStep] = useState(0);
 
-  if (lessonError || conteudoError) return <div className="p-8 text-red-600">Erro ao carregar lição.</div>;
-  if (!lesson || !conteudoPages) return <div className="p-8">Carregando...</div>;
+  if (lessonError || contentError) return <div className="p-8 text-red-600">Erro ao carregar lição.</div>;
+  if (!lesson || !contentPages) return <div className="p-8">Carregando...</div>;
 
-  const sortedPages: ContentPage[] = [...conteudoPages].sort((a, b) => a.order - b.order);
+  const sortedPages: ContentPage[] = [...contentPages].sort((a, b) => a.order - b.order);
   const currentPage = sortedPages[currentStep];
 
   return (
