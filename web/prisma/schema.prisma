@@ -153,7 +153,6 @@ model Lesson {
   type      LessonType @default(GERAL)
   archived  Boolean @default(false)
   
-  // PFA-based knowledge tracking
   knowledgeComponents String[] // Skills this lesson teaches
   prerequisites       String[] // Required skill IDs
   difficulty         Float     @default(1.0) // Continuous difficulty scale
@@ -162,7 +161,6 @@ model Lesson {
   // Learning objectives with weights
   learningObjectives LessonObjective[]
 
-  // Content structure - MISSING in your schema
   conteudoPages    ConteudoPage[]
   lessonVariants    LessonVariant[]
   
