@@ -23,7 +23,7 @@ enum LessonType {
   SIMULACAO
 }
 
-enum ConteudoType {
+enum ContentType {
   MARKDOWN
   VIDEO
   INTERACTIVE_COMPONENT
@@ -161,7 +161,7 @@ model Lesson {
   // Learning objectives with weights
   learningObjectives LessonObjective[]
 
-  conteudoPages    ConteudoPage[]
+  contentPages    ContentPage[]
   lessonVariants    LessonVariant[]
   
   topicoLessons     TopicoLesson[]
@@ -192,15 +192,14 @@ model LessonVariant {
   lessonId String
   
   // Each variant can have its own content pages
-  conteudoPages ConteudoPage[]
+  contentPages ContentPage[]
   
   // For A/B testing
   weight      Int @default(100) // Probability weight for selection
   isActive    Boolean @default(true)
 }
 
-// MISSING MODEL: Multi-page content structure
-model ConteudoPage {
+model ContentPage {
   id       String @id @default(uuid()) @map("_id")
   name     String
   order    Int    @default(0)
@@ -214,12 +213,13 @@ model ConteudoPage {
   
   // Page content blocks
   contentBlocks ContentBlock[]
+	@@map("ContentPage")
 }
 
 // Individual content blocks within a page
 model ContentBlock {
   id       String      @id @default(uuid()) @map("_id")
-  type     ConteudoType
+  type     ContentType
   order    Int         @default(0)
   
   // Content data
@@ -235,7 +235,7 @@ model ContentBlock {
   // Exercise/Assessment specific
   exerciseData Json?    // Questions, answers, validation rules
   
-  page     ConteudoPage @relation(fields: [pageId], references: [id])
+  page     ContentPage @relation(fields: [pageId], references: [id])
   pageId   String
   
   archived Boolean @default(false)

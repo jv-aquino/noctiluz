@@ -3,14 +3,13 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ReorderableList } from "@/components/common/ReorderableList";
 import { Plus, Edit3 } from "lucide-react";
-import { ConteudoPage, ContentBlock } from "@/generated/prisma";
-
-type ContentPage = ConteudoPage & { contentBlocks: ContentBlock[] };
+import { ContentPage, ContentBlock } from "@/generated/prisma";
+type ContentPageWithBlocks = ContentPage & { contentBlocks: ContentBlock[] };
 
 interface LessonContentSidebarProps {
-  contentPages: ContentPage[];
-  selectedPage: ContentPage | null;
-  onSelectPage: (page: ContentPage) => void;
+  contentPages: ContentPageWithBlocks[];
+  selectedPage: ContentPageWithBlocks | null;
+  onSelectPage: (page: ContentPageWithBlocks) => void;
   pageOrder: string[];
   onPageOrderChange: (newOrder: string[]) => void;
   pageOrderChanged: boolean;
@@ -52,7 +51,7 @@ export default function LessonContentSidebar({
       ) : (
         <div className="space-y-2 mb-6">
           <ReorderableList
-            items={pageOrder.map(id => contentPages.find(p => p.id === id)).filter(Boolean) as ContentPage[]}
+            items={pageOrder.map(id => contentPages.find(p => p.id === id)).filter(Boolean) as ContentPageWithBlocks[]}
             onOrderChange={onPageOrderChange}
             renderItem={page => (
               <div

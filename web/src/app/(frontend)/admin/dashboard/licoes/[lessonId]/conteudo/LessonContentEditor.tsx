@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import LatexExamples from "@/components/markdown/LatexExamples";
 import { Save } from "lucide-react";
-import { ConteudoPage, ContentBlock } from "@/generated/prisma";
-
-type ContentPage = ConteudoPage & { contentBlocks: ContentBlock[] };
+import { ContentPage, ContentBlock } from "@/generated/prisma";
 
 interface LessonContentEditorProps {
   selectedPage: ContentPage | null;

@@ -36,7 +36,7 @@ export async function GET(
     }
 
     // Get content pages with their blocks
-    const contentPages = await prisma.conteudoPage.findMany({
+    const contentPages = await prisma.contentPage.findMany({
       where: { lessonId: id },
       include: {
         contentBlocks: {
@@ -94,14 +94,14 @@ export async function POST(
     }
 
     // Get the current max order for this lesson
-    const maxOrder = await prisma.conteudoPage.aggregate({
+    const maxOrder = await prisma.contentPage.aggregate({
       where: { lessonId: id },
       _max: { order: true },
     });
     
     const newOrder = order ?? (maxOrder._max.order ?? 0) + 1;
 
-    const contentPage = await prisma.conteudoPage.create({
+    const contentPage = await prisma.contentPage.create({
       data: {
         name,
         order: newOrder,
