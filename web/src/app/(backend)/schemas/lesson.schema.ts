@@ -38,4 +38,12 @@ export const reorderConteudoPagesSchema = z.object({
 
 export const reorderContentBlocksSchema = z.object({
   blockIds: z.array(z.string()),
+});
+
+export const createLessonVariantSchema = z.object({
+  name: z.string().min(1, 'Nome da variante é obrigatório'),
+  description: z.string().optional(),
+  isDefault: z.boolean().optional(),
+  weight: z.number().int().min(0).optional(),
+  isActive: z.boolean().optional(),
 }); 
