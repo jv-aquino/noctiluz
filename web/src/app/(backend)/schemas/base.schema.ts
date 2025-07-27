@@ -40,3 +40,6 @@ export const slugSchema = z
     .max(100, "Slug não pode ter mais de 100 caracteres")
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug deve conter apenas letras minúsculas, números e hífens, sem espaços")
     .trim()
+
+export const archivedSchema = z.boolean().optional().default(false);
+export const tagsSchema = z.array(z.string()).default([]);

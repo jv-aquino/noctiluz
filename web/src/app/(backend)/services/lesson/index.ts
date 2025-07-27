@@ -2,6 +2,9 @@ import prisma from '@/backend/services/db';
 import { createLessonSchema, patchLessonSchema } from '@/backend/schemas';
 import { createLessonVariantSchema } from '@/backend/schemas';
 import { z } from 'zod';
+import { Lesson } from '@/generated/prisma';
+
+type LessonWithoutId = Omit<Lesson, 'id'>;
 
 export async function getAllLessons() {
   return prisma.lesson.findMany({
@@ -24,10 +27,9 @@ export async function getAllLessons() {
   });
 }
 
-export async function createLesson(data: unknown) {
-  const parsed = createLessonSchema.parse(data);
+export async function createLesson(data: LessonWithoutId) {
   return prisma.lesson.create({
-    data: parsed,
+    data,
     include: {
       topicoLessons: {
         include: {
@@ -87,11 +89,10 @@ export async function deleteLesson(id: string) {
   });
 }
 
-export async function updateLesson(id: string, data: unknown) {
-  const parsed = patchLessonSchema.parse(data);
+export async function updateLesson(id: string, data: Partial<LessonWithoutId>) {
   return prisma.lesson.update({
     where: { id },
-    data: parsed,
+    data,
     include: {
       topicoLessons: {
         include: {
