@@ -1,5 +1,4 @@
 import prisma from '@/backend/services/db';
-import { createTopicoSchema, patchTopicoSchema } from '@/backend/schemas';
 import type { Topico } from '@/generated/prisma';
 
 type TopicoWithoutId = Omit<Topico, 'id'>

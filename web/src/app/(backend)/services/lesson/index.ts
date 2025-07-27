@@ -1,5 +1,4 @@
 import prisma from '@/backend/services/db';
-import { createLessonSchema, patchLessonSchema } from '@/backend/schemas';
 import { createLessonVariantSchema } from '@/backend/schemas';
 import { z } from 'zod';
 import { Lesson } from '@/generated/prisma';
