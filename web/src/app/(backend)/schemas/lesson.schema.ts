@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { nameSchema } from './base.schema';
+import { nameSchema, archivedSchema } from './base.schema';
 
 export const createLessonSchema = z.object({
   name: nameSchema,
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   type: z.enum(['GERAL', 'EXERCICIOS', 'REVISAO', 'SIMULACAO']).default('GERAL'),
-  archived: z.boolean().optional(),
+  archived: archivedSchema,
   knowledgeComponents: z.array(z.string()).default([]),
   prerequisites: z.array(z.string()).default([]),
   difficulty: z.number().min(0).max(10).default(1.0),

@@ -1,5 +1,8 @@
 import prisma from '@/backend/services/db';
 import { createTopicoSchema, patchTopicoSchema } from '@/backend/schemas';
+import type { Topico } from '@/generated/prisma';
+
+type TopicoWithoutId = Omit<Topico, 'id'>
 
 export async function getAllTopicos() {
   return prisma.topico.findMany({
@@ -12,10 +15,9 @@ export async function getAllTopicos() {
   });
 }
 
-export async function createTopico(data: unknown) {
-  const parsed = createTopicoSchema.parse(data);
+export async function createTopico(data: TopicoWithoutId) {
   return prisma.topico.create({
-    data: parsed,
+    data,
   });
 }
 
@@ -42,10 +44,9 @@ export async function deleteTopico(id: string) {
   });
 }
 
-export async function updateTopico(id: string, data: unknown) {
-  const parsed = patchTopicoSchema.parse(data);
+export async function updateTopico(id: string, data: Partial<TopicoWithoutId>) {
   return prisma.topico.update({
     where: { id },
-    data: parsed,
+    data,
   });
 } 
