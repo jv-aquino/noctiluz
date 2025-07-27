@@ -1,5 +1,4 @@
 import prisma from '@/backend/services/db';
-import { createCursoSchema, patchCursoSchema } from '@/backend/schemas';
 import { Curso } from '@/generated/prisma';
 
 type CursoWithoutId = Omit<Curso, 'id'>
