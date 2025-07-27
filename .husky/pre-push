@@ -1,19 +1,18 @@
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+CHANGED_FILES=$(git diff --name-only origin/"$BRANCH")
 
-if [ "$BRANCH" = "main" ]; then
-  echo "You're on branch 'main'. Checking for changes in web/..."
+# Check if any changed file is under the web/ folder
+if echo "$CHANGED_FILES" | grep -q "^web/"; then
+  echo "Detected changes in /web. Running lint..."
+  pnpm --filter web lint || exit 1
 
-  # Get list of files changed in current branch that are not pushed yet
-  CHANGED_FILES=$(git diff --name-only origin/main)
-
-  # Check if any changed file is under the web/ folder
-  if echo "$CHANGED_FILES" | grep -q "^web/"; then
-    echo "Detected changes in /web. Running build..."
-    pnpm --filter web test:e2e
-    pnpm --filter web build
+  if [ "$BRANCH" = "main" ]; then
+    echo "You're on branch 'main'. Running web build and tests..."
+    pnpm --filter web test:e2e || exit 1
+    pnpm --filter web build || exit 1
   else
-    echo "No changes in /web. Skipping web build."
+    echo "Not on 'main' branch. Skipping web build/tests."
   fi
 else
-  echo "Not on 'main' branch. Skipping pre-push hook."
+  echo "No changes in /web. Skipping lint and build steps."
 fi
