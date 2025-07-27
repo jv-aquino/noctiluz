@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 import { idSchema, reorderConteudoPagesSchema } from '@/backend/schemas';
-import { reorderConteudoPages } from '@/backend/services/lesson';
+import { reorderContentPages } from '@/backend/services/lesson';
 
 const allowedRoles: AllowedRoutes = {
   PATCH: ["SUPER_ADMIN", "ADMIN"]
@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
     const { pageIds } = validationResult.data;
 
-    await reorderConteudoPages(lessonId, pageIds);
+    await reorderContentPages(lessonId, pageIds);
 
     return NextResponse.json({ message: 'Ordem das páginas atualizada' }, { status: 200 });
   } catch (error) {

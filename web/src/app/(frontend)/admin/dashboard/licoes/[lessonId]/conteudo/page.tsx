@@ -2,41 +2,19 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AdminHeader from "../../../components/header/AdminHeader";
-import { BookOpen, ArrowLeft, Plus, Save, Edit3 } from "lucide-react";
+import { BookOpen, ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import MarkdownEditor from "@/components/markdown/MarkdownEditor";
-import LatexExamples from "@/components/markdown/LatexExamples";
 import toast from "react-hot-toast";
-import { ReorderableList } from "@/components/common/ReorderableList";
+import useSWR from "swr";
+import { TabsContent } from "@/components/ui/tabs";
+import { Lesson, ContentPage, ContentBlock, LessonVariant } from "@/generated/prisma";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import LessonVariantsTabs from "./LessonVariantsTabs";
+import LessonContentSidebar from "./LessonContentSidebar";
+import LessonContentEditor from "./LessonContentEditor";
+import CreatePageDialog from "./CreatePageDialog";
 
-interface ContentPage {
-  id: string;
-  name: string;
-  order: number;
-  archived: boolean;
-  contentBlocks: ContentBlock[];
-}
-
-interface ContentBlock {
-  id: string;
-  type: 'MARKDOWN' | 'VIDEO' | 'INTERACTIVE_COMPONENT' | 'EXERCISE' | 'SIMULATION' | 'ASSESSMENT';
-  order: number;
-  markdown?: string;
-  videoUrl?: string;
-  metadata?: Record<string, unknown>;
-  componentType?: string;
-  componentPath?: string;
-  componentProps?: Record<string, unknown>;
-  exerciseData?: Record<string, unknown>;
-  archived: boolean;
-}
-
-interface Lesson {
-  id: string;
-  name: string;
-  descricao: string;
-  type: string;
-}
+type ContentPageWithBlocks = ContentPage & { contentBlocks: ContentBlock[] };
 
 export default function LessonContentPage() {
   const params = useParams();
@@ -44,10 +22,10 @@ export default function LessonContentPage() {
   const lessonId = params.lessonId as string;
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [contentPages, setContentPages] = useState<ContentPage[]>([]);
+  const [contentPages, setContentPages] = useState<ContentPageWithBlocks[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [selectedPage, setSelectedPage] = useState<ContentPage | null>(null);
+  const [selectedPage, setSelectedPage] = useState<ContentPageWithBlocks | null>(null);
   const [selectedBlock, setSelectedBlock] = useState<ContentBlock | null>(null);
   const [markdown, setMarkdown] = useState("");
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
@@ -57,6 +35,18 @@ export default function LessonContentPage() {
   const [pageOrderChanged, setPageOrderChanged] = useState(false);
   const [blockOrder, setBlockOrder] = useState<string[]>([]);
   const [blockOrderChanged, setBlockOrderChanged] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<string>("principal");
+  const { data: variants, mutate: mutateVariants } = useSWR(
+    lessonId ? `/api/lesson/${lessonId}/variant` : null,
+    (url: string) => fetch(url).then(res => res.json())
+  );
+  const [, setSelectedVariant] = useState<string | null>(null);
+
+  const [showNewVariantDialog, setShowNewVariantDialog] = useState(false);
+  const [newVariantName, setNewVariantName] = useState("");
+  const [newVariantDescription, setNewVariantDescription] = useState("");
+  const [creatingVariant, setCreatingVariant] = useState(false);
 
   const Paragraph = () => (
     <>Edite o conteúdo da lição usando Markdown e LaTeX para criar conteúdo educacional rico.</>
@@ -107,7 +97,7 @@ export default function LessonContentPage() {
       const response = await fetch(`/api/lesson/${lessonId}/conteudo`);
       if (response.ok) {
         const data = await response.json();
-        const sortedData = [...data].sort((a, b) => a.order - b.order);
+        const sortedData = [...data].sort((a: ContentPageWithBlocks, b: ContentPageWithBlocks) => a.order - b.order);
         setContentPages(sortedData);
         
         // Select first page by default
@@ -249,13 +239,13 @@ export default function LessonContentPage() {
     }
   };
 
-  const handlePageSelect = (page: ContentPage) => {
+  const handlePageSelect = (page: ContentPageWithBlocks) => {
     setSelectedPage(page);
     setSelectedBlock(null);
     setMarkdown("");
     
     // Select first markdown block if available
-    const sortedBlocks = [...page.contentBlocks].sort((a, b) => a.order - b.order);
+    const sortedBlocks = [...page.contentBlocks].sort((a: ContentBlock, b: ContentBlock) => a.order - b.order);
     const firstMarkdownBlock = sortedBlocks.find(block => block.type === 'MARKDOWN');
     if (firstMarkdownBlock) {
       setSelectedBlock(firstMarkdownBlock);
@@ -323,40 +313,37 @@ export default function LessonContentPage() {
     }
   };
 
-  const renderPageItem = (page: ContentPage) => (
-    <div
-      className={`p-3 rounded-lg cursor-pointer transition-colors w-full ${
-        selectedPage?.id === page.id
-          ? 'bg-pink-100 border border-pink-300'
-          : 'bg-gray-50 hover:bg-gray-100'
-      }`}
-      onClick={() => handlePageSelect(page)}
-    >
-      <h4 className="font-medium text-sm">{page.name}</h4>
-      <p className="text-xs text-gray-500">
-        {page.contentBlocks.length} blocos
-      </p>
-    </div>
-  );
-
-  const renderBlockItem = (block: ContentBlock) => (
-    <div
-      className={`p-2 rounded cursor-pointer transition-colors text-sm w-full ${
-        selectedBlock?.id === block.id
-          ? 'bg-pink-200 border border-pink-400'
-          : 'bg-gray-50 hover:bg-gray-100'
-      }`}
-      onClick={() => handleBlockSelect(block)}
-    >
-      <div className="flex items-center justify-between">
-        <span className="capitalize">{block.type.toLowerCase().replace('_', ' ')}</span>
-        {block.type === 'MARKDOWN' && (
-          <Edit3 className="w-3 h-3 text-gray-400" />
-        )}
-      </div>
-    </div>
-  );
-
+  const handleCreateVariant = async () => {
+    if (!newVariantName.trim()) {
+      toast.error("Nome da variante é obrigatório");
+      return;
+    }
+    setCreatingVariant(true);
+    try {
+      const res = await fetch(`/api/lesson/${lessonId}/variant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newVariantName, description: newVariantDescription }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Erro ao criar variante");
+      }
+      toast.success("Variante criada!");
+      setShowNewVariantDialog(false);
+      setNewVariantName("");
+      setNewVariantDescription("");
+      mutateVariants();
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        toast.error(e.message || "Erro ao criar variante");
+      } else {
+        toast.error("Erro ao criar variante");
+      }
+    } finally {
+      setCreatingVariant(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -391,163 +378,103 @@ export default function LessonContentPage() {
       </AdminHeader>
 
       <div className="w-full mx-2 mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - Pages and Blocks */}
-          <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold mb-4">Páginas</h3>
-              
-              {contentPages.length === 0 ? (
-                <p className="text-gray-500 text-sm mb-4">
-                  Nenhuma página criada ainda. Crie sua primeira página para começar.
-                </p>
-              ) : (
-                <div className="space-y-2 mb-6">
-                   <ReorderableList
-                    items={pageOrder.map(id => contentPages.find(p => p.id === id)).filter(Boolean) as ContentPage[]}
-                    onOrderChange={handlePageOrderChange}
-                    renderItem={renderPageItem}
-                    className="space-y-2"
-                  />
-                </div>
-              )}
-               {pageOrderChanged && (
-                <div className="flex justify-end mb-4">
-                  <Button onClick={handleSavePageOrder} disabled={saving}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar Ordem
-                  </Button>
-                </div>
-              )}
-
-              {selectedPage && (
-                <>
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium">Blocos de Conteúdo</h4>
-                    <Button
-                      size="sm"
-                      onClick={handleCreateMarkdownBlock}
-                      disabled={saving}
-                      className="text-xs"
-                    >
-                      <Plus className="w-3 h-3 mr-1" />
-                      Markdown
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <ReorderableList
-                      items={blockOrder.map(id => selectedPage.contentBlocks.find(b => b.id === id)).filter(Boolean) as ContentBlock[]}
-                      onOrderChange={handleBlockOrderChange}
-                      renderItem={renderBlockItem}
-                      className="space-y-1"
-                    />
-                  </div>
-                  {blockOrderChanged && (
-                    <div className="flex justify-end mt-4">
-                      <Button onClick={handleSaveBlockOrder} disabled={saving} size="sm">
-                         <Save className="w-4 h-4 mr-2" />
-                        Salvar Ordem
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
+        <LessonVariantsTabs
+          variants={variants || []}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          setSelectedVariant={setSelectedVariant}
+          showNewVariantDialog={showNewVariantDialog}
+          setShowNewVariantDialog={setShowNewVariantDialog}
+          newVariantName={newVariantName}
+          setNewVariantName={setNewVariantName}
+          newVariantDescription={newVariantDescription}
+          setNewVariantDescription={setNewVariantDescription}
+          creatingVariant={creatingVariant}
+          handleCreateVariant={handleCreateVariant}
+        >
+          <TabsContent value="principal">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-1">
+                <LessonContentSidebar
+                  contentPages={contentPages}
+                  selectedPage={selectedPage}
+                  onSelectPage={handlePageSelect}
+                  pageOrder={pageOrder}
+                  onPageOrderChange={handlePageOrderChange}
+                  pageOrderChanged={pageOrderChanged}
+                  onSavePageOrder={handleSavePageOrder}
+                  blockOrder={blockOrder}
+                  onBlockOrderChange={handleBlockOrderChange}
+                  blockOrderChanged={blockOrderChanged}
+                  onSaveBlockOrder={handleSaveBlockOrder}
+                  selectedBlock={selectedBlock}
+                  onSelectBlock={handleBlockSelect}
+                  onCreateBlock={handleCreateMarkdownBlock}
+                  saving={saving}
+                />
+              </div>
+              <div className="lg:col-span-3">
+                <LessonContentEditor
+                  selectedPage={selectedPage}
+                  selectedBlock={selectedBlock}
+                  markdown={markdown}
+                  setMarkdown={setMarkdown}
+                  saving={saving}
+                  handleSaveMarkdown={handleSaveMarkdown}
+                />
+              </div>
             </div>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {selectedBlock && selectedBlock.type === 'MARKDOWN' ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">
-                    Editando: {selectedPage?.name} - {selectedBlock.type.toLowerCase().replace('_', ' ')}
-                  </h3>
-                  <Button
-                    onClick={handleSaveMarkdown}
-                    disabled={saving}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {saving ? 'Salvando...' : 'Salvar'}
-                  </Button>
-                </div>
-                
-                <LatexExamples />
-                <MarkdownEditor value={markdown} onChange={setMarkdown} />
-              </div>
-            ) : selectedPage ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <div className="text-center py-12">
-                  <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Selecione um bloco de conteúdo
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Escolha um bloco de conteúdo na barra lateral para começar a editar ou crie um novo.
-                  </p>
-                  <Button onClick={handleCreateMarkdownBlock} disabled={saving}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Criar Bloco Markdown
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <div className="text-center py-12">
-                  <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Nenhuma página selecionada
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Selecione uma página na barra lateral ou crie uma nova página para começar.
-                  </p>
-                  <Button onClick={() => setShowNewPageDialog(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Criar Primeira Página
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+            <CreatePageDialog
+              open={showNewPageDialog}
+              onOpenChange={setShowNewPageDialog}
+              newPageName={newPageName}
+              setNewPageName={setNewPageName}
+              onCreatePage={handleCreatePage}
+              saving={saving}
+            />
+          </TabsContent>
+          {variants && variants.map((variant: LessonVariant) => (
+            <TabsContent key={variant.id} value={variant.id}>
+              <div className="text-pink-700 font-semibold mb-2">Editando variante: {variant.name}</div>
+              <div className="text-gray-500">(Editor de conteúdo para variantes em construção)</div>
+            </TabsContent>
+          ))}
+        </LessonVariantsTabs>
       </div>
 
-      {/* New Page Dialog */}
-      {showNewPageDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Criar Nova Página</h3>
+      {/* New Variant Dialog */}
+      <Dialog open={showNewVariantDialog} onOpenChange={setShowNewVariantDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Criar Nova Variante</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
             <input
               type="text"
-              placeholder="Nome da página"
-              value={newPageName}
-              onChange={(e) => setNewPageName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md mb-4"
-              onKeyPress={(e) => e.key === 'Enter' && handleCreatePage()}
+              className="w-full p-2 border rounded"
+              placeholder="Nome da variante"
+              value={newVariantName}
+              onChange={e => setNewVariantName(e.target.value)}
+              autoFocus
             />
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowNewPageDialog(false);
-                  setNewPageName("");
-                }}
-                disabled={saving}
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleCreatePage}
-                disabled={saving || !newPageName.trim()}
-              >
-                {saving ? 'Criando...' : 'Criar Página'}
-              </Button>
-            </div>
+            <textarea
+              className="w-full p-2 border rounded"
+              placeholder="Descrição (opcional)"
+              value={newVariantDescription}
+              onChange={e => setNewVariantDescription(e.target.value)}
+              rows={3}
+            />
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewVariantDialog(false)} disabled={creatingVariant}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCreateVariant} disabled={creatingVariant || !newVariantName.trim()}>
+              {creatingVariant ? 'Criando...' : 'Criar Variante'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 } 

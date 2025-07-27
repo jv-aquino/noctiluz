@@ -1,5 +1,7 @@
 import prisma from '@/backend/services/db';
-import { createCursoSchema, patchCursoSchema } from '@/backend/schemas';
+import { Curso } from '@/generated/prisma';
+
+type CursoWithoutId = Omit<Curso, 'id'>
 
 export async function getAllCursos() {
   return prisma.curso.findMany({
@@ -9,10 +11,9 @@ export async function getAllCursos() {
   });
 }
 
-export async function createCurso(data: unknown) {
-  const parsed = createCursoSchema.parse(data);
+export async function createCurso(data: CursoWithoutId) {
   return prisma.curso.create({
-    data: parsed,
+    data,
   });
 }
 
@@ -47,11 +48,10 @@ export async function deleteCurso(id: string) {
   });
 }
 
-export async function updateCurso(id: string, data: unknown) {
-  const parsed = patchCursoSchema.parse(data);
+export async function updateCurso(id: string, data: Partial<CursoWithoutId>) {
   return prisma.curso.update({
     where: { id },
-    data: parsed,
+    data,
   });
 }
 

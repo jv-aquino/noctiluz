@@ -5,7 +5,7 @@ import { createRequest } from '../../../../../mocks/requests'
 import * as lessonService from '@/app/(backend)/services/lesson'
 
 vi.mock('@/app/(backend)/services/lesson', () => ({
-  reorderConteudoPages: vi.fn(),
+  reorderContentPages: vi.fn(),
 }))
 
 describe('PATCH /api/lesson/[id]/conteudo/order', () => {
@@ -38,7 +38,7 @@ describe('PATCH /api/lesson/[id]/conteudo/order', () => {
 
   it('should reorder pages if user is ADMIN', async () => {
     setCurrentRole('ADMIN');
-    (lessonService.reorderConteudoPages as Mock).mockResolvedValue(undefined);
+    (lessonService.reorderContentPages as Mock).mockResolvedValue(undefined);
 
     const request = createPatchRequest();
     const response = await PATCH(request, { params: { id: lessonId } });
@@ -46,7 +46,7 @@ describe('PATCH /api/lesson/[id]/conteudo/order', () => {
     expect(response?.status).toBe(200);
     const data = await response?.json();
     expect(data).toEqual({ message: 'Ordem das páginas atualizada' });
-    expect(lessonService.reorderConteudoPages).toHaveBeenCalledWith(lessonId, pageIds);
+    expect(lessonService.reorderContentPages).toHaveBeenCalledWith(lessonId, pageIds);
   });
 
   it('should fail if pageIds are not provided', async () => {

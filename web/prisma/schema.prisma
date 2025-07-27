@@ -23,7 +23,7 @@ enum LessonType {
   SIMULACAO
 }
 
-enum ConteudoType {
+enum ContentType {
   MARKDOWN
   VIDEO
   INTERACTIVE_COMPONENT
@@ -153,7 +153,6 @@ model Lesson {
   type      LessonType @default(GERAL)
   archived  Boolean @default(false)
   
-  // PFA-based knowledge tracking
   knowledgeComponents String[] // Skills this lesson teaches
   prerequisites       String[] // Required skill IDs
   difficulty         Float     @default(1.0) // Continuous difficulty scale
@@ -162,16 +161,12 @@ model Lesson {
   // Learning objectives with weights
   learningObjectives LessonObjective[]
 
-  // Content structure - MISSING in your schema
-  conteudoPages    ConteudoPage[]
+  contentPages    ContentPage[]
   lessonVariants    LessonVariant[]
   
   topicoLessons     TopicoLesson[]
   userProgress     UserProgress[]
   userAttempts     UserAttempt[]
-  
-  // Legacy content relation (keep for backward compatibility)
-  conteudo         Conteudo[]
 }
 
 model TopicoLesson {
@@ -197,15 +192,14 @@ model LessonVariant {
   lessonId String
   
   // Each variant can have its own content pages
-  conteudoPages ConteudoPage[]
+  contentPages ContentPage[]
   
   // For A/B testing
   weight      Int @default(100) // Probability weight for selection
   isActive    Boolean @default(true)
 }
 
-// MISSING MODEL: Multi-page content structure
-model ConteudoPage {
+model ContentPage {
   id       String @id @default(uuid()) @map("_id")
   name     String
   order    Int    @default(0)
@@ -219,12 +213,13 @@ model ConteudoPage {
   
   // Page content blocks
   contentBlocks ContentBlock[]
+	@@map("ContentPage")
 }
 
 // Individual content blocks within a page
 model ContentBlock {
   id       String      @id @default(uuid()) @map("_id")
-  type     ConteudoType
+  type     ContentType
   order    Int         @default(0)
   
   // Content data
@@ -240,7 +235,7 @@ model ContentBlock {
   // Exercise/Assessment specific
   exerciseData Json?    // Questions, answers, validation rules
   
-  page     ConteudoPage @relation(fields: [pageId], references: [id])
+  page     ContentPage @relation(fields: [pageId], references: [id])
   pageId   String
   
   archived Boolean @default(false)
@@ -301,56 +296,44 @@ model UserSkillState {
   id     String @id @default(uuid()) @map("_id")
   user   User   @relation(fields: [userId], references: [id])
   userId String
-  
+
   skill   Skill  @relation(fields: [skillId], references: [id])
   skillId String
-  
-  // PFA core metrics
-  successCount   Int   @default(0)    // Number of correct attempts
-  failureCount   Int   @default(0)    // Number of incorrect attempts
-  totalAttempts  Int   @default(0)    // Total practice attempts
-  
-  // Enhanced PFA metrics
-  masteryLevel      Float    @default(0.0)     // Current estimated mastery (0-1)
-  confidence        Float    @default(0.0)     // Confidence in mastery estimate
-  lastPracticed     DateTime?                  // For spaced repetition
-  averageResponseTime Float  @default(0.0)     // Performance indicator
-  
-  // Decay factors for forgetting
-  decayRate        Float    @default(0.02)     // How fast knowledge decays
-  lastDecayUpdate  DateTime @default(now())    // When decay was last applied
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([userId, skillId])
 }
 
-// Track individual attempts for detailed analytics
+// UserAttempt is the canonical DKT input: each row is a step in the sequence
 model UserAttempt {
   id        String   @id @default(uuid()) @map("_id")
   user      User     @relation(fields: [userId], references: [id])
   userId    String
-  
+
   lesson     Lesson    @relation(fields: [lessonId], references: [id])
   lessonId   String
-  
+
   // Attempt details
   skillsTested     String[]  // Skills involved in this attempt
   isCorrect        Boolean
   responseTime     Int       // Time in milliseconds
   hintsUsed        Int       @default(0)
   attemptsToSolve  Int       @default(1)
-  
+
   // Context for better modeling
   difficulty       Float     // Difficulty at time of attempt
   sessionPosition  Int       // Position in current learning session
   timeOfDay        Int       // Hour of day (0-23) for circadian effects
-  
-  // PFA feature extraction
+
+  // DKT-friendly: group attempts into sessions
+  sessionId        String?   // For DKT: group attempts into sessions
+
+  // Feature extraction (optional, can be ignored by DKT)
   priorKnowledge   Json      // Knowledge state before attempt
   posteriorKnowledge Json    // Updated knowledge state after attempt
-  
+
   createdAt DateTime @default(now())
 }
 
@@ -381,19 +364,6 @@ model UserProgress {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, lessonId, topicoId])
-}
-
-// Legacy content model (keep for backward compatibility)
-model Conteudo {
-  id       String   @id @default(uuid()) @map("_id")
-  name     String
-  type     String
-  markdown String
-  order    Int      @default(0)
-  archived Boolean  @default(false)
-
-  lesson   Lesson?  @relation(fields: [lessonId], references: [id])
-  lessonId String?
 }
 
 // evitar mexer daqui pra baixo:

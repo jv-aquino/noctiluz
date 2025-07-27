@@ -1,5 +1,5 @@
 import z from "zod";
-import { nameSchema, corSchema, slugSchema } from "./base.schema";
+import { nameSchema, corSchema, slugSchema, tagsSchema } from "./base.schema";
 
 export const createMateriaSchema = z.object({
   name: nameSchema,
@@ -17,7 +17,7 @@ export const createMateriaSchema = z.object({
   slug: slugSchema,
   imgUrl: z.string(),
 
-  tags: z.array(z.string()).default([]),
+  tags: tagsSchema,
 })
 
 export const patchMateriaSchema = createMateriaSchema

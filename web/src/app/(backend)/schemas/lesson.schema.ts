@@ -1,25 +1,20 @@
 import { z } from 'zod';
+import { nameSchema, archivedSchema } from './base.schema';
 
 export const createLessonSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
+  name: nameSchema,
   descricao: z.string().min(1, 'Descrição é obrigatória'),
   type: z.enum(['GERAL', 'EXERCICIOS', 'REVISAO', 'SIMULACAO']).default('GERAL'),
-  archived: z.boolean().optional(),
+  archived: archivedSchema,
   knowledgeComponents: z.array(z.string()).default([]),
   prerequisites: z.array(z.string()).default([]),
   difficulty: z.number().min(0).max(10).default(1.0),
   estimatedDuration: z.number().positive(),
+  identifier: z.string().optional()
 });
 
-export const patchLessonSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório').optional(),
-  descricao: z.string().min(1, 'Descrição é obrigatória').optional(),
-  type: z.enum(['GERAL', 'EXERCICIOS', 'REVISAO', 'SIMULACAO']).optional(),
-  archived: z.boolean().optional(),
-  knowledgeComponents: z.array(z.string()).optional(),
-  prerequisites: z.array(z.string()).optional(),
-  difficulty: z.number().min(0).max(10).optional(),
-  estimatedDuration: z.number().positive().optional(),
+export const patchLessonSchema = createLessonSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
+  message: "Pelo menos um campo precisa ser fornecido para atualização",
 });
 
 export const addLessonToTopicoSchema = z.object({
@@ -38,4 +33,12 @@ export const reorderConteudoPagesSchema = z.object({
 
 export const reorderContentBlocksSchema = z.object({
   blockIds: z.array(z.string()),
+});
+
+export const createLessonVariantSchema = z.object({
+  name: nameSchema,
+  description: z.string().optional(),
+  isDefault: z.boolean().optional(),
+  weight: z.number().int().min(0).optional(),
+  isActive: z.boolean().optional(),
 }); 

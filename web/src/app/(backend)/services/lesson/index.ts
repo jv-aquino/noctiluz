@@ -1,5 +1,9 @@
 import prisma from '@/backend/services/db';
-import { createLessonSchema, patchLessonSchema } from '@/backend/schemas';
+import { createLessonVariantSchema } from '@/backend/schemas';
+import { z } from 'zod';
+import { Lesson } from '@/generated/prisma';
+
+type LessonWithoutId = Omit<Lesson, 'id'>;
 
 export async function getAllLessons() {
   return prisma.lesson.findMany({
@@ -14,7 +18,7 @@ export async function getAllLessons() {
           skill: true,
         },
       },
-      conteudoPages: true,
+      contentPages: true,
       lessonVariants: true,
       userProgress: true,
       userAttempts: true,
@@ -22,10 +26,9 @@ export async function getAllLessons() {
   });
 }
 
-export async function createLesson(data: unknown) {
-  const parsed = createLessonSchema.parse(data);
+export async function createLesson(data: LessonWithoutId) {
   return prisma.lesson.create({
-    data: parsed,
+    data,
     include: {
       topicoLessons: {
         include: {
@@ -55,7 +58,7 @@ export async function getLessonById(id: string) {
           skill: true,
         },
       },
-      conteudoPages: {
+      contentPages: {
         include: {
           contentBlocks: true,
         },
@@ -76,9 +79,8 @@ export async function deleteLesson(id: string) {
   await prisma.lessonObjective.deleteMany({ where: { lessonId: id } });
   await prisma.userProgress.deleteMany({ where: { lessonId: id } });
   await prisma.userAttempt.deleteMany({ where: { lessonId: id } });
-  await prisma.conteudoPage.deleteMany({ where: { lessonId: id } });
+  await prisma.contentPage.deleteMany({ where: { lessonId: id } });
   await prisma.lessonVariant.deleteMany({ where: { lessonId: id } });
-  await prisma.conteudo.deleteMany({ where: { lessonId: id } });
   
   // Then delete the lesson
   return prisma.lesson.delete({
@@ -86,11 +88,10 @@ export async function deleteLesson(id: string) {
   });
 }
 
-export async function updateLesson(id: string, data: unknown) {
-  const parsed = patchLessonSchema.parse(data);
+export async function updateLesson(id: string, data: Partial<LessonWithoutId>) {
   return prisma.lesson.update({
     where: { id },
-    data: parsed,
+    data,
     include: {
       topicoLessons: {
         include: {
@@ -176,9 +177,9 @@ export async function reorderLessonsInTopico(topicoId: string, lessonIds: string
   return prisma.$transaction(updates);
 } 
 
-export async function reorderConteudoPages(lessonId: string, pageIds: string[]) {
+export async function reorderContentPages(lessonId: string, pageIds: string[]) {
   const updates = pageIds.map((pageId, index) =>
-    prisma.conteudoPage.updateMany({
+    prisma.contentPage.updateMany({
       where: {
         id: pageId,
         lessonId,
@@ -208,7 +209,7 @@ export async function reorderContentBlocks(pageId: string, blockIds: string[]) {
   return prisma.$transaction(updates);
 } 
 
-export async function deleteConteudoPage(id: string) {
+export async function deletecontentPage(id: string) {
   // First, delete all content blocks within the page
   await prisma.contentBlock.deleteMany({
     where: {
@@ -217,7 +218,7 @@ export async function deleteConteudoPage(id: string) {
   });
 
   // Then, delete the page itself
-  return prisma.conteudoPage.delete({
+  return prisma.contentPage.delete({
     where: { id },
   });
 }
@@ -225,5 +226,32 @@ export async function deleteConteudoPage(id: string) {
 export async function deleteContentBlock(id: string) {
   return prisma.contentBlock.delete({
     where: { id },
+  });
+} 
+
+export async function getLessonVariants(lessonId: string) {
+  return prisma.lessonVariant.findMany({
+    where: { lessonId },
+    orderBy: { isDefault: 'desc' }, // Default first
+  });
+}
+
+export async function createLessonVariant(lessonId: string, data: z.infer<typeof createLessonVariantSchema>) {
+  // Only one default per lesson
+  if (data.isDefault) {
+    await prisma.lessonVariant.updateMany({
+      where: { lessonId },
+      data: { isDefault: false },
+    });
+  }
+  return prisma.lessonVariant.create({
+    data: {
+      lessonId,
+      name: data.name,
+      description: data.description,
+      isDefault: !!data.isDefault,
+      weight: data.weight ?? 100,
+      isActive: data.isActive ?? true,
+    },
   });
 } 
