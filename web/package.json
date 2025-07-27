@@ -42,7 +42,7 @@
     "katex": "^0.16.22",
     "lucide-react": "^0.511.0",
     "motion": "^12.23.3",
-    "next": "15.4.2-canary.10",
+    "next": "15.4.2-canary.18",
     "posthog-js": "^1.249.4",
     "posthog-node": "^4.18.0",
     "react": "^19.0.0",

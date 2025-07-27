@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { slugSchema } from './base.schema';
+import { nameSchema, slugSchema } from './base.schema';
 
 export const createCursoSchema = z.object({
-  name: z.string().min(2, 'Nome obrigatório'),
+  name: nameSchema,
   descricao: z.string().min(2, 'Descrição obrigatória'),
   slug: slugSchema,
   tags: z.array(z.string()).default([]),
