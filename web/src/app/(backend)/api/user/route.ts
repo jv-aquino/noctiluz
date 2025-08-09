@@ -4,7 +4,6 @@ import { registerSchema } from "@/backend/schemas";
 import { returnInvalidDataErrors, validBody, zodErrorHandler } from "@/utils/api";
 import { findUserByEmail } from "../../services/user";
 import { authClient } from "@/lib/auth-client";
-import { role } from "better-auth/plugins";
 
 export async function POST(request: NextRequest) {
   try {
