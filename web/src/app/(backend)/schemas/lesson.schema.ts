@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { nameSchema, archivedSchema } from './base.schema';
+import { nameSchema, archivedSchema, slugSchema } from './base.schema';
 
 export const createLessonSchema = z.object({
   name: nameSchema,
@@ -37,6 +37,7 @@ export const reorderContentBlocksSchema = z.object({
 
 export const createLessonVariantSchema = z.object({
   name: nameSchema,
+  slug: slugSchema,
   description: z.string().optional(),
   isDefault: z.boolean().optional(),
   weight: z.number().int().min(0).optional(),
