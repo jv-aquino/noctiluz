@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLessonVariants, createLessonVariant } from '@/backend/services/lesson';
+import { getLessonVariants } from '@/backend/services/lesson';
 import { idSchema, createLessonVariantSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
+import { createLessonVariant } from '@/app/(backend)/services/lesson/variant';
 
 const allowedRoles: AllowedRoutes = {
   POST: ["SUPER_ADMIN", "ADMIN"]
