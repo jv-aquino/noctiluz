@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { registerSchema } from "@/backend/schemas";
 import { returnInvalidDataErrors, validBody, zodErrorHandler } from "@/utils/api";
 import { findUserByEmail } from "../../services/user";
-import { authClient } from "@/lib/auth-client";
+import { auth } from "@/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       );
     }    
     
-    const user = await authClient.signUp.email({
+    const user = await auth.api.signUpEmail({
       name,
       email,
       password,
