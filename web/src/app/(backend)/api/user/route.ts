@@ -28,13 +28,10 @@ export async function POST(request: NextRequest) {
         },
         { status: 409 }
       );
-    }    
-    
+    }
+
     const user = await auth.api.signUpEmail({
-      name,
-      email,
-      password,
-      callbackURL: "/",
+      body: { name, email, password, callbackURL: "/" }
     });
     
     return NextResponse.json(
