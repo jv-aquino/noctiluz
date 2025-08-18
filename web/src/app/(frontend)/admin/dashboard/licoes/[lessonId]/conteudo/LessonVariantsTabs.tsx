@@ -3,6 +3,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { generateSlug } from "@/utils";
+import { slugSchema } from "@/backend/schemas";
 import React from "react";
 import { LessonVariant } from "@/generated/prisma";
 
@@ -15,8 +17,16 @@ interface LessonVariantsTabsProps {
   setShowNewVariantDialog: (open: boolean) => void;
   newVariantName: string;
   setNewVariantName: (name: string) => void;
+  newVariantSlug: string;
+  setNewVariantSlug: (slug: string) => void;
   newVariantDescription: string;
   setNewVariantDescription: (desc: string) => void;
+  newVariantIsDefault: boolean;
+  setNewVariantIsDefault: (val: boolean) => void;
+  newVariantWeight: number;
+  setNewVariantWeight: (val: number) => void;
+  newVariantIsActive: boolean;
+  setNewVariantIsActive: (val: boolean) => void;
   creatingVariant: boolean;
   handleCreateVariant: () => void;
   children: React.ReactNode;
@@ -31,12 +41,22 @@ export default function LessonVariantsTabs({
   setShowNewVariantDialog,
   newVariantName,
   setNewVariantName,
+  newVariantSlug,
+  setNewVariantSlug,
   newVariantDescription,
   setNewVariantDescription,
+  newVariantIsDefault,
+  setNewVariantIsDefault,
+  newVariantWeight,
+  setNewVariantWeight,
+  newVariantIsActive,
+  setNewVariantIsActive,
   creatingVariant,
   handleCreateVariant,
   children,
 }: LessonVariantsTabsProps) {
+  const isValidSlug = (slug: string) => slugSchema.safeParse(slug).success;
+
   return (
     <>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -59,27 +79,85 @@ export default function LessonVariantsTabs({
             <DialogTitle>Criar Nova Variante</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
-            <input
-              type="text"
-              className="w-full p-2 border rounded"
-              placeholder="Nome da variante"
-              value={newVariantName}
-              onChange={e => setNewVariantName(e.target.value)}
-              autoFocus
-            />
-            <textarea
-              className="w-full p-2 border rounded"
-              placeholder="Descrição (opcional)"
-              value={newVariantDescription}
-              onChange={e => setNewVariantDescription(e.target.value)}
-              rows={3}
-            />
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Nome</label>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="Nome da variante"
+                value={newVariantName}
+                onChange={e => {
+                  const value = e.target.value;
+                  setNewVariantName(value);
+                  if (!newVariantSlug) {
+                    setNewVariantSlug(generateSlug(value));
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Slug</label>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="ex: minha-variante"
+                value={newVariantSlug}
+                onChange={e => setNewVariantSlug(generateSlug(e.target.value))}
+              />
+              {!isValidSlug(newVariantSlug) && newVariantSlug && (
+                <p className="text-xs text-red-600">Slug deve conter apenas letras minúsculas, números e hífens.</p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Descrição (opcional)</label>
+              <textarea
+                className="w-full p-2 border rounded"
+                placeholder="Descrição (opcional)"
+                value={newVariantDescription}
+                onChange={e => setNewVariantDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newVariantIsDefault}
+                  onChange={e => setNewVariantIsDefault(e.target.checked)}
+                />
+                <span className="text-sm text-gray-700">Default</span>
+              </label>
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newVariantIsActive}
+                  onChange={e => setNewVariantIsActive(e.target.checked)}
+                />
+                <span className="text-sm text-gray-700">Ativa</span>
+              </label>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">Peso</label>
+                <input
+                  type="number"
+                  min={0}
+                  className="w-full p-2 border rounded"
+                  value={Number.isFinite(newVariantWeight) ? newVariantWeight : 100}
+                  onChange={e => {
+                    const parsed = parseInt(e.target.value, 10);
+                    setNewVariantWeight(Number.isNaN(parsed) ? 0 : parsed);
+                  }}
+                />
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewVariantDialog(false)} disabled={creatingVariant}>
               Cancelar
             </Button>
-            <Button onClick={handleCreateVariant} disabled={creatingVariant || !newVariantName.trim()}>
+            <Button onClick={handleCreateVariant} disabled={
+              creatingVariant || !newVariantName.trim() || !newVariantSlug.trim() || !isValidSlug(newVariantSlug)
+            }>
               {creatingVariant ? 'Criando...' : 'Criar Variante'}
             </Button>
           </DialogFooter>
