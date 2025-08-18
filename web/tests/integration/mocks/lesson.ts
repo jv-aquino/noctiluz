@@ -1,5 +1,6 @@
 export const postLessonMock = {
   id: "550e8400-e29b-41d4-a716-446655440000",
+  identifier: "LESSON-001",
   name: "Introdução à Álgebra",
   descricao: "Conceitos básicos de álgebra linear",
   type: "GERAL" as const,
@@ -12,6 +13,7 @@ export const postLessonMock = {
 export const patchLessonMock = {
   name: "Álgebra Avançada",
   descricao: "Conceitos avançados de álgebra",
+  identifier: "LESSON-001",
   difficulty: 2.5,
   estimatedDuration: 60
 };

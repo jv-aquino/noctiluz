@@ -1,6 +1,4 @@
 import prisma from '@/backend/services/db';
-import { createLessonVariantSchema } from '@/backend/schemas';
-import { z } from 'zod';
 import { Lesson } from '@/generated/prisma';
 
 type LessonWithoutId = Omit<Lesson, 'id'>;
@@ -235,23 +233,3 @@ export async function getLessonVariants(lessonId: string) {
     orderBy: { isDefault: 'desc' }, // Default first
   });
 }
-
-export async function createLessonVariant(lessonId: string, data: z.infer<typeof createLessonVariantSchema>) {
-  // Only one default per lesson
-  if (data.isDefault) {
-    await prisma.lessonVariant.updateMany({
-      where: { lessonId },
-      data: { isDefault: false },
-    });
-  }
-  return prisma.lessonVariant.create({
-    data: {
-      lessonId,
-      name: data.name,
-      description: data.description,
-      isDefault: !!data.isDefault,
-      weight: data.weight ?? 100,
-      isActive: data.isActive ?? true,
-    },
-  });
-} 

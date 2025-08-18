@@ -47,7 +47,6 @@ model User {
   id            String    @id @default(uuid()) @map("_id")
   name          String
   email         String    @unique
-  password      String?
   emailVerified Boolean?
   image         String?
   role          Role      @default(USER)
@@ -152,6 +151,8 @@ model Lesson {
   descricao String
   type      LessonType @default(GERAL)
   archived  Boolean @default(false)
+
+  identifier          String @default("")   // Invisible for users, used for selection purposes in the admin dashboard 
   
   knowledgeComponents String[] // Skills this lesson teaches
   prerequisites       String[] // Required skill IDs
@@ -187,6 +188,8 @@ model LessonVariant {
   name        String
   description String?
   isDefault   Boolean @default(false)
+  
+  slug        String?      @unique
   
   lesson   Lesson  @relation(fields: [lessonId], references: [id])
   lessonId String

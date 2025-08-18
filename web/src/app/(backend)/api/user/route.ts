@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { saltAndHashPassword } from "@/backend/services/auth";
 import { registerSchema } from "@/backend/schemas";
 import { returnInvalidDataErrors, validBody, zodErrorHandler } from "@/utils/api";
-import { createUser, findUserByEmail } from "../../services/user";
+import { findUserByEmail } from "../../services/user";
+import { auth } from "@/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +28,11 @@ export async function POST(request: NextRequest) {
         },
         { status: 409 }
       );
-    }    
-    
-    const hashedPassword = await saltAndHashPassword(password);
+    }
 
-    const user = await createUser({ name, email, password: hashedPassword, role: "USER" });
+    const user = await auth.api.signUpEmail({
+      body: { name, email, password, callbackURL: "/" }
+    });
     
     return NextResponse.json(
       { 

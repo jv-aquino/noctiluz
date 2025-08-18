@@ -1,16 +1,16 @@
 import { describe, it, vi, beforeEach, expect, Mock } from "vitest";
 import * as userService from '@/backend/services/user'
-import * as authService from '@/backend/services/auth'
 import { postUserMock } from "../../mocks/user";
 import { createRequest } from "../../mocks/requests";
+import { auth } from "@/auth";
 
 vi.mock('@/backend/services/user', () => ({
   findUserByEmail: vi.fn(),
   createUser: vi.fn(),
 }))
 
-vi.mock('@/backend/services/auth', () => ({
-  saltAndHashPassword: vi.fn()
+vi.mock('@/auth', () => ({
+  auth: vi.fn()
 }))
 
 import { POST } from '@/backend/api/user/route'
@@ -30,13 +30,17 @@ describe('POST /api/user', () => {
   });
 
   it('should register if everything is alright', async () => {
-    (userService.findUserByEmail as Mock).mockResolvedValue(null);
-    (userService.createUser as Mock).mockResolvedValue(postUserMock);
-    (authService.saltAndHashPassword as Mock).mockResolvedValue("HashedPassword");
+    (userService.findUserByEmail as unknown as Mock).mockResolvedValue(null);
+    (userService.createUser as unknown as Mock).mockResolvedValue(postUserMock);
+
+    // Mock the nested signUpEmail function on the auth object
+    if (!('api' in auth)) {
+      (auth as any).api = {};
+    }
+    (auth.api.signUpEmail as unknown as Mock) = vi.fn().mockResolvedValue(postUserMock);
 
     const response = await POST(createUserRequest());
     expect(response?.status).toBe(201);
-    
     const data = await response?.json();
     expect(data.user).toBeTruthy();
   });

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     const validatedData = validationResult.data;
-    const lesson = await createLesson(validatedData);
+    const lesson = await createLesson({ ...validatedData, identifier: validatedData.identifier ?? '' });
     return NextResponse.json(lesson, { status: 201 });
   } catch (error) {
     if (error instanceof NextResponse) {
