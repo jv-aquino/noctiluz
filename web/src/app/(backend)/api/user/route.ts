@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { registerSchema } from "@/backend/schemas";
-import { returnInvalidDataErrors, validBody, zodErrorHandler } from "@/utils/api";
+import { returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from "@/utils/api";
 import { findUserByEmail } from "../../services/user";
 import { auth } from "@/auth";
 
@@ -22,10 +22,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { 
-          error: "Usuário já existe",
-          field: "email" 
-        },
+        toErrorMessage('User com mesmo email já existe'),
         { status: 409 }
       );
     }
@@ -35,10 +32,7 @@ export async function POST(request: NextRequest) {
     });
     
     return NextResponse.json(
-      { 
-        message: "Usuário criado com sucesso",
-        user 
-      },
+      { user },
       { status: 201 }
     );
   } catch (error) {
