@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCursosByMateriaId } from '@/backend/services/curso';
 import { idSchema } from '@/backend/schemas';
-import { zodErrorHandler } from '@/utils';
+import { returnInvalidDataErrors, toErrorMessage, zodErrorHandler } from '@/utils';
 import { createCursoMateriaRelacionada } from '@/backend/services/curso';
 import { blockForbiddenRequests } from '@/utils';
 import type { AllowedRoutes } from '@/types';
@@ -19,16 +19,13 @@ export async function GET(
 
     const validationResult = idSchema.safeParse(materiaId);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID de matéria inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
     const cursos = await getCursosByMateriaId(materiaId);
     if (!cursos || cursos.length === 0) {
       return NextResponse.json(
-        { error: 'Nenhum curso encontrado para esta matéria' },
+        toErrorMessage('Nenhum curso encontrado para esta matéria'),
         { status: 404 }
       );
     }
@@ -54,20 +51,14 @@ export async function POST(
     const { materiaId } = await params;
     const validationResult = idSchema.safeParse(materiaId);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID de matéria inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
     const body = await request.json();
 
     const { cursoId } = body;
     const cursoIdValidation = idSchema.safeParse(cursoId);
     if (!cursoIdValidation.success) {
-      return NextResponse.json(
-        { error: 'ID de curso inválido', details: cursoIdValidation.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(cursoIdValidation);
     }
 
     const relation = await createCursoMateriaRelacionada(cursoId, materiaId);
@@ -79,13 +70,13 @@ export async function POST(
     if (error instanceof Error) {
       if (error.message.includes('Unique constraint')) {
         return NextResponse.json(
-          { error: 'Esta relação já existe' },
+          toErrorMessage('Esta relação já existe'),
           { status: 409 }
         );
       }
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }

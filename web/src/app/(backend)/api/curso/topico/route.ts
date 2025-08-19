@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/backend/services/db';
 import { z } from 'zod';
+import { returnInvalidDataErrors, toErrorMessage } from '@/utils';
 
 const bodySchema = z.object({
   cursoId: z.string(),
@@ -10,11 +11,11 @@ const bodySchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const parsed = bodySchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Dados inválidos', details: parsed.error.errors }, { status: 400 });
+    const validationResult = bodySchema.safeParse(body);
+    if (!validationResult.success) {
+      return returnInvalidDataErrors(validationResult);
     }
-    const { cursoId, topicoId } = parsed.data;
+    const { cursoId, topicoId } = validationResult.data;
     // Find the current max order for this curso
     const maxOrder = await prisma.cursoTopico.aggregate({
       where: { cursoId },
@@ -26,6 +27,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json(relation, { status: 201 });
   } catch {
-    return NextResponse.json({ error: 'Erro ao associar tópico ao curso' }, { status: 500 });
+    return NextResponse.json(toErrorMessage('Erro ao associar tópico ao curso'), { status: 500 });
   }
 } 

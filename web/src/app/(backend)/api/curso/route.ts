@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllCursos, createCurso } from '@/backend/services/curso';
 import { createCursoSchema } from '@/backend/schemas/curso.schema';
-import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -13,9 +13,8 @@ export async function GET() {
     const cursos = await getAllCursos();
     return NextResponse.json(cursos, { status: 200 });
   } catch (error) {
-    console.error('Erro ao buscar cursos:', error);
     return NextResponse.json(
-      { error: 'Falha ao buscar cursos' },
+      toErrorMessage('Falha ao buscar cursos'),
       { status: 500 }
     );
   }
@@ -47,18 +46,18 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('Unique constraint')) {
         if (error.message.includes('slug')) {
           return NextResponse.json(
-            { error: 'Um curso com esse slug já existe' },
+            toErrorMessage('Um curso com esse slug já existe'),
             { status: 409 }
           );
         }
         return NextResponse.json(
-          { error: 'Um curso com esses dados já existe' },
+          toErrorMessage('Um curso com esses dados já existe'),
           { status: 409 }
         );
       }
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }
