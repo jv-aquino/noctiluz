@@ -2,7 +2,7 @@
 Nossa API segue majoritariamente padrões REST e pode ser testada utilizando o Bruno.
 Requisitos para novas routes:
 - Ter boa tipagem
-- Priorizar funções utilitárias (como validBody e blockForbiddenRequests)
+- Priorizar funções utilitárias (como validBody, toErrorMessage, blockForbiddenRequests e outros)
 - Criar testes de integração
 
 ### Specs
@@ -10,3 +10,11 @@ Requisitos para novas routes:
 - Retornar objeto error contendo propriedade message
 #### Sucesso
 - Retornar apenas objeto, sem message, em caso de sucesso
+
+A Conexão com schema deve também utilizar de funções utilitárias de erro:
+```typescript
+const validationResult = idSchema.safeParse(materiaId);
+if (!validationResult.success) {
+  return returnInvalidDataErrors(validationResult);
+}
+```

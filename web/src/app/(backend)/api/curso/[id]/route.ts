@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCursoById, deleteCurso, updateCurso, setCursoMaterias } from '@/backend/services/curso';
 import { idSchema, patchCursoSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -17,16 +17,13 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
     const curso = await getCursoById(id);
     if (!curso) {
       return NextResponse.json(
-        { error: 'Curso não encontrado' },
+        toErrorMessage('Curso não encontrado'),
         { status: 404 }
       );
     }
@@ -52,15 +49,12 @@ export async function DELETE(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
     const curso = await getCursoById(id);
     if (!curso) {
       return NextResponse.json(
-        { error: 'Curso não encontrado' },
+        toErrorMessage('Curso não encontrado'),
         { status: 404 }
       );
     }
@@ -73,7 +67,7 @@ export async function DELETE(
     if (error instanceof Error) {
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }
@@ -94,25 +88,19 @@ export async function PATCH(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
     const existingCurso = await getCursoById(id);
     if (!existingCurso) {
       return NextResponse.json(
-        { error: 'Curso não encontrado' },
+        toErrorMessage('Curso não encontrado'),
         { status: 404 }
       );
     }
     const body = await request.json();
     const validationDataResult = patchCursoSchema.safeParse(body);
     if (!validationDataResult.success) {
-      return NextResponse.json(
-        { error: 'Dados inválidos', details: validationDataResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationDataResult);
     }
     const validatedData = validationDataResult.data;
     const curso = await updateCurso(id, validatedData);
@@ -128,18 +116,18 @@ export async function PATCH(
       if (error.message.includes('Unique constraint')) {
         if (error.message.includes('slug')) {
           return NextResponse.json(
-            { error: 'Um curso com esse slug já existe' },
+            toErrorMessage('Um curso com esse slug já existe'),
             { status: 409 }
           );
         }
         return NextResponse.json(
-          { error: 'Um curso com esses dados já existe' },
+          toErrorMessage('Um curso com esses dados já existe'),
           { status: 409 }
         );
       }
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }
