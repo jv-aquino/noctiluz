@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllLessons, createLesson } from '@/backend/services/lesson';
 import { createLessonSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -12,10 +12,9 @@ export async function GET() {
   try {
     const lessons = await getAllLessons();
     return NextResponse.json(lessons, { status: 200 });
-  } catch (error) {
-    console.error('Erro ao buscar lições:', error);
+  } catch {
     return NextResponse.json(
-      { error: 'Falha ao buscar lições' },
+      toErrorMessage("Falha ao buscar lições"),
       { status: 500 }
     );
   }
