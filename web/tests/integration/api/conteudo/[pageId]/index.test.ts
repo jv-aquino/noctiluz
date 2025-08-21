@@ -1,32 +1,26 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 // Service import will be mocked
 import * as lessonService from '@/backend/services/lesson'
+import * as conteudoService from '@/backend/services/conteudo'
 // Route handlers
-import { GET, POST } from '@/backend/api/lesson/[id]/conteudo/[pageId]/route'
-import { setCurrentRole } from '../../../../../mocks/auth'
-import { createRequest } from '../../../../../mocks/requests'
-import { postLessonMock } from '../../../../../mocks/lesson'
-import { contentPageMock, contentBlockMock, createContentBlockMock } from '../../../../../mocks/conteudo'
-import prisma from '@/backend/services/db'
+import { GET, POST } from '@/backend/api/conteudo/[pageId]/route'
+import { setCurrentRole } from '../../../mocks/auth'
+import { createRequest } from '../../../mocks/requests'
+import { postLessonMock } from '../../../mocks/lesson'
+import { contentPageMock, contentBlockMock, createContentBlockMock } from '../../../mocks/conteudo'
 
-vi.mock('@/backend/services/db', () => ({
-  default: {
-    contentPage: {
-      findFirst: vi.fn(),
-    },
-    contentBlock: {
-      findMany: vi.fn(),
-      aggregate: vi.fn(),
-      create: vi.fn(),
-    },
-  },
+vi.mock('@/backend/services/conteudo', () => ({
+  getContentPage: vi.fn(),
+  getContentBlocks: vi.fn(),
+  getMaxOrder: vi.fn(),
+  createContentBlock: vi.fn(),
 }))
 
 vi.mock('@/backend/services/lesson', () => ({
   getLessonById: vi.fn(),
 }))
 
-describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
+describe('GET /api/conteudo/[pageId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,28 +30,20 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
     const pageId = contentPageMock.id;
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
-    (prisma.contentBlock.findMany as Mock).mockResolvedValue([contentBlockMock]);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getContentBlocks as Mock).mockResolvedValue([contentBlockMock]);
     
-    const request = createRequest({}, 'lesson');
+    const request = createRequest({}, `conteudo/${pageId}?lessonId=${lessonId}`);
     const response = await GET(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data).toEqual([contentBlockMock]);
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.contentPage.findFirst).toHaveBeenCalledWith({
-      where: { 
-        id: pageId,
-        lessonId 
-      }
-    });
-    expect(prisma.contentBlock.findMany).toHaveBeenCalledWith({
-      where: { pageId },
-      orderBy: { order: 'asc' }
-    });
+    expect(conteudoService.getContentPage).toHaveBeenCalledWith({ lessonId, pageId });
+    expect(conteudoService.getContentBlocks).toHaveBeenCalledWith({ pageId });
   });
 
   it('should return 404 if lesson not found', async () => {
@@ -66,9 +52,9 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
     
     (lessonService.getLessonById as Mock).mockResolvedValue(null);
     
-    const request = createRequest({}, 'lesson');
+    const request = createRequest({}, `conteudo/${pageId}?lessonId=${lessonId}`);
     const response = await GET(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response.status).toBe(404);
@@ -79,11 +65,11 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
     const pageId = "550e8400-e29b-41d4-a716-446655440999";
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(null);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(null);
     
-    const request = createRequest({}, 'lesson');
+    const request = createRequest({}, `conteudo/${pageId}?lessonId=${lessonId}`);
     const response = await GET(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response.status).toBe(404);
@@ -94,12 +80,12 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
     const pageId = contentPageMock.id;
     
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
-    (prisma.contentBlock.findMany as Mock).mockResolvedValue([]);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getContentBlocks as Mock).mockResolvedValue([]);
     
-    const request = createRequest({}, 'lesson');
+    const request = createRequest({}, `conteudo/${pageId}?lessonId=${lessonId}`);
     const response = await GET(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response.status).toBe(200);
@@ -108,7 +94,7 @@ describe('GET /api/lesson/[id]/conteudo/[pageId]', () => {
   });
 });
 
-describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
+describe('POST /api/conteudo/[pageId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);
@@ -116,13 +102,13 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
 
   const lessonId = postLessonMock.id;
   const pageId = contentPageMock.id;
-  const createPostRequest = () => createRequest(createContentBlockMock, 'lesson');
+  const createPostRequest = () => createRequest({ ...createContentBlockMock, lessonId }, `conteudo/${pageId}`);
 
   it('should fail if unauthenticated', async () => {
     setCurrentRole(null);
     const request = createPostRequest();
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     expect(response?.status).toBe(401);
   });
@@ -131,7 +117,7 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
     setCurrentRole('USER');
     const request = createPostRequest();
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     expect(response?.status).toBe(403);
   });
@@ -139,16 +125,16 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
   it('should create content block if user is ADMIN', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
-    (prisma.contentBlock.aggregate as Mock).mockResolvedValue({ _max: { order: 0 } });
-    (prisma.contentBlock.create as Mock).mockResolvedValue({
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getMaxOrder as Mock).mockResolvedValue({ _max: { order: 0 } });
+    (conteudoService.createContentBlock as Mock).mockResolvedValue({
       ...contentBlockMock,
       ...createContentBlockMock,
     });
 
     const request = createPostRequest();
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(201);
@@ -158,16 +144,11 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
       ...createContentBlockMock,
     });
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(prisma.contentPage.findFirst).toHaveBeenCalledWith({
-      where: { 
-        id: pageId,
-        lessonId 
-      }
-    });
-    expect(prisma.contentBlock.create).toHaveBeenCalledWith({
+    expect(conteudoService.getContentPage).toHaveBeenCalledWith({ lessonId, pageId });
+    expect(conteudoService.createContentBlock).toHaveBeenCalledWith({
       data: {
         type: createContentBlockMock.type,
-        order: 0, // Using the order from createContentBlockMock
+        order: 0, // Using provided order from body
         markdown: createContentBlockMock.markdown,
         videoUrl: null,
         metadata: null,
@@ -176,6 +157,7 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
         componentProps: null,
         exerciseData: null,
         pageId,
+        archived: false,
       }
     });
   });
@@ -186,7 +168,7 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
 
     const request = createPostRequest();
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(404);
@@ -195,11 +177,11 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
   it('should fail if page not found', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(null);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(null);
 
     const request = createPostRequest();
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(404);
@@ -208,11 +190,11 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
   it('should fail if type is missing', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
 
-    const request = createRequest({ markdown: "Some content" }, 'lesson');
+    const request = createRequest({ markdown: "Some content", lessonId }, `conteudo/${pageId}`);
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(400);
@@ -221,11 +203,11 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
   it('should fail if type is invalid', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
 
-    const request = createRequest({ type: "INVALID_TYPE" }, 'lesson');
+    const request = createRequest({ type: "INVALID_TYPE", lessonId }, `conteudo/${pageId}`);
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(400);
@@ -234,9 +216,9 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
   it('should handle video content block', async () => {
     setCurrentRole('ADMIN');
     (lessonService.getLessonById as Mock).mockResolvedValue(postLessonMock);
-    (prisma.contentPage.findFirst as Mock).mockResolvedValue(contentPageMock);
-    (prisma.contentBlock.aggregate as Mock).mockResolvedValue({ _max: { order: 0 } });
-    (prisma.contentBlock.create as Mock).mockResolvedValue({
+    (conteudoService.getContentPage as Mock).mockResolvedValue(contentPageMock);
+    (conteudoService.getMaxOrder as Mock).mockResolvedValue({ _max: { order: 0 } });
+    (conteudoService.createContentBlock as Mock).mockResolvedValue({
       ...contentBlockMock,
       type: "VIDEO",
       videoUrl: "https://example.com/video.mp4",
@@ -249,13 +231,13 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
       metadata: { duration: 300 }
     };
 
-    const request = createRequest(videoBlockData, 'lesson');
+    const request = createRequest({ ...videoBlockData, lessonId }, `conteudo/${pageId}`);
     const response = await POST(request, { 
-      params: Promise.resolve({ id: lessonId, pageId }) 
+      params: Promise.resolve({ pageId }) 
     });
     
     expect(response?.status).toBe(201);
-    expect(prisma.contentBlock.create).toHaveBeenCalledWith({
+    expect(conteudoService.createContentBlock).toHaveBeenCalledWith({
       data: {
         type: "VIDEO",
         order: 1, // Calculated from maxOrder._max.order + 1
@@ -267,6 +249,7 @@ describe('POST /api/lesson/[id]/conteudo/[pageId]', () => {
         componentProps: null,
         exerciseData: null,
         pageId,
+        archived: false,
       }
     });
   });
