@@ -1,4 +1,4 @@
-## API
+# API
 Nossa API segue majoritariamente padrões REST e pode ser testada utilizando o Bruno.
 Requisitos para novas routes:
 - Ter boa tipagem
@@ -6,6 +6,13 @@ Requisitos para novas routes:
 - Criar testes de integração
 
 ### Specs
+### Modelo
+Seguimos um modelo controller (mesclado com a route), service e schema para validação, bem similar a um MVC tradicional. Assim, devemos seguir algumas guidelines:
+- Não usar prisma nas routes/controllers
+- Sempre usar a validação com o zod (nos schemas)
+É importante também uma separação de código boa entre esses arquivos
+
+### Routes
 #### Erros
 - Retornar objeto error contendo propriedade message
 #### Sucesso

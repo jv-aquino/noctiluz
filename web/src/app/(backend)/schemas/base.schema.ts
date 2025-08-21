@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const idSchema = z.string().uuid('ID inválido');
+export const idArraySchema = z.array(idSchema).min(1, 'Pelo menos um ID deve ser fornecido');
 
 export const passwordSchema = z
     .string()
