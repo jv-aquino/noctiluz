@@ -4,7 +4,6 @@ import { getLessonById } from '@/backend/services/lesson';
 import { idSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import { deleteContentBlock, getContentBlock, getContentPage, updateContentBlock } from '@/app/(backend)/services/conteudo';
-import { useSearchParams } from 'next/navigation';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -29,7 +28,7 @@ export async function GET(
       return returnInvalidDataErrors(blockValidation);
     }
     
-    const searchParams = useSearchParams()
+    const searchParams = request.nextUrl.searchParams;
   
     const unvalidatedLessonId = searchParams.get('lessonId');
     
@@ -91,7 +90,9 @@ export async function PATCH(
     const pageValidation = idSchema.safeParse(pageId);
     const blockValidation = idSchema.safeParse(blockId);
 
-    const { lessonId } = await validBody(request);
+    const bodyOrError = await validBody(request);
+    if (bodyOrError instanceof NextResponse) return bodyOrError;
+    const { lessonId, ...rest } = bodyOrError;
     const lessonValidation = idSchema.safeParse(lessonId);
     
     if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {
@@ -128,7 +129,6 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json();
     const { 
       type, 
       markdown, 
@@ -140,7 +140,7 @@ export async function PATCH(
       exerciseData,
       order,
       archived 
-    } = body;
+    } = rest;
 
     // Validate type if provided
     if (type && !['MARKDOWN', 'VIDEO', 'INTERACTIVE_COMPONENT', 'EXERCISE', 'SIMULATION', 'ASSESSMENT'].includes(type)) {
@@ -190,7 +190,9 @@ export async function DELETE(
     const pageValidation = idSchema.safeParse(pageId);
     const blockValidation = idSchema.safeParse(blockId);
 
-    const { lessonId } = await validBody(request);
+    const bodyOrErr = await validBody(request);
+    if (bodyOrErr instanceof NextResponse) return bodyOrErr;
+    const { lessonId } = bodyOrErr;
     const lessonValidation = idSchema.safeParse(lessonId);
 
     if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { idSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
-import { useSearchParams } from 'next/navigation';
 import { getLessonById } from '@/backend/services/lesson';
 import { createContentPage, getContentPages, getMaxOrder } from '@/backend/services/conteudo';
 
@@ -18,7 +17,7 @@ export async function GET(
   request: NextRequest,
 ) {
   try {
-    const searchParams = useSearchParams()
+    const searchParams = request.nextUrl.searchParams
  
     const unvalidatedLessonId = searchParams.get('lessonId');
 
@@ -57,7 +56,7 @@ export async function POST(
       return forbidden;
     }
     
-    const { lessonId } = await validBody(request);
+    const { lessonId, name, order } = await validBody(request);
 
     const validationResult = idSchema.safeParse(lessonId);
     if (!validationResult.success) {
@@ -71,9 +70,6 @@ export async function POST(
         { status: 404 }
       );
     }
-
-    const body = await request.json();
-    const { name, order } = body;
 
     if (!name || typeof name !== 'string') {
       return NextResponse.json(

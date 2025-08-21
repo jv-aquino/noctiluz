@@ -4,7 +4,6 @@ import { idSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 import { createContentBlock, getContentBlocks, getContentPage, getMaxOrder } from '@/app/(backend)/services/conteudo';
-import { useSearchParams } from 'next/navigation';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -19,7 +18,7 @@ export async function GET(
   { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
-    const searchParams = useSearchParams()
+    const searchParams = request.nextUrl.searchParams
   
     const unvalidatedLessonId = searchParams.get('lessonId');
     const lessonValidation = idSchema.safeParse(unvalidatedLessonId);
@@ -77,7 +76,18 @@ export async function POST(
 
     const { pageId } = await params;
     
-    const { lessonId } = await validBody(request);
+    const { 
+      lessonId,
+      type, 
+      markdown, 
+      videoUrl, 
+      metadata, 
+      componentType, 
+      componentPath, 
+      componentProps, 
+      exerciseData,
+      order 
+    } = await validBody(request);
     const lessonValidation = idSchema.safeParse(lessonId);
 
     const pageValidation = idSchema.safeParse(pageId);
@@ -106,19 +116,6 @@ export async function POST(
         { status: 404 }
       );
     }
-
-    const body = await request.json();
-    const { 
-      type, 
-      markdown, 
-      videoUrl, 
-      metadata, 
-      componentType, 
-      componentPath, 
-      componentProps, 
-      exerciseData,
-      order 
-    } = body;
 
     if (!type || !['MARKDOWN', 'VIDEO', 'INTERACTIVE_COMPONENT', 'EXERCISE', 'SIMULATION', 'ASSESSMENT'].includes(type)) {
       return NextResponse.json(
