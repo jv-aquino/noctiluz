@@ -17,10 +17,7 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID da lição inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
     const variants = await getLessonVariants(id);
     return NextResponse.json(variants, { status: 200 });
@@ -44,7 +41,7 @@ export async function POST(
     const { id } = await params;
     const lessonIdValidation = idSchema.safeParse(id);
     if (!lessonIdValidation.success) {
-      return NextResponse.json({ error: 'ID da lição inválido' }, { status: 400 });
+      return returnInvalidDataErrors(lessonIdValidation);
     }
     const body = await validBody(request);
     const validationResult = createLessonVariantSchema.safeParse(body);

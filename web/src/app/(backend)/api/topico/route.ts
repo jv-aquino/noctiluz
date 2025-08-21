@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const topicos = await getAllTopicos();
     return NextResponse.json(topicos, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       toErrorMessage('Falha ao buscar tópicos'),
       { status: 500 }

@@ -13,7 +13,7 @@ export async function GET() {
     const materias = await getAllMaterias()
 
     return NextResponse.json(materias, { status: 200 })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       toErrorMessage('Falha ao buscar matérias'),
       { status: 500 }

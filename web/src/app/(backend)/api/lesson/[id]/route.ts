@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonById, deleteLesson, updateLesson } from '@/backend/services/lesson';
 import { idSchema, patchLessonSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -17,16 +17,13 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
     const lesson = await getLessonById(id);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
@@ -53,16 +50,13 @@ export async function DELETE(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
     const lesson = await getLessonById(id);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
@@ -76,7 +70,7 @@ export async function DELETE(
     if (error instanceof Error) {
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }
@@ -98,16 +92,13 @@ export async function PATCH(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
     const existingLesson = await getLessonById(id);
     if (!existingLesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
@@ -115,10 +106,7 @@ export async function PATCH(
     const body = await request.json();
     const validationDataResult = patchLessonSchema.safeParse(body);
     if (!validationDataResult.success) {
-      return NextResponse.json(
-        { error: 'Dados inválidos', details: validationDataResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationDataResult);
     }
 
     const validatedData = validationDataResult.data;
@@ -131,7 +119,7 @@ export async function PATCH(
     if (error instanceof Error) {
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         );
       }

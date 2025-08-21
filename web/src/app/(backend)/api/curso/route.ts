@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const cursos = await getAllCursos();
     return NextResponse.json(cursos, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       toErrorMessage('Falha ao buscar cursos'),
       { status: 500 }
