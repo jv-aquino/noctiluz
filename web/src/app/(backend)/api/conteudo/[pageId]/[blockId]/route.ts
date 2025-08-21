@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { AllowedRoutes } from '@/types';
 import { getLessonById } from '@/backend/services/lesson';
 import { idSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
-import type { AllowedRoutes } from '@/types';
-import prisma from '@/backend/services/db';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
+import { deleteContentBlock, getContentBlock, getContentPage, updateContentBlock } from '@/app/(backend)/services/conteudo';
+import { useSearchParams } from 'next/navigation';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -11,58 +12,57 @@ const allowedRoles: AllowedRoutes = {
   DELETE: ["SUPER_ADMIN", "ADMIN"]
 };
 
-// Get a specific content block
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; pageId: string; blockId: string }> }
 ) {
   try {
-    const { id, pageId, blockId } = await params;
+    const { pageId, blockId } = await params;
     
-    const lessonValidation = idSchema.safeParse(id);
     const pageValidation = idSchema.safeParse(pageId);
     const blockValidation = idSchema.safeParse(blockId);
     
-    if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {
-      return NextResponse.json(
-        { error: 'ID inválido' },
-        { status: 400 }
-      );
+    if (!pageValidation.success) {
+      return returnInvalidDataErrors(pageValidation);
     }
+    if (!blockValidation.success) {
+      return returnInvalidDataErrors(blockValidation);
+    }
+    
+    const searchParams = useSearchParams()
+  
+    const unvalidatedLessonId = searchParams.get('lessonId');
+    
+    const lessonValidation = idSchema.safeParse(unvalidatedLessonId);
 
-    const lesson = await getLessonById(id);
+    if (!lessonValidation.success) {
+      return returnInvalidDataErrors(lessonValidation);
+    } 
+    const lessonId = lessonValidation.data;
+
+    const lesson = await getLessonById(lessonId);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.contentPage.findFirst({
-      where: { 
-        id: pageId,
-        lessonId: id 
-      }
-    });
+    const page = await getContentPage({ lessonId, pageId });
 
     if (!page) {
       return NextResponse.json(
-        { error: 'Página de conteúdo não encontrada' },
+        toErrorMessage('Página de conteúdo não encontrada'),
         { status: 404 }
       );
     }
 
-    const contentBlock = await prisma.contentBlock.findFirst({
-      where: { 
-        id: blockId,
-        pageId 
-      }
-    });
+    const contentBlock = await getContentBlock({ blockId, pageId });
 
     if (!contentBlock) {
       return NextResponse.json(
-        { error: 'Bloco de conteúdo não encontrado' },
+        toErrorMessage('Bloco de conteúdo não encontrado'),
         { status: 404 }
       );
     }
@@ -76,7 +76,6 @@ export async function GET(
   }
 }
 
-// Update a content block
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; pageId: string; blockId: string }> }
@@ -87,52 +86,44 @@ export async function PATCH(
       return forbidden;
     }
 
-    const { id, pageId, blockId } = await params;
+    const { pageId, blockId } = await params;
     
-    const lessonValidation = idSchema.safeParse(id);
     const pageValidation = idSchema.safeParse(pageId);
     const blockValidation = idSchema.safeParse(blockId);
+
+    const { lessonId } = await validBody(request);
+    const lessonValidation = idSchema.safeParse(lessonId);
     
     if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {
       return NextResponse.json(
-        { error: 'ID inválido' },
+        toErrorMessage('ID inválido'),
         { status: 400 }
       );
     }
 
-    const lesson = await getLessonById(id);
+    const lesson = await getLessonById(lessonId);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.contentPage.findFirst({
-      where: { 
-        id: pageId,
-        lessonId: id 
-      }
-    });
+    const page = await getContentPage({ lessonId, pageId});
 
     if (!page) {
       return NextResponse.json(
-        { error: 'Página de conteúdo não encontrada' },
+        toErrorMessage('Página de conteúdo não encontrada'),
         { status: 404 }
       );
     }
 
-    const existingBlock = await prisma.contentBlock.findFirst({
-      where: { 
-        id: blockId,
-        pageId 
-      }
-    });
+    const existingBlock = await getContentBlock({ blockId, pageId });
 
     if (!existingBlock) {
       return NextResponse.json(
-        { error: 'Bloco de conteúdo não encontrado' },
+        toErrorMessage('Bloco de conteúdo não encontrado'),
         { status: 404 }
       );
     }
@@ -154,13 +145,12 @@ export async function PATCH(
     // Validate type if provided
     if (type && !['MARKDOWN', 'VIDEO', 'INTERACTIVE_COMPONENT', 'EXERCISE', 'SIMULATION', 'ASSESSMENT'].includes(type)) {
       return NextResponse.json(
-        { error: 'Tipo de conteúdo inválido' },
+        toErrorMessage('Tipo de conteúdo inválido'),
         { status: 400 }
       );
     }
 
-    const updatedBlock = await prisma.contentBlock.update({
-      where: { id: blockId },
+    const updatedBlock = await updateContentBlock({ blockId, 
       data: {
         ...(type && { type }),
         ...(markdown !== undefined && { markdown }),
@@ -195,59 +185,49 @@ export async function DELETE(
       return forbidden;
     }
 
-    const { id, pageId, blockId } = await params;
+    const { pageId, blockId } = await params;
     
-    const lessonValidation = idSchema.safeParse(id);
     const pageValidation = idSchema.safeParse(pageId);
     const blockValidation = idSchema.safeParse(blockId);
-    
+
+    const { lessonId } = await validBody(request);
+    const lessonValidation = idSchema.safeParse(lessonId);
+
     if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {
       return NextResponse.json(
-        { error: 'ID inválido' },
+        toErrorMessage('ID(s) inválido'),
         { status: 400 }
       );
     }
 
-    const lesson = await getLessonById(id);
+    const lesson = await getLessonById(lessonId);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
 
     // Verify the page belongs to this lesson
-    const page = await prisma.contentPage.findFirst({
-      where: { 
-        id: pageId,
-        lessonId: id 
-      }
-    });
+    const page = await getContentPage({ lessonId, pageId });
 
     if (!page) {
       return NextResponse.json(
-        { error: 'Página de conteúdo não encontrada' },
+        toErrorMessage('Página de conteúdo não encontrada'),
         { status: 404 }
       );
     }
 
-    const existingBlock = await prisma.contentBlock.findFirst({
-      where: { 
-        id: blockId,
-        pageId 
-      }
-    });
+    const existingBlock = await getContentBlock({ blockId, pageId });
 
     if (!existingBlock) {
       return NextResponse.json(
-        { error: 'Bloco de conteúdo não encontrado' },
+        toErrorMessage('Bloco de conteúdo não encontrado'),
         { status: 404 }
       );
     }
 
-    await prisma.contentBlock.delete({
-      where: { id: blockId }
-    });
+    await deleteContentBlock({ blockId });
 
     return NextResponse.json({ message: 'Bloco de conteúdo excluído com sucesso' }, { status: 200 });
   } catch (error) {

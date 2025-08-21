@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLessonById } from '@/backend/services/lesson';
 import { idSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
-import prisma from '@/backend/services/db';
+import { useSearchParams } from 'next/navigation';
+import { getLessonById } from '@/backend/services/lesson';
+import { createContentPage, getContentPages, getMaxOrder } from '@/backend/services/conteudo';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -15,36 +16,27 @@ const allowedRoles: AllowedRoutes = {
 // Get all content pages for a lesson
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const validationResult = idSchema.safeParse(id);
-    if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
-    }
+    const searchParams = useSearchParams()
+ 
+    const unvalidatedLessonId = searchParams.get('lessonId');
 
-    const lesson = await getLessonById(id);
+    const validationResult = idSchema.safeParse(unvalidatedLessonId);
+    if (!validationResult.success) {
+      return returnInvalidDataErrors(validationResult);
+    }
+    const lessonId = validationResult.data;
+
+    const lesson = await getLessonById(lessonId!);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
 
-    // Get content pages with their blocks
-    const contentPages = await prisma.contentPage.findMany({
-      where: { lessonId: id },
-      include: {
-        contentBlocks: {
-          orderBy: { order: 'asc' }
-        }
-      },
-      orderBy: { order: 'asc' }
-    });
+    const contentPages = await getContentPages({ lessonId });
 
     return NextResponse.json(contentPages, { status: 200 });
   } catch (error) {
@@ -57,28 +49,25 @@ export async function GET(
 
 // Create a new content page for a lesson
 export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest
 ) {
   try {
     const forbidden = await blockForbiddenRequests(request, allowedRoles.POST);
     if (forbidden) {
       return forbidden;
     }
+    
+    const { lessonId } = await validBody(request);
 
-    const { id } = await params;
-    const validationResult = idSchema.safeParse(id);
+    const validationResult = idSchema.safeParse(lessonId);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult);
     }
 
-    const lesson = await getLessonById(id);
+    const lesson = await getLessonById(lessonId);
     if (!lesson) {
       return NextResponse.json(
-        { error: 'Lição não encontrada' },
+        toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
     }
@@ -88,28 +77,20 @@ export async function POST(
 
     if (!name || typeof name !== 'string') {
       return NextResponse.json(
-        { error: 'Nome da página é obrigatório' },
+        toErrorMessage('Nome da página é obrigatório'),
         { status: 400 }
       );
     }
 
     // Get the current max order for this lesson
-    const maxOrder = await prisma.contentPage.aggregate({
-      where: { lessonId: id },
-      _max: { order: true },
-    });
+    const maxOrder = await getMaxOrder({ lessonId });
     
     const newOrder = order ?? (maxOrder._max.order ?? 0) + 1;
 
-    const contentPage = await prisma.contentPage.create({
-      data: {
-        name,
-        order: newOrder,
-        lessonId: id,
-      },
-      include: {
-        contentBlocks: true
-      }
+    const contentPage = await createContentPage({
+      name,
+      order: newOrder,
+      lessonId,
     });
 
     return NextResponse.json(contentPage, { status: 201 });
