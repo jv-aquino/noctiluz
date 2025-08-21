@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 import { idSchema, reorderContentBlocksSchema } from '@/backend/schemas';
-import { reorderContentBlocks } from '@/backend/services/lesson';
+import { reorderContentBlocks } from '@/backend/services/conteudo';
 
 const allowedRoles: AllowedRoutes = {
   PATCH: ["SUPER_ADMIN", "ADMIN"]
@@ -15,19 +15,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return forbidden;
     }
 
-    const { id, pageId } = await params;
-
-    const lessonIdValidation = idSchema.safeParse(id);
-    if (!lessonIdValidation.success) {
-      return NextResponse.json({ error: 'ID da lição inválido' }, { status: 400 });
-    }
+    const { pageId } = await params;
 
     const pageIdValidation = idSchema.safeParse(pageId);
     if (!pageIdValidation.success) {
-        return NextResponse.json({ error: 'ID da página inválido' }, { status: 400 });
+        return returnInvalidDataErrors(pageIdValidation);
     }
     
     const body = await validBody(request);
+    
     const validationResult = reorderContentBlocksSchema.safeParse(body);
     if (!validationResult.success) {
       return returnInvalidDataErrors(validationResult);

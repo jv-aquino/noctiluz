@@ -14,6 +14,10 @@ export async function createContentPage(data: {
   })
 }
 
+export async function createContentBlock({ data }: { data: Omit<ContentBlock, 'id'>}) {
+  return prisma.contentBlock.create({ data });
+}
+
 export async function getContentPages({ lessonId }: { lessonId: string }) {
   return prisma.contentPage.findMany({
     where: { lessonId },
@@ -42,6 +46,13 @@ export async function getContentBlock({ blockId, pageId }: { blockId: string, pa
       id: blockId,
       pageId 
     }
+  })
+}
+
+export async function getContentBlocks({ pageId }: { pageId: string }) {
+  return prisma.contentBlock.findMany({
+    where: { pageId },
+    orderBy: { order: 'asc' }
   })
 }
 
