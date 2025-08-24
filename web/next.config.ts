@@ -42,9 +42,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  experimental: {
-    nodeMiddleware: true,
-  },
   skipTrailingSlashRedirect: true,
 };
 
