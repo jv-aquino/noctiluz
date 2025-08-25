@@ -13,7 +13,7 @@ const allowedRoles: AllowedRoutes = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; pageId: string; blockId: string }> }
+  { params }: { params: Promise<{ pageId: string; blockId: string }> }
 ) {
   try {
     const { pageId, blockId } = await params;
@@ -77,7 +77,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; pageId: string; blockId: string }> }
+  { params }: { params: Promise<{ pageId: string; blockId: string }> }
 ) {
   try {
     const forbidden = await blockForbiddenRequests(request, allowedRoles.PATCH);
@@ -167,7 +167,7 @@ export async function PATCH(
 // Delete a content block
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; pageId: string; blockId: string }> }
+  { params }: { params: Promise<{ pageId: string; blockId: string }> }
 ) {
   try {
     const forbidden = await blockForbiddenRequests(request, allowedRoles.DELETE);
