@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
-import { idSchema, reorderConteudoPagesSchema } from '@/backend/schemas';
+import { reorderConteudoPagesSchema } from '@/backend/schemas';
 import { reorderContentPages } from '@/backend/services/conteudo';
 
 const allowedRoles: AllowedRoutes = {

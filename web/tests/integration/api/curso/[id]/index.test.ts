@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as cursoService from '@/backend/services/curso'
 import { GET, DELETE } from '@/backend/api/curso/[id]/route'
-import { returnParams } from '../../../mocks/requests';
 import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
-import { getCursosMock, postCursoMock } from '../../../mocks/curso';
+import { postCursoMock } from '../../../mocks/curso';
 
 vi.mock('@/backend/services/curso', () => ({
   getCursoById: vi.fn(),

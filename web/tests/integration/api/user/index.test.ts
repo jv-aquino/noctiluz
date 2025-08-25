@@ -34,7 +34,7 @@ describe('POST /api/user', () => {
 
     // Mock the nested signUpEmail function on the auth object
     if (!('api' in auth)) {
-      (auth as any).api = {};
+      auth.api = {};
     }
     (auth.api.signUpEmail as unknown as Mock) = vi.fn().mockResolvedValue(postUserMock);
 
