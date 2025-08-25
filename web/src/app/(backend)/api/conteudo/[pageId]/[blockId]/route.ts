@@ -92,26 +92,16 @@ export async function PATCH(
 
     const bodyOrError = await validBody(request);
     if (bodyOrError instanceof NextResponse) return bodyOrError;
-    const { lessonId, ...rest } = bodyOrError;
-    const lessonValidation = idSchema.safeParse(lessonId);
-    
-    if (!lessonValidation.success || !pageValidation.success || !blockValidation.success) {
+    const { ...rest } = bodyOrError;
+
+    if (!pageValidation.success || !blockValidation.success) {
       return NextResponse.json(
         toErrorMessage('ID inválido'),
         { status: 400 }
       );
     }
 
-    const lesson = await getLessonById(lessonId);
-    if (!lesson) {
-      return NextResponse.json(
-        toErrorMessage('Lição não encontrada'),
-        { status: 404 }
-      );
-    }
-
-    // Verify the page belongs to this lesson
-    const page = await getContentPage({ lessonId, pageId});
+    const page = await getContentPage({ pageId });
 
     if (!page) {
       return NextResponse.json(
