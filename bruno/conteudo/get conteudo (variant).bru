@@ -1,0 +1,15 @@
+meta {
+  name: get conteudo (variant)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/{{folder}}?variantId={{variantId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  variantId: {{variantId}}
+}

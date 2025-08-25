@@ -1,0 +1,15 @@
+meta {
+  name: get conteudo (lesson)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/{{folder}}?lessonId={{lessonId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  lessonId: {{lessonId}}
+}
