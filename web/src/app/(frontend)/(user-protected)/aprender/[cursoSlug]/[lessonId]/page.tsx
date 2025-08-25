@@ -38,9 +38,11 @@ export default function LessonViewPage() {
     lessonId ? `/api/lesson/${lessonId}` : null,
     (url: string) => fetcher(url, "Erro ao buscar lição")
   );
+  
   // Fetch content pages for the lesson
+  const createSearchParams = new URLSearchParams({ lessonId });
   const { data: contentPages, error: contentError } = useSWR(
-    lessonId ? `/api/lesson/${lessonId}/conteudo` : null,
+    lessonId ? `/api/conteudo?${createSearchParams.toString()}` : null,
     (url: string) => fetcher(url, "Erro ao buscar páginas de conteúdo")
   );
 
