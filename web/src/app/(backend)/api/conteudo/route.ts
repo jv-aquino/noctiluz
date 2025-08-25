@@ -76,19 +76,27 @@ export async function POST(
 
     const { lessonId, name, order, variantId } = await validBody(request);
 
-    const validationResult = idSchema.safeParse(lessonId);
-    if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
-    }
+    const lessonValidation = idSchema.safeParse(lessonId);
 
-    const lesson = await getLessonById(lessonId);
-    if (!lesson) {
-      return NextResponse.json(
-        toErrorMessage('Lição não encontrada'),
-        { status: 404 }
-      );
-    }
-    if (variantId) {
+    const variantValidation = idSchema.safeParse(variantId);
+
+    if (!variantId) {
+      if (!lessonValidation.success) {
+        return returnInvalidDataErrors(lessonValidation);
+      }
+
+      const lesson = await getLessonById(lessonId!);
+      if (!lesson) {
+        return NextResponse.json(
+          toErrorMessage('Lição não encontrada'),
+          { status: 404 }
+        );
+      }
+    } else {
+      if (!variantValidation.success) {
+        return returnInvalidDataErrors(variantValidation);
+      }
+
       const variant = await getVariantById({ variantId });
       if (!variant) {
         return NextResponse.json(
