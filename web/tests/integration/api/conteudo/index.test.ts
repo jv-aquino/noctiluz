@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as lessonService from '@/backend/services/lesson'
 import * as conteudoService from '@/backend/services/conteudo'
 // Route handlers
-import { GET, POST } from '@/backend/api/conteudo/route'
+import { GET, POST } from '@/app/(backend)/api/conteudos/route'
 import { setCurrentRole } from '../../mocks/auth'
 import { createRequest } from '../../mocks/requests'
 import { postLessonMock } from '../../mocks/lesson'

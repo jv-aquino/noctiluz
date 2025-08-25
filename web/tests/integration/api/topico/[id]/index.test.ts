@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as topicoService from '@/backend/services/topico'
-import { GET, DELETE } from '@/backend/api/topico/[id]/route'
+import { GET, DELETE } from '@/app/(backend)/api/topicos/[id]/route'
 import { returnParams } from '../../../mocks/requests';
 import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
@@ -16,7 +16,7 @@ const realId = postTopicoMock.id;
 const fakeId = 'a1b2c3d4-e5f6-7890-abcd-aaaaaaaaaaaa';
 const topicoMock = postTopicoMock;
 
-describe('GET /api/topico/[id]', () => {
+describe('GET /api/topicos/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -38,7 +38,7 @@ describe('GET /api/topico/[id]', () => {
   });
 });
 
-describe('DELETE /api/topico/[id]', () => {
+describe('DELETE /api/topicos/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

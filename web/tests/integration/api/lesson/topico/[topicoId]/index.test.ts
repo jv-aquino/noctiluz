@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 // Service import will be mocked
 import * as lessonService from '@/backend/services/lesson'
 // Route handlers
-import { GET } from '@/backend/api/lesson/topico/[topicoId]/route'
+import { GET } from '@/app/(backend)/api/lessons/topicos/[topicoId]/route'
 import { createRequest } from '../../../../mocks/requests'
 import { postLessonMock } from '../../../../mocks/lesson'
 
@@ -10,7 +10,7 @@ vi.mock('@/backend/services/lesson', () => ({
   getLessonsByTopicoId: vi.fn(),
 }))
 
-describe('GET /api/lesson/topico/[topicoId]', () => {
+describe('GET /api/lessons/topicos/[topicoId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

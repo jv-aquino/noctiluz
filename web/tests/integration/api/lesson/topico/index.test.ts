@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 // Service import will be mocked
 import * as lessonService from '@/backend/services/lesson'
 // Route handlers
-import { POST, PATCH } from '@/backend/api/lesson/topico/route'
+import { POST, PATCH } from '@/app/(backend)/api/lessons/topicos/route'
 import { setCurrentRole } from '../../../mocks/auth'
 import { createRequest } from '../../../mocks/requests'
 import { addLessonToTopicoMock, reorderLessonsMock } from '../../../mocks/lesson'
@@ -12,7 +12,7 @@ vi.mock('@/backend/services/lesson', () => ({
   reorderLessonsInTopico: vi.fn(),
 }))
 
-describe('POST /api/lesson/topico', () => {
+describe('POST /api/lessons/topicos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);
@@ -58,7 +58,7 @@ describe('POST /api/lesson/topico', () => {
   });
 });
 
-describe('PATCH /api/lesson/topico', () => {
+describe('PATCH /api/lessons/topicos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);
