@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as cursoService from '@/backend/services/curso'
 import { GET } from '@/backend/api/curso/materia/[materiaId]/route'
@@ -36,4 +37,4 @@ describe('GET /api/curso/materia/[materiaId]', () => {
     expect(response.status).toBe(404);
     expect(cursoService.getCursosByMateriaId).toHaveBeenCalled();
   });
-}); 
+});
