@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import TagEditor from '@/components/common/TagEditor';
-import { generateSlug } from '@/utils';
-import type { Curso } from '@/generated/prisma';
-import RelatedMateriasEditor from '@/components/table/RelatedMateriasEditor';
+import TagEditor from "@/components/common/TagEditor";
+import { generateSlug } from "@/utils";
+import type { Curso } from "@/generated/prisma";
+import RelatedMateriasEditor from "@/components/table/RelatedMateriasEditor";
+import { MultiStepForm, type Step } from "@/components/ui/multi-step-form";
+import FileUploadInput from "@/components/input/FileUpload";
 
-type CursoFormData = Omit<Curso, 'id'>;
+type CursoFormData = Omit<Curso, "id">;
 
 interface CursoFormProps {
   editingCurso?: Curso | null;
@@ -19,13 +21,21 @@ interface CursoFormProps {
 }
 
 const EMPTY_CURSO: CursoFormData = {
-  name: '',
-  descricao: '',
-  slug: '',
+  name: "",
+  descricao: "",
+  slug: "",
   tags: [],
+  backgroundImage: ""
 };
 
-export function CursoForm({ editingCurso, onSubmit, onCancel, submitText = "Adicionar Curso →", materias, initialRelatedMaterias = [] }: CursoFormProps) {
+export function CursoForm({
+  editingCurso,
+  onSubmit,
+  onCancel,
+  submitText = "Adicionar Curso →",
+  materias,
+  initialRelatedMaterias = [],
+}: CursoFormProps) {
   const [formData, setFormData] = useState<CursoFormData>(() => {
     if (editingCurso) {
       return {
@@ -33,43 +43,56 @@ export function CursoForm({ editingCurso, onSubmit, onCancel, submitText = "Adic
         descricao: editingCurso.descricao,
         slug: editingCurso.slug,
         tags: editingCurso.tags || [],
+        backgroundImage: editingCurso.backgroundImage
       };
     }
     return EMPTY_CURSO;
   });
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
-  const [relatedMaterias, setRelatedMaterias] = useState<string[]>(initialRelatedMaterias);
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value;
+  const [loading, setLoading] = useState(false);
+  const [relatedMaterias, setRelatedMaterias] = useState<string[]>(
+    initialRelatedMaterias
+  );
+
+  // Handlers
+  const handleFileUpload = (file: { url: string } | null) => {
     setFormData(prev => ({
       ...prev,
-      name,
-      slug: generateSlug(name)
+      backgroundImage: file?.url || ''
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.descricao || !formData.slug) {
-      return;
-    }
-    if (step === 1) {
-      setStep(2);
-      return;
-    }
-    setLoading(true);
-    try {
-      await onSubmit(formData, relatedMaterias);
-    } finally {
-      setLoading(false);
-    }
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      name,
+      slug: generateSlug(name),
+    }));
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {step === 1 && (
+  const handleDescricaoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const descricao = e.target.value;
+    setFormData((prev) => ({ ...prev, descricao }));
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const slug = e.target.value;
+    setFormData((prev) => ({ ...prev, slug }));
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    setFormData((prev) => ({ ...prev, tags }));
+  };
+
+  // Steps for MultiStepForm
+  const steps: Step[] = [
+    {
+      id: "basic",
+      title: "Informações do Curso",
+      validation: () =>
+        !!formData.name.trim() && !!formData.descricao.trim() && !!formData.slug.trim(),
+      content: (
         <>
           <div className="space-y-2">
             <Label htmlFor="name">Nome do Curso*</Label>
@@ -82,59 +105,89 @@ export function CursoForm({ editingCurso, onSubmit, onCancel, submitText = "Adic
               required
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição*</Label>
             <Input
               id="descricao"
               type="text"
               value={formData.descricao}
-              onChange={e => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
+              onChange={handleDescricaoChange}
               placeholder="Descrição do curso"
               required
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="slug">Slug*</Label>
             <Input
               id="slug"
               type="text"
               value={formData.slug}
-              onChange={e => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+              onChange={handleSlugChange}
               placeholder="curso-de-astronomia"
               required
             />
           </div>
+
           <div className="space-y-2">
             <Label>Tags</Label>
-            <TagEditor
-              tags={formData.tags}
-              onChange={tags => setFormData(prev => ({ ...prev, tags }))}
-            />
+            <TagEditor tags={formData.tags} onChange={handleTagsChange} />
           </div>
         </>
-      )}
-      {step === 2 && (
-        <RelatedMateriasEditor
-          materias={materias}
-          selected={relatedMaterias}
-          onChange={setRelatedMaterias}
-        />
-      )}
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
-          Cancelar
-        </Button>
-        {step === 2 && (
-          <Button type="button" variant="secondary" onClick={() => setStep(1)} disabled={loading}>
-            Voltar
-          </Button>
-        )}
-        <Button type="submit" disabled={loading || !formData.name || !formData.descricao || !formData.slug}>
-          {step === 1 ? "Continuar" : submitText}
-        </Button>
-      </div>
-    </form>
+      ),
+    },
+    {
+      id: "materias",
+      title: "Matérias Relacionadas",
+      validation: () => true, // no strict validation on this step
+      content: (
+        <>
+          <FileUploadInput
+            arquivo={formData.backgroundImage ? { name: formData.backgroundImage.split('/').pop() || '', url: formData.backgroundImage } : null}
+            handleFileUpload={handleFileUpload}
+            accept=".svg,.webp,.avif,.png,.jpg,.jpeg"
+            maxSize={5}
+            folder="cursos"
+          >
+            <Label className="text-sm font-medium text-gray-700">
+              Imagem de fundo*
+            </Label>
+          </FileUploadInput>
+          <RelatedMateriasEditor
+            materias={materias}
+            selected={relatedMaterias}
+            onChange={setRelatedMaterias}
+          />
+        </>
+      ),
+    },
+  ];
+
+  // Called when MultiStepForm finishes
+  const handleComplete = async (data: CursoFormData) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      await onSubmit(data, relatedMaterias);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <MultiStepForm
+      steps={steps}
+      onComplete={handleComplete}
+      onCancel={onCancel}
+      submitText={submitText}
+      cancelText="Cancelar"
+      continueText="Continuar"
+      backText="Voltar"
+      initialData={formData}
+      className="space-y-4"
+    />
   );
 }
 
-export default CursoForm; 
+export default CursoForm;

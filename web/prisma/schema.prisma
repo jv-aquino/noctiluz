@@ -73,6 +73,7 @@ model Curso {
   descricao             String
   tags                  String[]
   slug                  String @unique
+  backgroundImage       String?
 
   materiasRelacionadas  CursoMateriaRelacionada[]
   cursoTopicos          CursoTopico[]
