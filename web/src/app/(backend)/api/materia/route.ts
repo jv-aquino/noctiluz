@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createMateria, getAllMaterias } from '@/backend/services/materia'
 import { createMateriaSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, returnInvalidDataErrors, validBody, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -13,10 +13,9 @@ export async function GET() {
     const materias = await getAllMaterias()
 
     return NextResponse.json(materias, { status: 200 })
-  } catch (error) {
-    console.error('Erro ao buscar matérias:', error)
+  } catch {
     return NextResponse.json(
-      { error: 'Falha ao buscar matérias' },
+      toErrorMessage('Falha ao buscar matérias'),
       { status: 500 }
     )
   }
@@ -52,19 +51,19 @@ export async function POST (request: NextRequest) {
       if (error.message.includes('Unique constraint')) {
         if (error.message.includes('slug')) {
           return NextResponse.json(
-            { error: 'Uma matéria com esse slug já existe' },
+            toErrorMessage('Uma matéria com esse slug já existe'),
             { status: 409 }
           )
         }
         return NextResponse.json(
-          { error: 'Uma matéria com esses dados já existe' },
+          toErrorMessage('Uma matéria com esses dados já existe'),
           { status: 409 }
         )
       }
       
       if (error.message.includes('Prisma')) {
         return NextResponse.json(
-          { error: 'Erro no banco de dados - Verifique os dados fornecidos' },
+          toErrorMessage('Erro no banco de dados - Verifique os dados fornecidos'),
           { status: 400 }
         )
       }

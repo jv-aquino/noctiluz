@@ -9,3 +9,11 @@ get {
   body: none
   auth: none
 }
+
+script:post-response {
+  if (res.body && res.body[0].id) {
+    bru.setVar("lessonId", res.body[0].id);
+  } else {
+    console.log("No ID found in response");
+  }
+}

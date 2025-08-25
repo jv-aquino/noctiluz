@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import type { Role } from "@/generated/prisma";
+import { toErrorMessage } from "./toErrorMessage";
 
 export async function blockForbiddenRequests(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function blockForbiddenRequests(
 
   if (!session?.user) {
     return NextResponse.json(
-      { error: "Não autorizado - Faça login para continuar" },
+      toErrorMessage("Não autorizado - Faça login para continuar"),
       { status: 401 }
     );
   }
@@ -19,7 +20,7 @@ export async function blockForbiddenRequests(
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return NextResponse.json(
-      { error: "Acesso negado - Permissões insuficientes" },
+      toErrorMessage("Acesso negado - Permissões insuficientes"),
       { status: 403 }
     );
   }

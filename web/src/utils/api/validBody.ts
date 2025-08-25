@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
+import { toErrorMessage } from "./toErrorMessage";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function validBody(request: any) {
+export async function validBody(request: Request) {
   try {
     const body = await request.json();
     return body;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return NextResponse.json(
-      { error: 'Formato de dados inválido - JSON malformado' },
+      toErrorMessage("Formato de dados inválido - JSON malformado"),
       { status: 400 }
     )
   }

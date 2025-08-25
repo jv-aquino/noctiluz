@@ -1,0 +1,19 @@
+meta {
+  name: get all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/lesson/{{lessonId}}/variant
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (res.body && res.body[0].id) {
+    bru.setVar("variantId", res.body[0].id);
+  } else {
+    console.log("No ID found in response");
+  }
+}

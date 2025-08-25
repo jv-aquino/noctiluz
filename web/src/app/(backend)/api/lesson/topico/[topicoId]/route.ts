@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLessonsByTopicoId, removeLessonFromTopico } from '@/backend/services/lesson';
 import { idSchema } from '@/backend/schemas';
-import { blockForbiddenRequests, zodErrorHandler } from '@/utils';
+import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, zodErrorHandler } from '@/utils';
 import { AllowedRoutes } from '@/types';
 
 const allowedRoles: AllowedRoutes = {
@@ -16,10 +16,7 @@ export async function GET(
     const { topicoId } = await params;
     const validationResult = idSchema.safeParse(topicoId);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'ID do tópico inválido', details: validationResult.error.errors },
-        { status: 400 }
-      );
+      return returnInvalidDataErrors(validationResult)
     }
 
     const lessons = await getLessonsByTopicoId(topicoId);
@@ -45,18 +42,18 @@ export async function DELETE(
         const { topicoId } = await params;
         const topicoIdValidation = idSchema.safeParse(topicoId);
         if (!topicoIdValidation.success) {
-            return NextResponse.json({ error: 'ID do tópico inválido' }, { status: 400 });
+            return returnInvalidDataErrors(topicoIdValidation);
         }
         
         const { searchParams } = new URL(request.url);
         const lessonId = searchParams.get('lessonId');
         if (!lessonId) {
-            return NextResponse.json({ error: 'ID da lição é obrigatório' }, { status: 400 });
+            return NextResponse.json(toErrorMessage('ID da lição é obrigatório'), { status: 400 });
         }
         
         const lessonIdValidation = idSchema.safeParse(lessonId);
         if (!lessonIdValidation.success) {
-            return NextResponse.json({ error: 'ID da lição inválido' }, { status: 400 });
+            return returnInvalidDataErrors(lessonIdValidation);
         }
 
         await removeLessonFromTopico(lessonId, topicoId);
@@ -66,7 +63,7 @@ export async function DELETE(
             return error;
         }
         if (error instanceof Error && error.message.includes('not found')) {
-            return NextResponse.json({ error: 'Relação não encontrada' }, { status: 404 });
+            return NextResponse.json(toErrorMessage('Relação não encontrada'), { status: 404 });
         }
         return zodErrorHandler(error);
     }

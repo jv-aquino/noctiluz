@@ -31,11 +31,10 @@ describe('POST /api/user', () => {
 
   it('should register if everything is alright', async () => {
     (userService.findUserByEmail as unknown as Mock).mockResolvedValue(null);
-    (userService.createUser as unknown as Mock).mockResolvedValue(postUserMock);
 
     // Mock the nested signUpEmail function on the auth object
     if (!('api' in auth)) {
-      (auth as any).api = {};
+      auth.api = {};
     }
     (auth.api.signUpEmail as unknown as Mock) = vi.fn().mockResolvedValue(postUserMock);
 
