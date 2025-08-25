@@ -21,7 +21,7 @@ function TopicosCursoPage() {
   const params = useParams();
   const cursoId = params?.cursoId as string;
   const { data: curso, error, isLoading, mutate } = useSWR(
-    cursoId ? `/api/curso/${cursoId}` : null,
+    cursoId ? `/api/cursos/${cursoId}` : null,
     (url: string) => fetcher(url, "Erro ao buscar curso")
   );
   const [formOpen, setFormOpen] = useState(false);
@@ -53,7 +53,7 @@ function TopicosCursoPage() {
     setLoading(true);
     try {
       // 1. Create the topico
-      const res = await fetch("/api/topico", {
+      const res = await fetch("/api/topicos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -64,7 +64,7 @@ function TopicosCursoPage() {
       }
       const topico = await res.json();
       // 2. Associate with curso (order = last)
-      const relRes = await fetch(`/api/curso/topico`, {
+      const relRes = await fetch(`/api/cursos/topicos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cursoId, topicoId: topico.id }),
@@ -91,7 +91,7 @@ function TopicosCursoPage() {
 
   const handleSaveOrder = async () => {
     try {
-      await fetch("/api/curso/topico/order", {
+      await fetch("/api/cursos/topicos/order", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cursoId, topicoIds: topicosOrder }),
@@ -106,7 +106,7 @@ function TopicosCursoPage() {
 
   const handleDeleteTopico = async (topicoId: string) => {
     try {
-      const res = await fetch(`/api/topico/${topicoId}`, {
+      const res = await fetch(`/api/topicos/${topicoId}`, {
         method: "DELETE",
       });
       if (!res.ok) {

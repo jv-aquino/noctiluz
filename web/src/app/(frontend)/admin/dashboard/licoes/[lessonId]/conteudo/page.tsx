@@ -23,7 +23,7 @@ export default function LessonContentPage() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
 
   const { data: variants, mutate: mutateVariants } = useSWR(
-    lessonId ? `/api/lesson/${lessonId}/variant` : null,
+    lessonId ? `/api/lessons/${lessonId}/variants` : null,
     (url: string) => fetch(url).then(res => res.json())
   );
 
@@ -70,7 +70,7 @@ export default function LessonContentPage() {
 
   const loadLesson = async () => {
     try {
-      const response = await fetch(`/api/lesson/${lessonId}`);
+      const response = await fetch(`/api/lessons/${lessonId}`);
       if (response.ok) {
         const data = await response.json();
         setLesson(data);
@@ -96,7 +96,7 @@ export default function LessonContentPage() {
     }
     setCreatingVariant(true);
     try {
-      const res = await fetch(`/api/lesson/${lessonId}/variant`, {
+      const res = await fetch(`/api/lessons/${lessonId}/variants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

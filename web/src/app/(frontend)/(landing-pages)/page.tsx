@@ -2,7 +2,7 @@ import LandingPagesNav from "@/components/nav/InitialNav";
 import Embarcar from "./Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
-import CarouselExample from "./CarouselExample";
+import Image from 'next/image'
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -17,8 +17,8 @@ export default async function Home() {
       
       <main className="h-[70vh] w-full pt-20 pb-16
       flex items-center justify-center gap-24 xl:gap-30">
-        <div className="w-[40%] h-full rounded-2xl bg-gray-700 ">
-
+        <div className="w-[40%] h-full">
+          <Image src="/education.svg" width={500} height={450} className="object-fill w-auto h-full mx-auto" alt="ILustração sobre eduacação conectando um computador à livros - Designed by Freepik" />
         </div>
 
         <div className="flex flex-col gap-6">
@@ -30,8 +30,6 @@ export default async function Home() {
       </main>
 
       <Embarcar isLogged={isLogged} />
-
-      <CarouselExample />
     </div>
   );
 }
