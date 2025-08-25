@@ -29,18 +29,28 @@ export async function GET(
     if (unvalidatedVariantId && !variantValidationResult.success) {
       return returnInvalidDataErrors(variantValidationResult);
     }
-    if (!lessonValidationResult.success) {
+    if (unvalidatedLessonId && !lessonValidationResult.success) {
       return returnInvalidDataErrors(lessonValidationResult);
     }
     const lessonId = lessonValidationResult.data;
     const variantId = variantValidationResult.data;
 
-    const lesson = await getLessonById(lessonId!);
-    if (!lesson) {
-      return NextResponse.json(
-        toErrorMessage('Lição não encontrada'),
-        { status: 404 }
-      );
+    if (!variantId) {
+      const lesson = await getLessonById(lessonId!);
+      if (!lesson) {
+        return NextResponse.json(
+          toErrorMessage('Lição não encontrada'),
+          { status: 404 }
+        );
+      }
+    } else {
+      const variant = await getVariantById({ variantId });
+      if (!variant) {
+        return NextResponse.json(
+          toErrorMessage('Variante não encontrada'),
+          { status: 404 }
+        );
+      }
     }
 
     const contentPages = await getContentPages({ lessonId, variantId });

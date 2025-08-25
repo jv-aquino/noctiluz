@@ -29,7 +29,7 @@ export async function createContentBlock({ data }: { data: Omit<ContentBlock, 'i
   return prisma.contentBlock.create({ data });
 }
 
-export async function getContentPages({ lessonId, variantId }: { lessonId: string, variantId?: string }) {
+export async function getContentPages({ lessonId, variantId }: { lessonId?: string, variantId?: string }) {
   if (variantId) {
     return prisma.contentPage.findMany({
       where: { variantId },
@@ -53,7 +53,7 @@ export async function getContentPages({ lessonId, variantId }: { lessonId: strin
   })
 }
 
-export async function getContentPage({ lessonId, pageId, variantId }: { lessonId: string, pageId: string, variantId?: string }) {
+export async function getContentPage({ lessonId, pageId, variantId }: { lessonId?: string, pageId: string, variantId?: string }) {
   return prisma.contentPage.findFirst({
     where: { 
       id: pageId,

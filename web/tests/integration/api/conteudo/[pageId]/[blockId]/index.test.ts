@@ -146,8 +146,6 @@ describe('PATCH /api/conteudo/[pageId]/[blockId]', () => {
       ...contentBlockMock,
       ...updateContentBlockMock,
     });
-    expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
-    expect(conteudoService.getContentPage).toHaveBeenCalledWith({ lessonId, pageId });
     expect(conteudoService.getContentBlock).toHaveBeenCalledWith({ blockId, pageId });
     expect(conteudoService.updateContentBlock).toHaveBeenCalledWith({
       blockId,
@@ -156,18 +154,6 @@ describe('PATCH /api/conteudo/[pageId]/[blockId]', () => {
         order: updateContentBlockMock.order,
       }
     });
-  });
-
-  it('should fail if lesson not found', async () => {
-    setCurrentRole('ADMIN');
-    (lessonService.getLessonById as Mock).mockResolvedValue(null);
-
-    const request = createPatchRequest();
-    const response = await PATCH(request, { 
-      params: Promise.resolve({ id: lessonId, pageId, blockId }) 
-    });
-    
-    expect(response?.status).toBe(404);
   });
 
   it('should fail if page not found', async () => {

@@ -43,14 +43,15 @@ export async function GET(
     const lessonId = lessonValidationResult.data;
     const variantId = variantValidationResult.success ? variantValidationResult.data : undefined;
 
-    const lesson = await getLessonById(lessonId);
-    if (!lesson) {
-      return NextResponse.json(
-        toErrorMessage('Lição não encontrada'),
-        { status: 404 }
-      );
-    }
-    if (variantId) {
+    if (!variantId) {
+      const lesson = await getLessonById(lessonId!);
+      if (!lesson) {
+        return NextResponse.json(
+          toErrorMessage('Lição não encontrada'),
+          { status: 404 }
+        );
+      }
+    } else {
       const variant = await getVariantById({ variantId });
       if (!variant) {
         return NextResponse.json(
@@ -60,7 +61,6 @@ export async function GET(
       }
     }
 
-    // Verify the page belongs to this lesson
     const page = await getContentPage({ lessonId, pageId, variantId });
 
     if (!page) {
