@@ -95,6 +95,7 @@ export async function POST(
     const { pageId } = await params;
     
     const { 
+      variantId,
       lessonId,
       type, 
       markdown, 
@@ -106,27 +107,44 @@ export async function POST(
       exerciseData,
       order 
     } = await validBody(request);
-    const lessonValidation = idSchema.safeParse(lessonId);
 
     const pageValidation = idSchema.safeParse(pageId);
     
-    if (!lessonValidation.success) {
-      return returnInvalidDataErrors(lessonValidation);
-    }
     if (!pageValidation.success) {
       return returnInvalidDataErrors(pageValidation);
     }
 
-    const lesson = await getLessonById(lessonId);
-    if (!lesson) {
-      return NextResponse.json(
-        toErrorMessage('Lição não encontrada'),
-        { status: 404 }
-      );
+    const lessonValidation = idSchema.safeParse(lessonId);
+    const variantValidation = idSchema.safeParse(variantId);
+
+    if (!variantId) {
+      if (!lessonValidation.success) {
+        return returnInvalidDataErrors(lessonValidation);
+      }
+
+      const lesson = await getLessonById(lessonId!);
+      if (!lesson) {
+        return NextResponse.json(
+          toErrorMessage('Lição não encontrada'),
+          { status: 404 }
+        );
+      }
+    } else {
+      if (!variantValidation.success) {
+        return returnInvalidDataErrors(variantValidation);
+      }
+
+      const variant = await getVariantById({ variantId });
+      if (!variant) {
+        return NextResponse.json(
+          toErrorMessage('Variante não encontrada'),
+          { status: 404 }
+        );
+      }
     }
 
     // Verify the page belongs to this lesson
-    const page = await getContentPage({ lessonId, pageId });
+    const page = await getContentPage({ lessonId, pageId, variantId });
 
     if (!page) {
       return NextResponse.json(
