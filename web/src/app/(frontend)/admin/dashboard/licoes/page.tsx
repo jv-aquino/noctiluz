@@ -81,8 +81,7 @@ export default function LicoesPage() {
         throw new Error(errorData.error || 'Erro ao salvar lição');
       }
     } catch (error) {
-      toast.error('Erro ao salvar lição: ' + String(error));
-      throw error;
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setLoading(false);
     }
@@ -113,7 +112,7 @@ export default function LicoesPage() {
         throw new Error(errorData.error || 'Erro ao excluir lição');
       }
     } catch (error) {
-      toast.error('Erro ao excluir lição: ' + String(error));
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setLoading(false);
     }
