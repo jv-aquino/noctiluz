@@ -46,7 +46,7 @@ describe('PATCH /api/conteudo/order', () => {
     expect(response?.status).toBe(200);
     const data = await response?.json();
     expect(data).toEqual({ message: 'Ordem das páginas atualizada' });
-    expect(conteudoService.reorderContentPages).toHaveBeenCalledWith(lessonId, pageIds);
+    expect(conteudoService.reorderContentPages).toHaveBeenCalledWith({ lessonId, pageIds });
   });
 
   it('should fail if pageIds are not provided', async () => {

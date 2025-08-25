@@ -4,6 +4,7 @@ import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validB
 import type { AllowedRoutes } from '@/types';
 import { getLessonById } from '@/backend/services/lesson';
 import { createContentPage, getContentPages, getMaxOrder } from '@/backend/services/conteudo';
+import { getVariantById } from '../../services/lesson/variant';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -20,12 +21,19 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams
  
     const unvalidatedLessonId = searchParams.get('lessonId');
+    const lessonValidationResult = idSchema.safeParse(unvalidatedLessonId);
 
-    const validationResult = idSchema.safeParse(unvalidatedLessonId);
-    if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+    const unvalidatedVariantId = searchParams.get('variantId');
+    const variantValidationResult = idSchema.safeParse(unvalidatedVariantId);
+
+    if (unvalidatedVariantId && !variantValidationResult.success) {
+      return returnInvalidDataErrors(variantValidationResult);
     }
-    const lessonId = validationResult.data;
+    if (!lessonValidationResult.success) {
+      return returnInvalidDataErrors(lessonValidationResult);
+    }
+    const lessonId = lessonValidationResult.data;
+    const variantId = variantValidationResult.data;
 
     const lesson = await getLessonById(lessonId!);
     if (!lesson) {
@@ -35,7 +43,7 @@ export async function GET(
       );
     }
 
-    const contentPages = await getContentPages({ lessonId });
+    const contentPages = await getContentPages({ lessonId, variantId });
 
     return NextResponse.json(contentPages, { status: 200 });
   } catch (error) {
@@ -55,8 +63,8 @@ export async function POST(
     if (forbidden) {
       return forbidden;
     }
-    
-    const { lessonId, name, order } = await validBody(request);
+
+    const { lessonId, name, order, variantId } = await validBody(request);
 
     const validationResult = idSchema.safeParse(lessonId);
     if (!validationResult.success) {
@@ -69,6 +77,15 @@ export async function POST(
         toErrorMessage('Lição não encontrada'),
         { status: 404 }
       );
+    }
+    if (variantId) {
+      const variant = await getVariantById({ variantId });
+      if (!variant) {
+        return NextResponse.json(
+          toErrorMessage('Variante não encontrada'),
+          { status: 404 }
+        );
+      }
     }
 
     if (!name || typeof name !== 'string') {
@@ -87,6 +104,7 @@ export async function POST(
       name,
       order: newOrder,
       lessonId,
+      variantId
     });
 
     return NextResponse.json(contentPage, { status: 201 });

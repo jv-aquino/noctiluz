@@ -4,6 +4,7 @@ import { idSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 import { createContentBlock, getContentBlocks, getContentPage, getMaxOrder } from '@/app/(backend)/services/conteudo';
+import { getVariantById } from '@/app/(backend)/services/lesson/variant';
 
 const allowedRoles: AllowedRoutes = {
   GET: ["SUPER_ADMIN", "ADMIN"],
@@ -21,9 +22,16 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams
   
     const unvalidatedLessonId = searchParams.get('lessonId');
-    const lessonValidation = idSchema.safeParse(unvalidatedLessonId);
-    if (!lessonValidation.success) {
-      return returnInvalidDataErrors(lessonValidation);
+    const lessonValidationResult = idSchema.safeParse(unvalidatedLessonId);
+
+    const unvalidatedVariantId = searchParams.get('variantId');
+    const variantValidationResult = idSchema.safeParse(unvalidatedVariantId);
+
+    if (unvalidatedVariantId && !variantValidationResult.success) {
+      return returnInvalidDataErrors(variantValidationResult);
+    }
+    if (!lessonValidationResult.success) {
+      return returnInvalidDataErrors(lessonValidationResult);
     }
 
     const { pageId } = await params;
@@ -32,7 +40,8 @@ export async function GET(
     if (!pageValidation.success) {
       return returnInvalidDataErrors(pageValidation);
     }
-    const lessonId = lessonValidation.data;
+    const lessonId = lessonValidationResult.data;
+    const variantId = variantValidationResult.success ? variantValidationResult.data : undefined;
 
     const lesson = await getLessonById(lessonId);
     if (!lesson) {
@@ -41,9 +50,18 @@ export async function GET(
         { status: 404 }
       );
     }
+    if (variantId) {
+      const variant = await getVariantById({ variantId });
+      if (!variant) {
+        return NextResponse.json(
+          toErrorMessage('Variante não encontrada'),
+          { status: 404 }
+        );
+      }
+    }
 
     // Verify the page belongs to this lesson
-    const page = await getContentPage({ lessonId, pageId });
+    const page = await getContentPage({ lessonId, pageId, variantId });
 
     if (!page) {
       return NextResponse.json(
