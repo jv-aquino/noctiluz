@@ -23,7 +23,7 @@ export async function createLessonVariant(lessonId: string, data: z.infer<typeof
   });
 } 
 
-export async function getVariantById(variantId: string) {
+export async function getVariantById({ variantId }: { variantId: string }) {
   return prisma.lessonVariant.findUnique({
     where: { id: variantId },
   });

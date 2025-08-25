@@ -1,13 +1,24 @@
 import { ContentBlock } from "@/generated/prisma";
 import prisma from "../db";
 
-export async function createContentPage(data: {
+export async function createContentPage({
+  name,
+  order,
+  lessonId,
+  variantId
+}: {
   name: string,
   order: number,
-  lessonId: string
+  lessonId: string,
+  variantId?: string
 }) {
   return prisma.contentPage.create({
-    data,
+    data: {
+      name,
+      order,
+      lessonId: variantId ? undefined : lessonId,
+      variantId
+    },
     include: {
       contentBlocks: true
     }
@@ -18,7 +29,19 @@ export async function createContentBlock({ data }: { data: Omit<ContentBlock, 'i
   return prisma.contentBlock.create({ data });
 }
 
-export async function getContentPages({ lessonId }: { lessonId: string }) {
+export async function getContentPages({ lessonId, variantId }: { lessonId: string, variantId?: string }) {
+  if (variantId) {
+    return prisma.contentPage.findMany({
+      where: { variantId },
+      include: {
+        contentBlocks: {
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: { order: 'asc' }
+    })
+  }
+  
   return prisma.contentPage.findMany({
     where: { lessonId },
     include: {
@@ -30,11 +53,12 @@ export async function getContentPages({ lessonId }: { lessonId: string }) {
   })
 }
 
-export async function getContentPage({ lessonId, pageId }: { lessonId: string, pageId: string }) {
+export async function getContentPage({ lessonId, pageId, variantId }: { lessonId: string, pageId: string, variantId?: string }) {
   return prisma.contentPage.findFirst({
     where: { 
       id: pageId,
-      lessonId 
+      lessonId: variantId ? undefined : lessonId,
+      variantId
     }
   });
 }
@@ -77,12 +101,13 @@ export async function deleteContentBlock({ blockId }: { blockId: string }) {
 }
 
 
-export async function reorderContentPages(lessonId: string, pageIds: string[]) {
+export async function reorderContentPages({ lessonId, pageIds, variantId }: { lessonId: string, pageIds: string[], variantId?: string }) {
   const updates = pageIds.map((pageId, index) =>
     prisma.contentPage.updateMany({
       where: {
         id: pageId,
-        lessonId,
+        lessonId: variantId ? undefined : lessonId,
+        variantId: variantId
       },
       data: {
         order: index,

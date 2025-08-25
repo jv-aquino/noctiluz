@@ -20,9 +20,9 @@ export async function PATCH(request: NextRequest) {
     if (!validationResult.success) {
       return returnInvalidDataErrors(validationResult);
     }
-    const { pageIds, lessonId } = validationResult.data;
+    const { pageIds, lessonId, variantId } = validationResult.data;
 
-    await reorderContentPages(lessonId, pageIds);
+    await reorderContentPages({ lessonId, pageIds, variantId });
 
     return NextResponse.json({ message: 'Ordem das páginas atualizada' }, { status: 200 });
   } catch (error) {
