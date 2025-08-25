@@ -31,7 +31,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       if (variantId) params.set("variantId", variantId);
       else params.set("lessonId", lessonId);
 
-      const response = await fetch(`/api/conteudo?${params.toString()}`);
+      const response = await fetch(`/api/conteudos?${params.toString()}`);
       // if a newer load started while we awaited, ignore this response
       if (loadCounterRef.current !== currentLoadId) return;
 
@@ -116,7 +116,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       if (variantId) body.variantId = variantId;
       else body.lessonId = lessonId;
 
-      const res = await fetch(`/api/conteudo`, {
+      const res = await fetch(`/api/conteudos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -146,7 +146,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     }
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${targetPage}`, {
+      const res = await fetch(`/api/conteudos/${targetPage}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -179,7 +179,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     }
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${selectedPage.id}/${selectedBlock.id}`, {
+      const res = await fetch(`/api/conteudos/${selectedPage.id}/${selectedBlock.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -209,7 +209,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
   const savePageOrder = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/order`, {
+      const res = await fetch(`/api/conteudos/order`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -233,7 +233,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     if (!selectedPage) return;
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${selectedPage.id}/order`, {
+      const res = await fetch(`/api/conteudos/${selectedPage.id}/order`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({

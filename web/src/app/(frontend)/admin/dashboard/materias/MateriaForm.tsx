@@ -167,6 +167,7 @@ export function MateriaForm({
             handleFileUpload={handleFileUpload}
             accept=".svg,.webp,.avif,.png,.jpg,.jpeg"
             maxSize={5}
+            folder="materias"
           >
             <Label className="text-sm font-medium text-gray-700">
               Ícone/Logo* <span className="text-xs text-gray-500">(já com a cor, preferir svg ou webp/avif)</span>

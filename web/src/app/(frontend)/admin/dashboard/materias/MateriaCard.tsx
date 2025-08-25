@@ -45,7 +45,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/materia/${materia.id}`, {
+      const response = await fetch(`/api/materias/${materia.id}`, {
         method: 'DELETE',
       });
 

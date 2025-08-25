@@ -40,13 +40,13 @@ function LessonItem({ lesson, onRemove }: { lesson: Lesson; onRemove: (lessonId:
 
 export default function LessonsList({ topicoId }: LessonsListProps) {
   const { data: topicoLessons, error: topicoLessonsError, mutate: mutateTopicoLessons } = useSWR(
-    `/api/lesson/topico/${topicoId}`,
+    `/api/lessons/topicos/${topicoId}`,
     (url: string) => fetcher(url, 'Erro ao buscar lições do tópico'),
     { revalidateOnFocus: false }
   );
   
   const { data: allLessons, error: allLessonsError } = useSWR(
-    `/api/lesson`,
+    `/api/lessons`,
     (url: string) => fetcher(url, 'Erro ao buscar todas as lições'),
     { revalidateOnFocus: false }
   );
@@ -73,7 +73,7 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
 
   const handleSaveOrder = async () => {
     try {
-      await fetch(`/api/lesson/topico`, {
+      await fetch(`/api/lessons/topicos`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topicoId, lessonIds: lessonOrder }),
@@ -96,7 +96,7 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
       return;
     }
     try {
-      await fetch(`/api/lesson/topico`, {
+      await fetch(`/api/lessons/topicos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topicoId, lessonId: selectedLesson }),
@@ -117,7 +117,7 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
     if (!confirm('Tem certeza que deseja desvincular esta lição?')) return;
 
     try {
-      await fetch(`/api/lesson/topico/${topicoId}?lessonId=${lessonId}`, {
+      await fetch(`/api/lessons/topicos/${topicoId}?lessonId=${lessonId}`, {
         method: 'DELETE',
       });
       toast.success('Lição desvinculada!');

@@ -11,7 +11,7 @@ import SearchBar from "@/components/table/SearchBar";
 function TopicosPage() {
   const router = useRouter();
   const { data: cursos, error, isLoading } = useSWR<Curso[]>(
-    "/api/curso",
+    "/api/cursos",
     (url: string) => fetcher(url, "Erro ao buscar cursos")
   );
   const [search, setSearch] = useState("");

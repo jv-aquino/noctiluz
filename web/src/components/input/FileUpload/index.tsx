@@ -9,6 +9,7 @@ interface FileUploadInputProps {
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
+  folder?: string;
 }
 
 function FileUploadInput({ 
@@ -17,7 +18,8 @@ function FileUploadInput({
   children, 
   accept = ".svg,.webp,.avif,.png,.jpg,.jpeg",
   maxSize = 5, // 5MB default
-  className = ""
+  className = "",
+  folder = "uploads"
 }: FileUploadInputProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,10 +52,10 @@ function FileUploadInput({
     setError(null);
     try {
       // 1. Get presigned URL
-      const res = await fetch("/api/upload", {
+      const res = await fetch("/api/uploads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: file.name, fileType: file.type })
+        body: JSON.stringify({ fileName: file.name, fileType: file.type, folder })
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

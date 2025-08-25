@@ -20,7 +20,7 @@ import { Materia } from "@/generated/prisma";
 
 
 function MateriasPage() {
-  const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materia', (url: string) => fetcher(url, 'Erro ao criar matéria'))
+  const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materias', (url: string) => fetcher(url, 'Erro ao criar matéria'))
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMateria, setEditingMateria] = useState<MateriaWithTopico | null>(null);
@@ -29,13 +29,13 @@ function MateriasPage() {
     try {
       let response;
       if (editingMateria) {
-        response = await fetch(`/api/materia/${editingMateria.id}`, {
+        response = await fetch(`/api/materias/${editingMateria.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
       } else {
-        response = await fetch('/api/materia', {
+        response = await fetch('/api/materias', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

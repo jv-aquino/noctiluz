@@ -46,7 +46,7 @@ export default function LicoesPage() {
   const loadLessons = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/lesson');
+      const response = await fetch('/api/lessons');
       if (response.ok) {
         const data = await response.json();
         setLessons(data);
@@ -61,7 +61,7 @@ export default function LicoesPage() {
   const handleSubmit = async (data: LessonFormData) => {
     try {
       setLoading(true);
-      const url = editingLesson ? `/api/lesson/${editingLesson.id}` : '/api/lesson';
+      const url = editingLesson ? `/api/lessons/${editingLesson.id}` : '/api/lesson';
       const method = editingLesson ? 'PATCH' : 'POST';
       
       const response = await fetch(url, {
@@ -100,7 +100,7 @@ export default function LicoesPage() {
   const handleDelete = async (lessonId: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/lesson/${lessonId}`, {
+      const response = await fetch(`/api/lessons/${lessonId}`, {
         method: 'DELETE',
       });
 
