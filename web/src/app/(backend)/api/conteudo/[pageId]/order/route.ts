@@ -8,7 +8,7 @@ const allowedRoles: AllowedRoutes = {
   PATCH: ["SUPER_ADMIN", "ADMIN"]
 };
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string, pageId: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ pageId: string }> }) {
   try {
     const forbidden = await blockForbiddenRequests(request, allowedRoles.PATCH);
     if (forbidden) {
