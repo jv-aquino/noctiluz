@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as lessonService from '@/backend/services/lesson'
 import * as conteudoService from '@/backend/services/conteudo'
 // Route handlers
-import { GET, POST } from '@/backend/api/conteudo/[pageId]/route'
+import { GET, POST } from '@/app/(backend)/api/conteudos/[pageId]/route'
 import { setCurrentRole } from '../../../mocks/auth'
 import { createRequest } from '../../../mocks/requests'
 import { postLessonMock } from '../../../mocks/lesson'
@@ -20,7 +20,7 @@ vi.mock('@/backend/services/lesson', () => ({
   getLessonById: vi.fn(),
 }))
 
-describe('GET /api/conteudo/[pageId]', () => {
+describe('GET /api/conteudos/[pageId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -94,7 +94,7 @@ describe('GET /api/conteudo/[pageId]', () => {
   });
 });
 
-describe('POST /api/conteudo/[pageId]', () => {
+describe('POST /api/conteudos/[pageId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

@@ -3,6 +3,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { blockForbiddenRequests, toErrorMessage } from '@/utils';
 import type { AllowedRoutes } from '@/types';
+import { uploadSchema } from '../../schemas/upload.schema';
 
 const allowedRoles: AllowedRoutes = {
   POST: ["SUPER_ADMIN", "ADMIN"],
@@ -39,21 +40,19 @@ export async function POST(request: NextRequest) {
       return forbidden;
     }
 
-    const { fileName, fileType } = await request.json();
-    
-    if (!fileName || typeof fileName !== 'string' || fileName.length > 200) {
-      return NextResponse.json(toErrorMessage('Nome de arquivo inválido'), { status: 400 });
+    const validationResult = uploadSchema.safeParse(await request.json());
+    if (!validationResult.success) {
+      return NextResponse.json(toErrorMessage('Dados de upload inválidos'), { status: 400 });
     }
-    if (!fileType || typeof fileType !== 'string' || fileType.length > 100) {
-      return NextResponse.json(toErrorMessage('Tipo de arquivo inválido'), { status: 400 });
-    }
+
+    const { fileName, fileType, folder } = await validationResult.data;
 
     // Check environment variables
     if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET) {
       return NextResponse.json(toErrorMessage('Configuração AWS incompleta'), { status: 500 });
     }
 
-    const key = `uploads/${Date.now()}-${fileName}`;
+    const key = `${folder}/${Date.now()}-${fileName}`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET,

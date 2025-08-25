@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as materiaService from '@/backend/services/materia'
-import { GET } from '@/backend/api/materia/slug/[slug]/route'
+import { GET } from '@/app/(backend)/api/materias/slug/[slug]/route'
 import { returnParams } from '../../../mocks/requests';
 
 vi.mock('@/backend/services/materia', () => ({
   getMateriaBySlug: vi.fn(),
 }))
 
-describe('GET /api/materia/slug/[slug]', () => {
+describe('GET /api/materias/slug/[slug]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

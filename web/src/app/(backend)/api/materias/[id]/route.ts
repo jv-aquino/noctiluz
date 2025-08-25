@@ -70,13 +70,13 @@ export async function DELETE (
     // Delete S3 file if it exists
     if (materia.imgUrl && materia.imgUrl.includes('s3.amazonaws.com')) {
       try {
-        const uploadResponse = await fetch(`${request.nextUrl.origin}/api/upload`, {
+        const uploadResponse = await fetch(`${request.nextUrl.origin}/api/uploads`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
             'Cookie': request.headers.get('cookie') || '',
           },
-          body: JSON.stringify({ fileUrl: materia.imgUrl })
+          body: JSON.stringify({ fileUrl: materia.imgUrl, folder: 'materias' })
         });
 
         if (!uploadResponse.ok) {
