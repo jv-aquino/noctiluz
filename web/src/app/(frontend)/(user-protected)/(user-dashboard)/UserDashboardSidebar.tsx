@@ -1,4 +1,5 @@
 import Noctiluz from '@/components/svgs/noctiluz.svg'
+import Link from 'next/link';
 
 function UserDashboardSidebar() {
   return ( 
@@ -10,12 +11,12 @@ function UserDashboardSidebar() {
 
       <nav className='mt-10'>
         <ul className='flex flex-col gap-4'>
-          <li><a href="/aprender">aprender</a></li>
-          <li><a href="/exercicios">exercícios</a></li>
-          <li><a href="/missoes">missões</a></li>
-          <li><a href="/estatisticas">estatísticas</a></li>
-          <li><a href="/perfil">perfil</a></li>
-          <li><a href="/logout">logout</a></li>
+          <li><Link href="/aprender">aprender</Link></li>
+          <li><Link href="/exercicios">exercícios</Link></li>
+          <li><Link href="/missoes">missões</Link></li>
+          <li><Link href="/estatisticas">estatísticas</Link></li>
+          <li><Link href="/perfil">perfil</Link></li>
+          <li><Link href="/logout">logout</Link></li>
         </ul>
       </nav>
     </div>
