@@ -123,8 +123,9 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       });
 
       if (!res.ok) {
+        console.log(res)
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao criar página");
+        throw new Error(err?.error.message || "Erro ao criar página");
       }
       const newPage = await res.json();
       setContentPages(prev => [...prev, newPage]);
@@ -158,7 +159,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       });
       if (!res.ok) {
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao criar bloco");
+        throw new Error(err?.error.message || "Erro ao criar bloco");
       }
       const newBlock = await res.json();
       await loadContent();
@@ -190,7 +191,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       });
       if (!res.ok) {
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao salvar conteúdo");
+        throw new Error(err?.error.message || "Erro ao salvar conteúdo");
       }
       const updatedBlock = await res.json();
       setContentPages(prev => prev.map(page => page.id === selectedPage.id ? {

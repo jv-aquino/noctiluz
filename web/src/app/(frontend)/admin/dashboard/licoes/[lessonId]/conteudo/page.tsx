@@ -110,7 +110,7 @@ export default function LessonContentPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Erro ao criar variante");
+        throw new Error(err.error.message || "Erro ao criar variante");
       }
       toast.success("Variante criada!");
       setShowNewVariantDialog(false);

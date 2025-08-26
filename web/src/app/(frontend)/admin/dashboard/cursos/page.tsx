@@ -97,7 +97,7 @@ function CursosPage() {
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao deletar curso');
+      throw new Error(errorData.error.message || 'Erro ao deletar curso');
     }
     mutateCursos();
   };

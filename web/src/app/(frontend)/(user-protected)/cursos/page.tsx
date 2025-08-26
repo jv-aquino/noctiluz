@@ -1,6 +1,7 @@
 import LandingPagesNav from "@/components/nav/InitialNav";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
+import CursosDestacados from "./CursosDestacados";
 
 async function Cursos() {
   const session = await auth.api.getSession({
@@ -13,7 +14,12 @@ async function Cursos() {
     <div className="min-h-screen">
       <LandingPagesNav isLogged={isLogged} />
 
-      <h1 className="text-5xl mt-2 text-pink-900 font-semibold text-center">Cursos</h1>
+      <CursosDestacados />
+
+      <div className="px-8 xl:px-20 mt-18">
+        <h2 className="text-2xl mt-2 text-pink-900 font-semibold">Olímpiadas</h2>
+        
+      </div>
     </div>
   );
 }

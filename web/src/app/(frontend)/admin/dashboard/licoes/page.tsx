@@ -61,7 +61,7 @@ export default function LicoesPage() {
   const handleSubmit = async (data: LessonFormData) => {
     try {
       setLoading(true);
-      const url = editingLesson ? `/api/lessons/${editingLesson.id}` : '/api/lesson';
+      const url = editingLesson ? `/api/lessons/${editingLesson.id}` : '/api/lessons';
       const method = editingLesson ? 'PATCH' : 'POST';
       
       const response = await fetch(url, {
@@ -78,7 +78,7 @@ export default function LicoesPage() {
         toast.success(editingLesson ? 'Lição atualizada com sucesso!' : 'Lição criada com sucesso!');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao salvar lição');
+        throw new Error(errorData?.error?.message || 'Erro ao salvar lição');
       }
     } catch (error) {
       toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
@@ -109,7 +109,7 @@ export default function LicoesPage() {
         toast.success('Lição excluída com sucesso!');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao excluir lição');
+        throw new Error(errorData.error.message || 'Erro ao excluir lição');
       }
     } catch (error) {
       toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
