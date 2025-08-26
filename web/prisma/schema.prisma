@@ -218,9 +218,6 @@ model ContentPage {
   // Page content blocks
   contentBlocks ContentBlock[]
 	@@map("ContentPage")
-  // ensure order is unique per parent (Postgres allows multiple NULLs)
-  @@unique([lessonId, order])
-  @@unique([variantId, order])
 }
 
 // Individual content blocks within a page
