@@ -1,9 +1,12 @@
 # API
 Nossa API segue majoritariamente padrões REST e pode ser testada utilizando o Bruno.
 Requisitos para novas routes:
+- Seguir aos padrões RESTful
 - Ter boa tipagem
 - Priorizar funções utilitárias (como validBody, toErrorMessage, blockForbiddenRequests e outros)
 - Criar testes de integração
+
+Lembrar que recursos devem ser no plural (users, materias, lessons)
 
 ### Specs
 ### Modelo

@@ -6,8 +6,9 @@ export const createMateriaSchema = z.object({
   
   descricao: z
     .string({
-      required_error: "Descrição é obrigatória",
-      invalid_type_error: "Descrição deve ser um texto"
+      error: (issue) => issue.input === undefined
+        ? "Descrição é obrigatória"
+        : "Descrição deve ser um texto"
     })
     .min(1, "Descrição não pode estar vazia")
     .max(500, "Descrição não pode ter mais de 500 caracteres")
@@ -23,5 +24,5 @@ export const createMateriaSchema = z.object({
 export const patchMateriaSchema = createMateriaSchema
   .partial()
   .refine((obj) => Object.keys(obj).length > 0, {
-    message: "Pelo menos um campo precisa ser fornecido para atualização",
+    error: "Pelo menos um campo precisa ser fornecido para atualização",
   });

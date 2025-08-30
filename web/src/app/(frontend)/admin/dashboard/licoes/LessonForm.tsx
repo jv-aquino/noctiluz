@@ -274,9 +274,8 @@ export function LessonForm({
     }
     try {
       await onSubmit(data);
-    } catch (error) {
-      toast.error('Erro ao salvar matéria: ' + String(error));
-      throw error; // Re-throw to let MultiStepForm handle the error state
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     }
   };
 

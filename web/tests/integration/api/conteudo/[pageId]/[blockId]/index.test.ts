@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as lessonService from '@/backend/services/lesson'
 import * as conteudoService from '@/backend/services/conteudo'
 // Route handlers
-import { GET, PATCH, DELETE } from '@/backend/api/conteudo/[pageId]/[blockId]/route'
+import { GET, PATCH, DELETE } from '@/backend/api/conteudos/[pageId]/[blockId]/route'
 import { setCurrentRole } from '../../../../mocks/auth'
 import { createRequest } from '../../../../mocks/requests'
 import { postLessonMock } from '../../../../mocks/lesson'
@@ -20,7 +20,7 @@ vi.mock('@/backend/services/lesson', () => ({
   getLessonById: vi.fn(),
 }))
 
-describe('GET /api/conteudo/[pageId]/[blockId]', () => {
+describe('GET /api/conteudos/[pageId]/[blockId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -96,7 +96,7 @@ describe('GET /api/conteudo/[pageId]/[blockId]', () => {
   });
 });
 
-describe('PATCH /api/conteudo/[pageId]/[blockId]', () => {
+describe('PATCH /api/conteudos/[pageId]/[blockId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);
@@ -222,7 +222,7 @@ describe('PATCH /api/conteudo/[pageId]/[blockId]', () => {
   });
 });
 
-describe('DELETE /api/conteudo/[pageId]/[blockId]', () => {
+describe('DELETE /api/conteudos/[pageId]/[blockId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

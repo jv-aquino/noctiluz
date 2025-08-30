@@ -18,7 +18,7 @@ export const registerSchema = z.object({
   confirmPassword: z.string()
 })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Senhas não conferem",
+    error: "Senhas não conferem",
     path: ["confirmPassword"],
 })
 

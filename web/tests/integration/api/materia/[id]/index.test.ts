@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as materiaService from '@/backend/services/materia'
-import { DELETE, GET } from '@/backend/api/materia/[id]/route'
+import { DELETE, GET } from '@/app/(backend)/api/materias/[id]/route'
 import { returnParams } from '../../../mocks/requests';
 import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
@@ -15,7 +15,7 @@ const mockRequest = {} as NextRequest;
 const realParams = { id: '960bc679-2a96-4795-bed7-62c0a05996e0' };
 const fakeParams = { id: '960bc679-2a96-4795-bed7-aaaaaaaaaaaa' };
 
-describe('GET /api/materia/[id]', () => {
+describe('GET /api/materias/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -39,7 +39,7 @@ describe('GET /api/materia/[id]', () => {
   });
 });
 
-describe('DELETE /api/materia/[id]', () => {
+describe('DELETE /api/materias/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

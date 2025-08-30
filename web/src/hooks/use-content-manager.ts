@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ContentBlock, ContentPage } from "@/generated/prisma";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 
-type ContentPageWithBlocks = ContentPage & { contentBlocks: ContentBlock[] }; 
+type ContentPageWithBlocks = ContentPage & { contentBlocks: ContentBlock[] };
 
 export function useContentManager({ lessonId, variantId } : { lessonId: string, variantId?: string | null }) {
   const [loading, setLoading] = useState(true);
@@ -19,40 +19,70 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
   const [blockOrder, setBlockOrder] = useState<string[]>([]);
   const [blockOrderChanged, setBlockOrderChanged] = useState(false);
 
+  // load counter to ignore stale responses (prevents race conditions when switching variants fast)
+  const loadCounterRef = useRef(0);
+
   // load content (either by lessonId or variantId)
   const loadContent = useCallback(async () => {
+    const currentLoadId = ++loadCounterRef.current;
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (variantId) params.set("variantId", variantId);
       else params.set("lessonId", lessonId);
 
-      const response = await fetch(`/api/conteudo?${params.toString()}`);
+      const response = await fetch(`/api/conteudos?${params.toString()}`);
+      // if a newer load started while we awaited, ignore this response
+      if (loadCounterRef.current !== currentLoadId) return;
+
       if (!response.ok) {
         toast.error("Erro ao carregar conteúdo");
         return;
       }
       const data = await response.json();
       const sorted = [...data].sort((a: any, b: any) => a.order - b.order);
+
+      // ignore if newer load happened
+      if (loadCounterRef.current !== currentLoadId) return;
+
       setContentPages(sorted);
 
       if (sorted.length > 0) {
         const firstPage = sorted[0];
-        setSelectedPage((prev) => prev ?? firstPage);
 
-        // choose first markdown block if none selected
+        // IMPORTANT: when loading variant content, always replace previous selection.
+        // For principal content we preserve existing selection when present (prev ?? firstPage).
+        setSelectedPage(prev => (variantId ? firstPage : (prev ?? firstPage)));
+
+        // choose first markdown block if none selected OR when variantId changed
         const sortedBlocks = [...firstPage.contentBlocks].sort((a, b) => a.order - b.order);
-        const f = sortedBlocks.find((blk) => blk.type === "MARKDOWN");
+        const f = sortedBlocks.find((blk:any) => blk.type === "MARKDOWN");
+
         if (f) {
-          setSelectedBlock((prev) => prev ?? f);
-          setMarkdown(f.markdown || "");
+          setSelectedBlock(prev => (variantId ? f : (prev ?? f)));
+
+          // set markdown: if we're switching variants (variantId present) replace markdown,
+          // otherwise only set markdown when nothing selected previously.
+          setMarkdown(prevMd => (variantId ? (f.markdown || "") : (prevMd || f.markdown || "")));
+        } else {
+          // no markdown block found: clear block selection & markdown when variant (or no prior)
+          setSelectedBlock(prev => (variantId ? null : prev));
+          if (variantId) setMarkdown("");
         }
+      } else {
+        // no pages at all -> clear selections
+        setSelectedPage(null);
+        setSelectedBlock(null);
+        setMarkdown("");
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      // ignore stale errors if a newer load happened
+      if (loadCounterRef.current !== currentLoadId) return;
       console.error(err);
       toast.error("Erro ao carregar conteúdo");
     } finally {
-      setLoading(false);
+      // only clear loading if this is the latest load
+      if (loadCounterRef.current === currentLoadId) setLoading(false);
     }
   }, [lessonId, variantId]);
 
@@ -70,7 +100,7 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
   }, [selectedPage]);
 
   useEffect(() => {
-    // initial load
+    // initial load (and reload when lessonId/variantId changes)
     loadContent();
   }, [loadContent]);
 
@@ -86,23 +116,24 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       if (variantId) body.variantId = variantId;
       else body.lessonId = lessonId;
 
-      const res = await fetch(`/api/conteudo`, {
+      const res = await fetch(`/api/conteudos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
       if (!res.ok) {
+        console.log(res)
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao criar página");
+        throw new Error(err?.error.message || "Erro ao criar página");
       }
       const newPage = await res.json();
       setContentPages(prev => [...prev, newPage]);
       setSelectedPage(newPage);
       toast.success("Página criada com sucesso!");
       await loadContent();
-    } catch (e: any) {
-      toast.error(String(e?.message || e));
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }
@@ -116,27 +147,27 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     }
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${targetPage}`, {
+      const res = await fetch(`/api/conteudos/${targetPage}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lessonId,
           type: "MARKDOWN",
           markdown: "# Novo Conteúdo\n\nDigite seu conteúdo aqui...",
-          variantId: variantId ?? undefined,
+          lessonId: variantId ? undefined : lessonId,
+          variantId
         }),
       });
       if (!res.ok) {
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao criar bloco");
+        throw new Error(err?.error.message || "Erro ao criar bloco");
       }
       const newBlock = await res.json();
       await loadContent();
       setSelectedBlock(newBlock);
       setMarkdown(newBlock.markdown || "");
       toast.success("Bloco de conteúdo criado!");
-    } catch (e: any) {
-      toast.error(String(e?.message || e));
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }
@@ -149,18 +180,18 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     }
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${selectedPage.id}/${selectedBlock.id}`, {
+      const res = await fetch(`/api/conteudos/${selectedPage.id}/${selectedBlock.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lessonId,
-          variantId: variantId ?? undefined,
+          lessonId: variantId ? undefined : lessonId,
+          variantId,
           markdown,
         }),
       });
       if (!res.ok) {
         const err = await res.json().catch(()=> ({}));
-        throw new Error(err?.error || "Erro ao salvar conteúdo");
+        throw new Error(err?.error.message || "Erro ao salvar conteúdo");
       }
       const updatedBlock = await res.json();
       setContentPages(prev => prev.map(page => page.id === selectedPage.id ? {
@@ -169,8 +200,8 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
       } : page));
       setSelectedBlock(updatedBlock);
       toast.success("Conteúdo salvo com sucesso!");
-    } catch (e:any) {
-      toast.error(String(e?.message || e));
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }
@@ -179,17 +210,21 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
   const savePageOrder = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/order`, {
+      const res = await fetch(`/api/conteudos/order`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ lessonId, variantId: variantId ?? undefined, pageIds: pageOrder }),
+        body: JSON.stringify({
+          lessonId: variantId ? undefined : lessonId,
+          variantId,
+          pageIds: pageOrder
+        }),
       });
       if (!res.ok) throw new Error("Erro ao salvar a ordem das páginas");
       toast.success("Ordem das páginas salva com sucesso!");
       setPageOrderChanged(false);
       await loadContent();
-    } catch (e:any) {
-      toast.error(String(e?.message || e));
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }
@@ -199,17 +234,21 @@ export function useContentManager({ lessonId, variantId } : { lessonId: string, 
     if (!selectedPage) return;
     try {
       setSaving(true);
-      const res = await fetch(`/api/conteudo/${selectedPage.id}/order`, {
+      const res = await fetch(`/api/conteudos/${selectedPage.id}/order`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ blockIds: blockOrder, lessonId, variantId: variantId ?? undefined }),
+        body: JSON.stringify({
+          blockIds: blockOrder,
+          lessonId: variantId ? undefined : lessonId,
+          variantId
+        }),
       });
       if (!res.ok) throw new Error("Erro ao salvar a ordem dos blocos");
       toast.success("Ordem dos blocos salva com sucesso!");
       setBlockOrderChanged(false);
       await loadContent();
-    } catch (e:any) {
-      toast.error(String(e?.message || e));
+    } catch (error: unknown) {
+      toast.error((error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }

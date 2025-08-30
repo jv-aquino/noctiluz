@@ -22,11 +22,11 @@ type CursoCompleto = CursoWithMateria & { alunosAtivos?: number; topicos?: Topic
 
 function CursosPage() {
   const { data: cursos, error: cursosError, isLoading: cursosLoading, mutate: mutateCursos } = useSWR<Curso[]>(
-    '/api/curso',
+    '/api/cursos',
     (url: string) => fetcher(url, 'Erro ao buscar cursos')
   );
   const { data: materias, error: materiasError, isLoading: materiasLoading } = useSWR<Materia[]>(
-    '/api/materia',
+    '/api/materias',
     (url: string) => fetcher(url, 'Erro ao buscar matérias')
   );
 
@@ -38,14 +38,14 @@ function CursosPage() {
       let response;
       let cursoId: string | undefined;
       if (editingCurso) {
-        response = await fetch(`/api/curso/${editingCurso.id}`, {
+        response = await fetch(`/api/cursos/${editingCurso.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
         cursoId = editingCurso.id;
       } else {
-        response = await fetch('/api/curso', {
+        response = await fetch('/api/cursos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -57,13 +57,13 @@ function CursosPage() {
       }
       if (!response.ok || !cursoId) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao salvar curso');
+        throw new Error(errorData.error.message);
       }
       // Link materias after curso creation/update
       if (materiaIds && materiaIds.length > 0) {
         await Promise.all(
           materiaIds.map(materiaId =>
-            fetch(`/api/curso/materia/${materiaId}`, {
+            fetch(`/api/cursos/materias/${materiaId}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ cursoId })
@@ -76,7 +76,7 @@ function CursosPage() {
       setIsDialogOpen(false);
       toast.success('Curso salvo com sucesso!');
     } catch (error) {
-      toast.error('Erro ao salvar curso: ' + String(error));
+      toast.error(error instanceof Error ? error.message : 'Erro ao salvar curso');
       throw error;
     }
   };
@@ -92,17 +92,17 @@ function CursosPage() {
   };
 
   const handleDelete = async (curso: CursoWithMateria) => {
-    const response = await fetch(`/api/curso/${curso.id}`, {
+    const response = await fetch(`/api/cursos/${curso.id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Erro ao deletar curso');
+      throw new Error(errorData.error.message || 'Erro ao deletar curso');
     }
     mutateCursos();
   };
   const handleTagsUpdate = async (curso: CursoCompleto, tags: string[]) => {
-    await fetch(`/api/curso/${curso.id}`, {
+    await fetch(`/api/cursos/${curso.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tags })

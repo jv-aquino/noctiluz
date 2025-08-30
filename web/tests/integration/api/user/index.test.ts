@@ -13,9 +13,9 @@ vi.mock('@/auth', () => ({
   auth: vi.fn()
 }))
 
-import { POST } from '@/backend/api/user/route'
+import { POST } from '@/app/(backend)/api/users/route'
 
-describe('POST /api/user', () => {
+describe('POST /api/users', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

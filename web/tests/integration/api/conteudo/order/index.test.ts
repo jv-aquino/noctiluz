@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
-import { PATCH } from '@/backend/api/conteudo/order/route'
+import { PATCH } from '@/app/(backend)/api/conteudos/order/route'
 import { setCurrentRole } from '../../../mocks/auth'
 import { createRequest } from '../../../mocks/requests'
 import * as conteudoService from '@/backend/services/conteudo'
@@ -8,7 +8,7 @@ vi.mock('@/backend/services/conteudo', () => ({
   reorderContentPages: vi.fn(),
 }))
 
-describe('PATCH /api/conteudo/order', () => {
+describe('PATCH /api/conteudos/order', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

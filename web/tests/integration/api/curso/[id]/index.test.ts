@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as cursoService from '@/backend/services/curso'
-import { GET, DELETE } from '@/backend/api/curso/[id]/route'
+import { GET, DELETE } from '@/app/(backend)/api/cursos/[id]/route'
 import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
 import { postCursoMock } from '../../../mocks/curso';
@@ -15,7 +15,7 @@ const realId = postCursoMock.id;
 const fakeId = '960bc679-2a96-4795-bed7-aaaaaaaaaaaa';
 const cursoMock = postCursoMock;
 
-describe('GET /api/curso/[id]', () => {
+describe('GET /api/cursos/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -37,7 +37,7 @@ describe('GET /api/curso/[id]', () => {
   });
 });
 
-describe('DELETE /api/curso/[id]', () => {
+describe('DELETE /api/cursos/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

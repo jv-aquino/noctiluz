@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as topicoService from '@/backend/services/topico'
-import { GET, POST } from '@/backend/api/topico/route'
+import { GET, POST } from '@/app/(backend)/api/topicos/route'
 import { setCurrentRole } from '../../mocks/auth'
 import { createRequest } from '../../mocks/requests'
 import { getTopicosMock, postTopicoMock } from '../../mocks/topico'
@@ -10,7 +10,7 @@ vi.mock('@/backend/services/topico', () => ({
   createTopico: vi.fn(),
 }))
 
-describe('GET /api/topico', () => {
+describe('GET /api/topicos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);
@@ -26,7 +26,7 @@ describe('GET /api/topico', () => {
   });
 });
 
-describe('POST /api/topico', () => {
+describe('POST /api/topicos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setCurrentRole(null);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as cursoService from '@/backend/services/curso'
-import { GET } from '@/backend/api/curso/materia/[materiaId]/route'
+import { GET } from '@/app/(backend)/api/cursos/materias/[materiaId]/route'
 import { returnParams } from '../../../../mocks/requests';
 
 vi.mock('@/backend/services/curso', () => ({
@@ -15,7 +15,7 @@ const cursosMock = [
   { id: '960bc679-2a96-4795-bed7-62c0a05996e1', name: 'Curso 2', descricao: 'Descricao', slug: 'curso-2', tags: [], materiasRelacionadas: [] },
 ];
 
-describe('GET /api/curso/materia/[materiaId]', () => {
+describe('GET /api/cursos/materias/[materiaId]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

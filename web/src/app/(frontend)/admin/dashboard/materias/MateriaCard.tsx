@@ -45,13 +45,13 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/materia/${materia.id}`, {
+      const response = await fetch(`/api/materias/${materia.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao deletar matéria');
+        throw new Error(errorData.error.message || 'Erro ao deletar matéria');
       }
 
       toast.success('Matéria deletada com sucesso!');
