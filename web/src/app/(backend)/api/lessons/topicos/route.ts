@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validationResult = addLessonToTopicoSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const { lessonId, topicoId, order } = validationResult.data;
@@ -66,7 +66,7 @@ export async function PATCH(request: NextRequest) {
 
     const validationResult = reorderLessonsSchema.safeParse({ lessonIds });
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     await reorderLessonsInTopico(topicoId, lessonIds);

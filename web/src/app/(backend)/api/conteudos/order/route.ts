@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest) {
     const body = await validBody(request);
     const validationResult = reorderConteudoPagesSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const { pageIds, lessonId, variantId } = validationResult.data;
 

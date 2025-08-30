@@ -17,7 +17,7 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const variants = await getLessonVariants(id);
     return NextResponse.json(variants, { status: 200 });
@@ -41,12 +41,12 @@ export async function POST(
     const { id } = await params;
     const lessonIdValidation = idSchema.safeParse(id);
     if (!lessonIdValidation.success) {
-      return returnInvalidDataErrors(lessonIdValidation);
+      return returnInvalidDataErrors(lessonIdValidation.error);
     }
     const body = await validBody(request);
     const validationResult = createLessonVariantSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const variant = await createLessonVariant(id, validationResult.data);
     return NextResponse.json(variant, { status: 201 });

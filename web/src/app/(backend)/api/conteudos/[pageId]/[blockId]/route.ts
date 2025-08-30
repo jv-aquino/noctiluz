@@ -22,10 +22,10 @@ export async function GET(
     const blockValidation = idSchema.safeParse(blockId);
     
     if (!pageValidation.success) {
-      return returnInvalidDataErrors(pageValidation);
+      return returnInvalidDataErrors(pageValidation.error);
     }
     if (!blockValidation.success) {
-      return returnInvalidDataErrors(blockValidation);
+      return returnInvalidDataErrors(blockValidation.error);
     }
     
     const searchParams = request.nextUrl.searchParams;
@@ -35,7 +35,7 @@ export async function GET(
     const lessonValidation = idSchema.safeParse(unvalidatedLessonId);
 
     if (!lessonValidation.success) {
-      return returnInvalidDataErrors(lessonValidation);
+      return returnInvalidDataErrors(lessonValidation.error);
     } 
     const lessonId = lessonValidation.data;
 

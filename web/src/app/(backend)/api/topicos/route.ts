@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const body = await validBody(request);
     const validationResult = createTopicoSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const validatedData = validationResult.data;
     const topico = await createTopico(validatedData);

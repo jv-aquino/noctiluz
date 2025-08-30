@@ -28,17 +28,17 @@ export async function GET(
     const variantValidationResult = idSchema.safeParse(unvalidatedVariantId);
 
     if (unvalidatedVariantId && !variantValidationResult.success) {
-      return returnInvalidDataErrors(variantValidationResult);
+      return returnInvalidDataErrors(variantValidationResult.error);
     }
     if (!lessonValidationResult.success) {
-      return returnInvalidDataErrors(lessonValidationResult);
+      return returnInvalidDataErrors(lessonValidationResult.error);
     }
 
     const { pageId } = await params;
     
     const pageValidation = idSchema.safeParse(pageId);
     if (!pageValidation.success) {
-      return returnInvalidDataErrors(pageValidation);
+      return returnInvalidDataErrors(pageValidation.error);
     }
     const lessonId = lessonValidationResult.data;
     const variantId = variantValidationResult.success ? variantValidationResult.data : undefined;
@@ -111,7 +111,7 @@ export async function POST(
     const pageValidation = idSchema.safeParse(pageId);
     
     if (!pageValidation.success) {
-      return returnInvalidDataErrors(pageValidation);
+      return returnInvalidDataErrors(pageValidation.error);
     }
 
     const lessonValidation = idSchema.safeParse(lessonId);
@@ -119,7 +119,7 @@ export async function POST(
 
     if (!variantId) {
       if (!lessonValidation.success) {
-        return returnInvalidDataErrors(lessonValidation);
+        return returnInvalidDataErrors(lessonValidation.error);
       }
 
       const lesson = await getLessonById(lessonId!);
@@ -131,7 +131,7 @@ export async function POST(
       }
     } else {
       if (!variantValidation.success) {
-        return returnInvalidDataErrors(variantValidation);
+        return returnInvalidDataErrors(variantValidation.error);
       }
 
       const variant = await getVariantById({ variantId });

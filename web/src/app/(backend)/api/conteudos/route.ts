@@ -27,10 +27,10 @@ export async function GET(
     const variantValidationResult = idSchema.safeParse(unvalidatedVariantId);
 
     if (unvalidatedVariantId && !variantValidationResult.success) {
-      return returnInvalidDataErrors(variantValidationResult);
+      return returnInvalidDataErrors(variantValidationResult.error);
     }
     if (unvalidatedLessonId && !lessonValidationResult.success) {
-      return returnInvalidDataErrors(lessonValidationResult);
+      return returnInvalidDataErrors(lessonValidationResult.error);
     }
     const lessonId = lessonValidationResult.data;
     const variantId = variantValidationResult.data;
@@ -82,7 +82,7 @@ export async function POST(
 
     if (!variantId) {
       if (!lessonValidation.success) {
-        return returnInvalidDataErrors(lessonValidation);
+        return returnInvalidDataErrors(lessonValidation.error);
       }
 
       const lesson = await getLessonById(lessonId!);
@@ -94,7 +94,7 @@ export async function POST(
       }
     } else {
       if (!variantValidation.success) {
-        return returnInvalidDataErrors(variantValidation);
+        return returnInvalidDataErrors(variantValidation.error);
       }
 
       const variant = await getVariantById({ variantId });

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const body = await validBody(request);
     const validationResult = createCursoSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const validatedData = validationResult.data;
 

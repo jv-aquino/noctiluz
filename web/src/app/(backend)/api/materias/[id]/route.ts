@@ -19,7 +19,7 @@ export async function GET(
     const validationResult = idSchema.safeParse(id);
     
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const materia = await getMateriaById(id);
@@ -56,7 +56,7 @@ export async function DELETE (
     
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const materia = await getMateriaById(id);
@@ -125,7 +125,7 @@ export async function PATCH (
     
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult)
+      return returnInvalidDataErrors(validationResult.error)
     }
 
     const existingMateria = await getMateriaById(id);
@@ -140,7 +140,7 @@ export async function PATCH (
     const validationDataResult = patchMateriaSchema.safeParse(body);
     
     if (!validationDataResult.success) {
-      return returnInvalidDataErrors(validationDataResult);
+      return returnInvalidDataErrors(validationDataResult.error);
     }
 
     const validatedData = validationDataResult.data;

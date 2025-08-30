@@ -17,7 +17,7 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const topico = await getTopicoById(id);
     if (!topico) {
@@ -47,7 +47,7 @@ export async function DELETE(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const topico = await getTopicoById(id);
     if (!topico) {
@@ -86,7 +86,7 @@ export async function PATCH(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const existingTopico = await getTopicoById(id);
     if (!existingTopico) {
@@ -98,7 +98,7 @@ export async function PATCH(
     const body = await request.json();
     const validationDataResult = patchTopicoSchema.safeParse(body);
     if (!validationDataResult.success) {
-      return returnInvalidDataErrors(validationDataResult)
+      return returnInvalidDataErrors(validationDataResult.error)
     }
     const validatedData = validationDataResult.data;
     const topico = await updateTopico(id, validatedData);
