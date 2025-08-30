@@ -14,7 +14,7 @@ export const createLessonSchema = z.object({
 });
 
 export const patchLessonSchema = createLessonSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
-  message: "Pelo menos um campo precisa ser fornecido para atualização",
+  error: "Pelo menos um campo precisa ser fornecido para atualização",
 });
 
 export const addLessonToTopicoSchema = z.object({
