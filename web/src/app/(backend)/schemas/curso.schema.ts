@@ -10,5 +10,5 @@ export const createCursoSchema = z.object({
 });
 
 export const patchCursoSchema = createCursoSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
-  message: "Pelo menos um campo precisa ser fornecido para atualização",
+  error: "Pelo menos um campo precisa ser fornecido para atualização",
 }); 

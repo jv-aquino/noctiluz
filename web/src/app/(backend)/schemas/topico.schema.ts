@@ -10,5 +10,5 @@ export const createTopicoSchema = z.object({
 });
 
 export const patchTopicoSchema = createTopicoSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
-  message: "Pelo menos um campo precisa ser fornecido para atualização",
+  error: "Pelo menos um campo precisa ser fornecido para atualização",
 }); 

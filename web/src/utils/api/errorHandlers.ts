@@ -3,8 +3,8 @@ import { ZodError } from "zod";
 import { NextResponse } from "next/server";
 import { toErrorMessage } from "./toErrorMessage";
 
-export function returnInvalidDataErrors(validationResult: { error: { errors: any[]; }; }) {
-  const errors = validationResult.error.errors.map(err => ({
+export function returnInvalidDataErrors(error: ZodError) {
+  const errors = error.issues.map(err => ({
     campo: err.path.join('.'),
     message: err.message
   }))
@@ -17,7 +17,7 @@ export function returnInvalidDataErrors(validationResult: { error: { errors: any
 
 export function zodErrorHandler(error: any) {
   if (error instanceof ZodError) {
-    const errors = error.errors.map(err => ({
+    const errors = error.issues.map(err => ({
       campo: err.path.join('.'),
       message: err.message
     }))
