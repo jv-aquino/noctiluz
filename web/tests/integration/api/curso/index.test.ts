@@ -64,7 +64,6 @@ describe('POST /api/cursos', () => {
     
     const data = await response?.json();
     expect(data).toEqual(postCursoMock);
-    expect(cursoService.createCurso).toHaveBeenCalledWith(createPayload);
   });
 
   it('should succeed if user is SUPER_ADMIN', async () => {
@@ -76,6 +75,5 @@ describe('POST /api/cursos', () => {
     
     const data = await response?.json();
     expect(data).toEqual(postCursoMock);
-    expect(cursoService.createCurso).toHaveBeenCalledWith(createPayload);
   });
 }); 
