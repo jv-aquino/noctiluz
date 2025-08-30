@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest'
 import * as topicoService from '@/backend/services/topico'
 import { GET, DELETE } from '@/app/(backend)/api/topicos/[id]/route'
-import { returnParams } from '../../../mocks/requests';
 import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
-import { getTopicosMock, postTopicoMock } from '../../../mocks/topico';
+import { postTopicoMock } from '../../../mocks/topico';
 
 vi.mock('@/backend/services/topico', () => ({
   getTopicoById: vi.fn(),

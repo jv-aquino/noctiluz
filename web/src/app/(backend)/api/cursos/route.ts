@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
     const validatedData = validationResult.data;
 
-    const curso = await createCurso(validatedData);
+    const curso = await createCurso({ ...validatedData, backgroundImage: validatedData.backgroundImage || null });
     return NextResponse.json(curso, { status: 201 });
   } catch (error) {
     if (error instanceof NextResponse) {

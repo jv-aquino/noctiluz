@@ -4,7 +4,7 @@ import Link from "next/link";
 
 function Aprender() {
   return (
-    <div className="flex h-screen bg-pink-100">
+    <div className="flex h-screen bg-pink-50">
       <UserDashboardSidebar />
 
       <div className="flex w-full">
