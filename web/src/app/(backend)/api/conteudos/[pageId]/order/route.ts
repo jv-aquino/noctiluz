@@ -19,14 +19,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const pageIdValidation = idSchema.safeParse(pageId);
     if (!pageIdValidation.success) {
-        return returnInvalidDataErrors(pageIdValidation);
+        return returnInvalidDataErrors(pageIdValidation.error);
     }
     
     const body = await validBody(request);
     
     const validationResult = reorderContentBlocksSchema.safeParse(body);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const { blockIds } = validationResult.data;
 

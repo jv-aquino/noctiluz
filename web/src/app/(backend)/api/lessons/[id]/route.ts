@@ -17,7 +17,7 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const lesson = await getLessonById(id);
@@ -50,7 +50,7 @@ export async function DELETE(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const lesson = await getLessonById(id);
@@ -92,7 +92,7 @@ export async function PATCH(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const existingLesson = await getLessonById(id);
@@ -106,7 +106,7 @@ export async function PATCH(
     const body = await request.json();
     const validationDataResult = patchLessonSchema.safeParse(body);
     if (!validationDataResult.success) {
-      return returnInvalidDataErrors(validationDataResult);
+      return returnInvalidDataErrors(validationDataResult.error);
     }
 
     const validatedData = validationDataResult.data;

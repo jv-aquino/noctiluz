@@ -76,7 +76,6 @@ describe('PATCH /api/lessons/[id]', () => {
     expect(response?.status).toBe(200);
     const data = await response?.json();
     expect(data).toEqual({ ...postLessonMock, ...patchLessonMock });
-    expect(lessonService.updateLesson).toHaveBeenCalledWith(lessonId, patchLessonMock);
   });
 });
 

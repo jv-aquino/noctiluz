@@ -16,7 +16,7 @@ export async function GET(
     const { topicoId } = await params;
     const validationResult = idSchema.safeParse(topicoId);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult)
+      return returnInvalidDataErrors(validationResult.error)
     }
 
     const lessons = await getLessonsByTopicoId(topicoId);
@@ -42,7 +42,7 @@ export async function DELETE(
         const { topicoId } = await params;
         const topicoIdValidation = idSchema.safeParse(topicoId);
         if (!topicoIdValidation.success) {
-            return returnInvalidDataErrors(topicoIdValidation);
+            return returnInvalidDataErrors(topicoIdValidation.error);
         }
         
         const { searchParams } = new URL(request.url);
@@ -53,7 +53,7 @@ export async function DELETE(
         
         const lessonIdValidation = idSchema.safeParse(lessonId);
         if (!lessonIdValidation.success) {
-            return returnInvalidDataErrors(lessonIdValidation);
+            return returnInvalidDataErrors(lessonIdValidation.error);
         }
 
         await removeLessonFromTopico(lessonId, topicoId);

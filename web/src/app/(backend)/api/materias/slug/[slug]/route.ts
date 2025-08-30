@@ -12,7 +12,7 @@ export async function GET(
 
     const validationResult = slugSchema.safeParse(slug)
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const materia = await getMateriaBySlug(slug)

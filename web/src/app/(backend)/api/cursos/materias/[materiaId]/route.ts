@@ -19,7 +19,7 @@ export async function GET(
 
     const validationResult = idSchema.safeParse(materiaId);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const cursos = await getCursosByMateriaId(materiaId);
@@ -51,14 +51,14 @@ export async function POST(
     const { materiaId } = await params;
     const validationResult = idSchema.safeParse(materiaId);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const body = await request.json();
 
     const { cursoId } = body;
     const cursoIdValidation = idSchema.safeParse(cursoId);
     if (!cursoIdValidation.success) {
-      return returnInvalidDataErrors(cursoIdValidation);
+      return returnInvalidDataErrors(cursoIdValidation.error);
     }
 
     const relation = await createCursoMateriaRelacionada(cursoId, materiaId);

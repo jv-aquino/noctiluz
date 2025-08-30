@@ -17,7 +17,7 @@ export async function GET(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
 
     const curso = await getCursoById(id);
@@ -49,7 +49,7 @@ export async function DELETE(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const curso = await getCursoById(id);
     if (!curso) {
@@ -88,7 +88,7 @@ export async function PATCH(
     const { id } = await params;
     const validationResult = idSchema.safeParse(id);
     if (!validationResult.success) {
-      return returnInvalidDataErrors(validationResult);
+      return returnInvalidDataErrors(validationResult.error);
     }
     const existingCurso = await getCursoById(id);
     if (!existingCurso) {
@@ -100,7 +100,7 @@ export async function PATCH(
     const body = await request.json();
     const validationDataResult = patchCursoSchema.safeParse(body);
     if (!validationDataResult.success) {
-      return returnInvalidDataErrors(validationDataResult);
+      return returnInvalidDataErrors(validationDataResult.error);
     }
     const validatedData = validationDataResult.data;
     const curso = await updateCurso(id, validatedData);
