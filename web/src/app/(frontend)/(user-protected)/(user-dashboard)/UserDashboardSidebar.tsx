@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 function UserDashboardSidebar() {
   return ( 
-    <div className="bg-pink-800 text-pink-50 h-full w-60 flex flex-col px-6 py-8">
+    <div className="bg-pink-800 text-pink-50 h-full w-64 flex flex-col px-6 py-8">
       <div className="flex gap-4 items-center">
         <Noctiluz className="w-12" />
         <h1 className='font-bold text-xl'>noctiluz</h1>

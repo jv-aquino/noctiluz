@@ -67,7 +67,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-center gap-4 p-4 rounded-xl border-2 bg-white relative" style={{ borderColor: materia.cor }}>
+      <div className="flex flex-col justify-center items-center gap-4 p-4 rounded-xl border-2 bg-cardBg/80 relative" style={{ borderColor: materia.cor }}>
         {/* Menu Button */}
         <div className="absolute top-2 right-2" ref={menuRef}>
           <button

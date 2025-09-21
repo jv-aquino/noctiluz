@@ -79,7 +79,7 @@ export function MateriaForm({
         <>
           {/* Nome da Matéria */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="name" className="text-sm font-medium ">
               Nome da Matéria*
             </Label>
             <Input
@@ -94,7 +94,7 @@ export function MateriaForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="descricao" className="text-sm font-medium ">
               Descrição*
             </Label>
             <Input
@@ -109,7 +109,7 @@ export function MateriaForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slug" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="slug" className="text-sm font-medium ">
               Slug* <span className="text-xs text-gray-500">(fins de indexação no site)</span>
             </Label>
             <Input
@@ -132,7 +132,7 @@ export function MateriaForm({
       content: (
         <>
           <div className="space-y-2">
-            <Label htmlFor="cor" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="cor" className="text-sm font-medium ">
               Cor da Matéria*
             </Label>
             <div className="flex items-center space-x-3">
@@ -169,7 +169,7 @@ export function MateriaForm({
             maxSize={5}
             folder="materias"
           >
-            <Label className="text-sm font-medium text-gray-700">
+            <Label className="text-sm font-medium ">
               Ícone/Logo* <span className="text-xs text-gray-500">(já com a cor, preferir svg ou webp/avif)</span>
             </Label>
           </FileUploadInput>
@@ -182,7 +182,7 @@ export function MateriaForm({
       validation: () => true,
       content: (
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-gray-700">Tags</Label>
+          <Label className="text-sm font-medium ">Tags</Label>
           <TagEditor
             tags={formData.tags}
             onChange={tags => setFormData(prev => ({ ...prev, tags }))}
