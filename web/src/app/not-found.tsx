@@ -4,7 +4,7 @@ import Link from "next/link";
 
 function NotFound() {
   return ( 
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pt-32">
       <LandingPagesNav isLogged={false} />
 
       <main className="flex-1 flex flex-col gap-2 items-center justify-start text-pink-900">

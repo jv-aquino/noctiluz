@@ -13,11 +13,11 @@ const RowMenu = ({ onEdit, onDelete, disabled = false, extraActions }: RowMenuPr
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
-      <Button className="cursor-pointer p-2" variant="ghost" size="icon" onClick={() => setOpen(o => !o)} disabled={disabled}>
+      <Button className="cursor-pointer p-2 hover:text-pink-500" variant="ghost" size="icon" onClick={() => setOpen(o => !o)} disabled={disabled}>
         <MoreVertical />
       </Button>
       {open && (
-        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+        <div className="absolute right-0 top-8 border bg-foreground text-background border-gray-200 rounded-lg shadow-lg z-10 min-w-[150px]">
           {extraActions}
           <Button variant="ghost" className="w-full flex gap-2 items-center" onClick={() => { onEdit(); setOpen(false); }} disabled={disabled}>
             <Pencil className="w-4 h-4" /> Editar
