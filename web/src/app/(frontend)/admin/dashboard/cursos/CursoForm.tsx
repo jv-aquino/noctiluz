@@ -149,7 +149,7 @@ export function CursoForm({
             maxSize={5}
             folder="cursos"
           >
-            <Label className="text-sm font-medium text-gray-700">
+            <Label className="text-sm font-medium">
               Imagem de fundo*
             </Label>
           </FileUploadInput>

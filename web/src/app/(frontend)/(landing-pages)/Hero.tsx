@@ -7,7 +7,7 @@ function Hero() {
     <section className="pt-36 relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-hero" />
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-30 blur-xs"
         style={{
           backgroundImage: `url(${heroImage.src})`,
           backgroundSize: 'cover',

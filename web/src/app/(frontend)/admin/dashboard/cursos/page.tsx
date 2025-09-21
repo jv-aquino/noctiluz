@@ -123,9 +123,9 @@ function CursosPage() {
               <Plus /> Adicionar Curso
             </button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] bg-white rounded-lg">
+          <DialogContent className="sm:max-w-[500px] rounded-lg text-foreground">
             <DialogHeader className="flex flex-row items-center justify-between pb-4">
-              <DialogTitle className="text-xl font-semibold text-gray-900">
+              <DialogTitle className="text-xl font-semibold">
                 {editingCurso ? 'Editar Curso' : 'Adicionar Curso'}
               </DialogTitle>
             </DialogHeader>
