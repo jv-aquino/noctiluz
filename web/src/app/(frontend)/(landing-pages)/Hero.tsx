@@ -20,7 +20,7 @@ function Hero() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-glow/10 rounded-full blur-3xl animate-pulse delay-1000" />
       
       <div className="container relative z-10 text-center px-4">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1]">
           <span className="text-foreground">Domine as </span>
           <span className="gradient-primary bg-clip-text text-transparent">
             Exatas
@@ -32,13 +32,13 @@ function Hero() {
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-gray-500 mb-8 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-gray-500 mb-12 max-w-3xl mx-auto leading-[1.45]">
           Plataforma educacional personalizada para estudantes de ensino superior. 
-          Aprenda matemática, física e engenharia com aulas interativas e questões resolvidas.
+          Aprenda matemática, física e engenharia com aulas interativas, feedbacks personalizados e questões resolvidas.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <Button size="lg" className="text-lg px-8 py-3 shadow-primary group">
+          <Button size="lg" className="text-lg px-8 py-3 shadow-primary/25 hover:shadow-xl group">
             Começar Gratuitamente
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Button>

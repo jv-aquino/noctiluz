@@ -25,7 +25,7 @@ function GoogleAuthButton({ className, text, ...props }: GoogleAuthButtonProps) 
       >
         <input type="hidden" name="type" value="google" />
 
-        <BaseMotionButton type="submit" className='login-button tracking-4' {...props}
+        <BaseMotionButton type="submit" className='login-button bg-white text-pink-950 tracking-4' {...props}
         onClick={async () => {
           if (props.disabled) {
             return

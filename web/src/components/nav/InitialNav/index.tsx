@@ -4,9 +4,8 @@ import { UserRound } from "lucide-react";
 
 function LandingPagesNav({ isLogged }: { isLogged: boolean }) {
   return ( 
-    <div className="absolute w-full">
-      <nav className="w-full h-full py-6 px-8
-      flex items-center justify-between sticky top-0 z-20
+      <nav className="w-full py-6 px-8
+      flex items-center justify-between fixed top-0 z-20
       border-b border-border bg-pink-950/80 backdrop-blur supports-[backdrop-filter]:bg-pink-950/60">
         <div className="text-pink-500">
           <NavbarLogo isH2 />
@@ -21,8 +20,11 @@ function LandingPagesNav({ isLogged }: { isLogged: boolean }) {
           <li>
             <Link href="/escolas" className="font-medium">Escolas</Link>
           </li>
+          <li>
+            <Link href="/sobre" className="font-medium">Sobre</Link>
+          </li>
           {isLogged ? (
-            <li className="ml-4">
+            <li className="ml-6">
               <Link href='/aprender' className="button-md border-pink-200 text-pink-50 bg-pink-500 flex items-center gap-2">
                 <UserRound /> Aprender
               </Link>
@@ -30,8 +32,8 @@ function LandingPagesNav({ isLogged }: { isLogged: boolean }) {
           )
           : (
             <>
-              <li className="ml-8">
-                <Link href='/login' className="button-md ">Entrar</Link>
+              <li className="ml-10">
+                <Link href='/login' className="button-md shadow-pink-500/15 hover:shadow-lg">Entrar</Link>
               </li>
               <li>
                 <Link href='/cadastro' className="button-md border-pink-200 text-pink-50 bg-pink-500">Cadastro</Link>
@@ -40,7 +42,6 @@ function LandingPagesNav({ isLogged }: { isLogged: boolean }) {
           )}
         </ul>
       </nav>
-    </div>
    );
 }
 

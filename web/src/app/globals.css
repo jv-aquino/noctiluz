@@ -68,8 +68,20 @@ button {
 
   border-width: 1px 1px 3px;
   border-style: solid;
-  border-color: var(--color-pink-900);
+  border-color: var(--color-pink-800);
   border-radius: 16px;
+
+  transition: ease background-color .3s;
+
+  @variant hover {
+    background-color: var(--color-pink-800);
+  }
+
+  @variant light {
+    @variant hover {
+      background-color: var(--color-pink-300);
+    }
+  }
 }
 @utility button-lg {
   font-weight: 600;
@@ -77,7 +89,7 @@ button {
 
   border-width: 1px 1px 3px;
   border-style: solid;
-  border-color: var(--color-pink-900);
+  border-color: var(--color-pink-800);
   border-radius: 20px;
 }
 
