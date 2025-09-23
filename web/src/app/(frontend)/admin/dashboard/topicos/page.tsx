@@ -44,7 +44,7 @@ function TopicosPage() {
             onChange={setSearch}
             placeholder="Pesquisar Curso"
           />
-          <div className="mt-6 border rounded bg-white">
+          <div className="mt-6 border rounded">
             <div className="font-medium px-4 py-2 border-b">Nome do Curso</div>
             {filteredCursos.length === 0 ? (
               <div className="px-4 py-4 text-gray-500">Nenhum curso encontrado.</div>
@@ -53,7 +53,7 @@ function TopicosPage() {
                 {filteredCursos.map((curso) => (
                   <li
                     key={curso.id}
-                    className="px-4 py-2 cursor-pointer flex items-center gap-2 border-b last:border-b-0 transition-colors hover:bg-pink-50 hover:underline"
+                    className="px-4 py-2 cursor-pointer flex items-center gap-2 border-b last:border-b-0 transition-colors hover:bg-pink-800/70 hover:underline"
                     onClick={() => handleRowClick(curso.id)}
                   >
                     {curso.name}

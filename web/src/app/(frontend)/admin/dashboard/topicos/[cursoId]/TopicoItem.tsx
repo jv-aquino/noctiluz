@@ -9,7 +9,7 @@ import LessonsList from "./LessonsList";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function TopicoItem({ topico, onDelete }: { topico: any; onDelete: (topico: any) => void }) {
   return (
-    <div className="bg-white p-2 rounded-lg border">
+    <div className="p-2 rounded-lg border">
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={topico.id} className="border-b-0">
           <div className="flex items-center justify-between w-full">
@@ -19,7 +19,7 @@ export function TopicoItem({ topico, onDelete }: { topico: any; onDelete: (topic
                   className="inline-block w-4 h-4 rounded-full mr-2 border"
                   style={{ backgroundColor: topico.materia?.cor || '#eee' }}
                 />
-                <span className="font-medium text-gray-800">{topico.name}</span>
+                <span className="font-medium">{topico.name}</span>
               </div>
             </AccordionTrigger>
             <div onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pr-2">
@@ -33,7 +33,7 @@ export function TopicoItem({ topico, onDelete }: { topico: any; onDelete: (topic
                 </Button>
             </div>
           </div>
-          <AccordionContent className="p-4 pt-2 bg-gray-50/50 rounded-b-lg">
+          <AccordionContent className="p-4 pt-2 rounded-b-lg">
             <LessonsList topicoId={topico.id} />
           </AccordionContent>
         </AccordionItem>

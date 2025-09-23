@@ -25,7 +25,7 @@ export default function LessonContentEditor({
 }: LessonContentEditorProps) {
   if (!selectedPage) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="border border-gray-200 rounded-lg p-6">
         <div className="text-center py-12">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Nenhuma página selecionada

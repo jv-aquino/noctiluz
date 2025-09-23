@@ -3,8 +3,10 @@ import Embarcar from "./Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
 import Hero from "./Hero";
+import Footer from "@/components/footer";
+import { ReactNode } from "react";
 
-export default async function Home() {
+export default async function Home({ children } : { children: ReactNode }) {
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -12,9 +14,12 @@ export default async function Home() {
   const isLogged = !!session?.user;
 
   return (
-    <>
-      <Hero />
-      <Embarcar isLogged={isLogged} />
-    </>
+    <div className="min-h-screen">
+      <LandingPagesNav isLogged={isLogged} />
+      
+      {children}
+
+      <Footer />
+    </div>
   );
 }

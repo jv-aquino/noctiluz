@@ -28,7 +28,7 @@ export function DataTable<T>({
   tableClassName = '',
 }: DataTableProps<T>) {
   return (
-    <div className={`bg-pink-50 rounded-xl border border-gray-400 ${className}`}>
+    <div className={`rounded-xl border border-gray-400 ${className}`}>
       <table className={`min-w-full text-sm rounded-xl ${tableClassName}`}>
         <thead>
           <tr className="border-gray-400">
@@ -44,7 +44,7 @@ export function DataTable<T>({
             return (
               <tr
                 key={getRowKey(row)}
-                className={`border-t border-gray-400 hover:bg-stone-100 table-tr ${isLast ? 'last-row-rounded' : ''}`}
+                className={`border-t border-gray-400 hover:bg-foreground/15 table-tr ${isLast ? 'last-row-rounded' : ''}`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map(col => (

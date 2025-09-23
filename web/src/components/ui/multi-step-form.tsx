@@ -111,7 +111,7 @@ export function MultiStepForm<T = Record<string, unknown>>({
 
       {/* Step Header */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900">
+        <h3 className="text-lg font-medium">
           {currentStepData.title}
         </h3>
       </div>

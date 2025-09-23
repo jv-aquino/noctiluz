@@ -57,9 +57,9 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] bg-white rounded-lg">
+      <DialogContent className="sm:max-w-[400px] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900">Adicionar Tópico</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Adicionar Tópico</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">

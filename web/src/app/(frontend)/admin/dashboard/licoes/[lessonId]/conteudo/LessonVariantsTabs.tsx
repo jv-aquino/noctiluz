@@ -80,7 +80,7 @@ export default function LessonVariantsTabs({
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Nome</label>
+              <label className="text-sm font-medium">Nome</label>
               <input
                 type="text"
                 className="w-full p-2 border rounded"
@@ -97,7 +97,7 @@ export default function LessonVariantsTabs({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Slug</label>
+              <label className="text-sm font-medium">Slug</label>
               <input
                 type="text"
                 className="w-full p-2 border rounded"
@@ -110,7 +110,7 @@ export default function LessonVariantsTabs({
               )}
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Descrição (opcional)</label>
+              <label className="text-sm font-medium">Descrição (opcional)</label>
               <textarea
                 className="w-full p-2 border rounded"
                 placeholder="Descrição (opcional)"
@@ -126,7 +126,7 @@ export default function LessonVariantsTabs({
                   checked={newVariantIsDefault}
                   onChange={e => setNewVariantIsDefault(e.target.checked)}
                 />
-                <span className="text-sm text-gray-700">Default</span>
+                <span className="text-sm">Default</span>
               </label>
               <label className="inline-flex items-center gap-2">
                 <input
@@ -134,10 +134,10 @@ export default function LessonVariantsTabs({
                   checked={newVariantIsActive}
                   onChange={e => setNewVariantIsActive(e.target.checked)}
                 />
-                <span className="text-sm text-gray-700">Ativa</span>
+                <span className="text-sm">Ativa</span>
               </label>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Peso</label>
+                <label className="text-sm font-medium">Peso</label>
                 <input
                   type="number"
                   min={0}

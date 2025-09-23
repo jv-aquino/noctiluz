@@ -12,7 +12,7 @@ function AdminLogin() {
         <div className="bg-pink-950 h-full w-[45%] flex flex-col items-center justify-center">
           <div className="text-pink-300 flex flex-col gap-4 w-fit">
             <Noctiluz className="w-[160px] mx-auto" />
-            <h1 className='font-bold text-xl text-center'>Painel de Administrador de Conteúdo (apenas funcionários Noctiluz)</h1>
+            <h1 className='font-bold text-xl text-center max-w-[440px]'>Painel de Administrador de Conteúdo (apenas funcionários Noctiluz)</h1>
           </div>
         </div>
       </main>
