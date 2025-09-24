@@ -8,19 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
   SUPER_ADMIN
-  ESCOLA_PROFESSOR
-  ESCOLA_ADMIN
+  SCHOOL_TEACHER
+  SCHOOL_ADMIN
 }
 
 enum LessonType {
-  GERAL
-  EXERCICIOS
-  REVISAO
-  SIMULACAO
+  GENERAL
+  EXERCISE
+  REVIEW
+  SIMULATION
 }
 
 enum ContentType {
@@ -33,7 +33,7 @@ enum ContentType {
 }
 
 enum ComponentType {
-  SIMULACAO
+  SIMULATION
   QUIZ
   DRAG_DROP
   CODE_EDITOR
@@ -42,115 +42,120 @@ enum ComponentType {
   ANIMATION
 }
 
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  VALUE
+  MULTIPLE
+  ASSOCIATION
+  ORDERING
+}
+
 model User {
-  // nao mexer >
   id            String    @id @default(uuid()) @map("_id")
   name          String
   email         String    @unique
   emailVerified Boolean?
   image         String?
-  role          Role      @default(USER)
-  // < nao mexer 
+  role          UserRole      @default(USER)
 
-  progress UserProgress[] // Track progress p user
-
-  userCursos UserCurso[] // Cursos que o user tá cursando
+  progress UserProgress[]
+  userCourses UserCourse[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   sessions   Session[]
   accounts   Account[]
 
-  // PFA-based skill tracking
-  skillStates  UserSkillState[]
-  attempts     UserAttempt[]
+  skillStates      UserSkillState[]
+  attempts         UserAttempt[]
+  exerciseAttempts ExerciseAttempt[]
 
   @@map("user")
 }
 
-model Curso {
+model Course {
   id                    String @id @default(uuid()) @map("_id")
   name                  String
-  descricao             String
+  description           String
   tags                  String[]
   slug                  String @unique
   backgroundImage       String?
 
-  materiasRelacionadas  CursoMateriaRelacionada[]
-  cursoTopicos          CursoTopico[]
-  userCursos            UserCurso[]
+  relatedSubjects  CourseSubjectRelation[]
+  courseTopics          CourseTopic[]
+  userCourses            UserCourse[]
 }
 
-model CursoTopico {
+model CourseTopic {
   id    String @id @default(uuid()) @map("_id")
   order Int    @default(0)
 
-  curso   Curso  @relation(fields: [cursoId], references: [id])
-  cursoId String
+  course   Course  @relation(fields: [courseId], references: [id])
+  courseId String
 
-  topico   Topico @relation(fields: [topicoId], references: [id])
-  topicoId String
+  topic   Topic @relation(fields: [topicId], references: [id])
+  topicId String
 
-  @@unique([cursoId, topicoId])
+  @@unique([courseId, topicId])
 }
 
-model CursoMateriaRelacionada {
+model CourseSubjectRelation {
   id String @id @default(uuid()) @map("_id")
 
-  curso   Curso  @relation(fields: [cursoId], references: [id])
-  cursoId String
+  course   Course  @relation(fields: [courseId], references: [id])
+  courseId String
 
-  materia   Materia @relation(fields: [materiaId], references: [id])
-  materiaId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
 
-  @@unique([cursoId, materiaId])
+  @@unique([courseId, subjectId])
 }
 
-model UserCurso {
+model UserCourse {
   id        String  @id @default(uuid()) @map("_id")
   completed Boolean @default(false)
   user      User    @relation(fields: [userId], references: [id])
   userId    String
 
-  curso   Curso  @relation(fields: [cursoId], references: [id])
-  cursoId String
+  course   Course  @relation(fields: [courseId], references: [id])
+  courseId String
 
-  dataMatricula DateTime @default(now())
+  enrollmentDate DateTime @default(now())
 
-  @@unique([userId, cursoId])
+  @@unique([userId, courseId])
 }
 
-model Materia {
+model Subject {
   id                 String                    @id @default(uuid()) @map("_id")
   name               String
-  descricao          String
-  cor                String
+  description        String
+  color              String
   slug               String                    @unique
-  imgUrl             String
+  imageUrl           String
   tags               String[]
-  topicos            Topico[]
-  cursosRelacionados CursoMateriaRelacionada[]
-  skills             Skill[]                   // Add missing relation
+  topics             Topic[]
+  relatedCourses     CourseSubjectRelation[]
+  skills             Skill[]
 }
 
-model Topico {
+model Topic {
   id        String   @id @default(uuid()) @map("_id")
   name      String
-  descricao String
-  slug      String   @unique
-  archived  Boolean? @default(false)
+  description String
+  slug        String   @unique
+  archived    Boolean? @default(false)
 
-  materia      Materia        @relation(fields: [materiaId], references: [id])
-  materiaId    String
-  topicoLessons TopicoLesson[]
+  subject      Subject        @relation(fields: [subjectId], references: [id])
+  subjectId    String
+  topicLessons TopicLesson[]
   userProgress UserProgress[]
-  cursoTopicos CursoTopico[]
+  courseTopics CourseTopic[]
 }
 
 model Lesson {
   id        String   @id @default(uuid()) @map("_id")
   name      String
-  descricao String
-  type      LessonType @default(GERAL)
+  description String
+  type      LessonType @default(GENERAL)
   archived  Boolean @default(false)
 
   identifier          String @default("")   // Invisible for users, used for selection purposes in the admin dashboard 
@@ -160,30 +165,28 @@ model Lesson {
   difficulty         Float     @default(1.0) // Continuous difficulty scale
   estimatedDuration  Int      // in minutes
   
-  // Learning objectives with weights
   learningObjectives LessonObjective[]
 
   contentPages    ContentPage[]
   lessonVariants    LessonVariant[]
   
-  topicoLessons     TopicoLesson[]
+  topicLessons     TopicLesson[]
   userProgress     UserProgress[]
   userAttempts     UserAttempt[]
 }
 
-model TopicoLesson {
+model TopicLesson {
   id    String @id @default(uuid()) @map("_id")
   order Int    @default(0)
 
-  topico   Topico @relation(fields: [topicoId], references: [id])
-  topicoId String
-  lesson    Lesson  @relation(fields: [lessonId], references: [id])
+  topic   Topic  @relation(fields: [topicId], references: [id])
+  topicId String
+  lesson  Lesson  @relation(fields: [lessonId], references: [id])
   lessonId  String
 
-  @@unique([topicoId, lessonId])
+  @@unique([topicId, lessonId])
 }
 
-// MISSING MODEL: Variants for A/B testing, difficulty levels
 model LessonVariant {
   id          String @id @default(uuid()) @map("_id")
   name        String
@@ -195,12 +198,45 @@ model LessonVariant {
   lesson   Lesson  @relation(fields: [lessonId], references: [id])
   lessonId String
   
-  // Each variant can have its own content pages
   contentPages ContentPage[]
   
-  // For A/B testing
   weight      Int @default(100) // Probability weight for selection
   isActive    Boolean @default(true)
+}
+
+model University {
+  id            String        @id @default(uuid()) @map("_id")
+  name          String
+  nickname      String
+  description   String?
+  country       String?
+  state         String?
+
+  exercises    Exercise[]
+}
+
+model Exercise {
+  id            String        @id @default(uuid()) @map("_id")
+  name          String
+  markdown      String
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id])
+  type           ExerciseType  @default(MULTIPLE_CHOICE)
+  archived       Boolean       @default(false)
+
+  alternatives  Json?
+  correctValue  String?
+  
+  skillsTested  String[]      // Skills this exercise evaluates
+  difficulty    Float         @default(1.0)
+  estimatedTime Int          @default(5) // minutes
+  tags          String[]      @default([])
+  
+  exerciseObjectives ExerciseObjective[]
+  
+  exerciseAttempts ExerciseAttempt[]
+  
+  contentBlocks    ContentBlock[]
 }
 
 model ContentPage {
@@ -209,35 +245,32 @@ model ContentPage {
   order    Int    @default(0)
   archived Boolean @default(false)
   
-  // Flexible parent relationship
   lesson         Lesson?        @relation(fields: [lessonId], references: [id])
   lessonId       String?
   lessonVariant  LessonVariant? @relation(fields: [variantId], references: [id])
   variantId     String?
   
-  // Page content blocks
   contentBlocks ContentBlock[]
-	@@map("ContentPage")
+  @@map("ContentPage")
 }
 
-// Individual content blocks within a page
 model ContentBlock {
   id       String      @id @default(uuid()) @map("_id")
   type     ContentType
   order    Int         @default(0)
   
-  // Content data
   markdown     String?  // For markdown content with LaTeX support
   videoUrl     String?  // For video content
   metadata     Json?    // Flexible metadata for different content types
   
-  // Interactive components
   componentType ComponentType?
   componentPath String?         // Path to React component
   componentProps Json?          // Props for the component
   
-  // Exercise/Assessment specific
   exerciseData Json?    // Questions, answers, validation rules
+  
+  exercise     Exercise? @relation(fields: [exerciseId], references: [id])
+  exerciseId   String?
   
   page     ContentPage @relation(fields: [pageId], references: [id])
   pageId   String
@@ -245,7 +278,6 @@ model ContentBlock {
   archived Boolean @default(false)
 }
 
-// Define learning objectives with weights for PFA
 model LessonObjective {
   id       String @id @default(uuid()) @map("_id")
   weight   Float  @default(1.0) // How much this objective contributes to overall skill
@@ -259,32 +291,41 @@ model LessonObjective {
   @@unique([lessonId, skillId])
 }
 
-// Enhanced skill model for PFA
+model ExerciseObjective {
+  id       String @id @default(uuid()) @map("_id")
+  weight   Float  @default(1.0) // How much this exercise contributes to skill assessment
+  
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+  
+  skill   Skill  @relation(fields: [skillId], references: [id])
+  skillId String
+  
+  @@unique([exerciseId, skillId])
+}
+
 model Skill {
   id          String @id @default(uuid()) @map("_id")
   name        String
   description String
   slug        String @unique
   
-  // Skill relationships for transfer learning
   prerequisites  SkillDependency[] @relation("PrerequisiteSkill")
   dependents     SkillDependency[] @relation("DependentSkill")
   
-  // PFA parameters (learned from data)
-  baseDifficulty Float @default(0.0)    // Base difficulty parameter
+  baseDifficulty Float @default(0.0)
   
-  materia   Materia @relation(fields: [materiaId], references: [id])
-  materiaId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
   
-  // Related content
-  lessonObjectives LessonObjective[]
-  userSkillStates  UserSkillState[]
+  lessonObjectives   LessonObjective[]
+  exerciseObjectives ExerciseObjective[]
+  userSkillStates    UserSkillState[]
 }
 
-// Model skill dependencies for cross-skill learning
 model SkillDependency {
   id             String @id @default(uuid()) @map("_id")
-  transferWeight Float  @default(0.3) // How much mastery transfers between skills
+  transferWeight Float  @default(0.3)
   
   prerequisite   Skill  @relation("PrerequisiteSkill", fields: [prerequisiteId], references: [id])
   prerequisiteId String
@@ -295,7 +336,6 @@ model SkillDependency {
   @@unique([prerequisiteId, dependentId])
 }
 
-// PFA-based user skill tracking
 model UserSkillState {
   id     String @id @default(uuid()) @map("_id")
   user   User   @relation(fields: [userId], references: [id])
@@ -310,7 +350,6 @@ model UserSkillState {
   @@unique([userId, skillId])
 }
 
-// UserAttempt is the canonical DKT input: each row is a step in the sequence
 model UserAttempt {
   id        String   @id @default(uuid()) @map("_id")
   user      User     @relation(fields: [userId], references: [id])
@@ -319,29 +358,62 @@ model UserAttempt {
   lesson     Lesson    @relation(fields: [lessonId], references: [id])
   lessonId   String
 
-  // Attempt details
-  skillsTested     String[]  // Skills involved in this attempt
+  skillsTested     String[]
   isCorrect        Boolean
-  responseTime     Int       // Time in milliseconds
+  responseTime     Int
   hintsUsed        Int       @default(0)
   attemptsToSolve  Int       @default(1)
 
-  // Context for better modeling
-  difficulty       Float     // Difficulty at time of attempt
-  sessionPosition  Int       // Position in current learning session
-  timeOfDay        Int       // Hour of day (0-23) for circadian effects
+  difficulty       Float
+  sessionPosition  Int
+  timeOfDay        Int
 
-  // DKT-friendly: group attempts into sessions
-  sessionId        String?   // For DKT: group attempts into sessions
+  sessionId        String?
 
-  // Feature extraction (optional, can be ignored by DKT)
-  priorKnowledge   Json      // Knowledge state before attempt
-  posteriorKnowledge Json    // Updated knowledge state after attempt
+  priorKnowledge   Json
+  posteriorKnowledge Json
 
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([sessionId, sessionPosition])
 }
 
-// Enhanced user progress with PFA integration
+model ExerciseAttempt {
+  id        String   @id @default(uuid()) @map("_id")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+
+  userAnswer       Json
+  isCorrect        Boolean
+  partialCredit    Float?
+  responseTime     Int
+  hintsUsed        Int       @default(0)
+  attemptsToSolve  Int       @default(1)
+
+  skillsTested     String[]
+  difficulty       Float
+  sessionPosition  Int
+  timeOfDay        Int
+  sessionId        String?
+
+  priorKnowledge   Json
+  posteriorKnowledge Json
+
+  context         String?
+  lessonId        String?
+  contentBlockId  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([exerciseId, isCorrect])
+  @@index([sessionId, sessionPosition])
+}
+
 model UserProgress {
   id     String @id @default(uuid()) @map("_id")
   user   User   @relation(fields: [userId], references: [id])
@@ -350,27 +422,24 @@ model UserProgress {
   lesson   Lesson?  @relation(fields: [lessonId], references: [id])
   lessonId String?
 
-  topico   Topico? @relation(fields: [topicoId], references: [id])
-  topicoId String?
+  topic   Topic? @relation(fields: [topicId], references: [id])
+  topicId String?
 
   completed Boolean @default(false)
-  
-  // PFA-enhanced progress tracking
-  overallMastery    Float   @default(0.0)  // Weighted average of skill masteries
-  totalTimeSpent    Int     @default(0)    // Time in seconds
-  efficiencyScore   Float   @default(0.0)  // Learning efficiency metric
-  
-  // Adaptive parameters
+  overallMastery    Float   @default(0.0)
+  totalTimeSpent    Int     @default(0)
+  efficiencyScore   Float   @default(0.0)
   recommendedDifficulty Float @default(1.0)
   nextReviewDate       DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, lessonId, topicoId])
+  @@unique([userId, lessonId, topicId])
+  @@index([userId, completed])
+  @@index([topicId, completed])
 }
 
-// evitar mexer daqui pra baixo:
 model Session {
   id        String   @id @map("_id")
   expiresAt DateTime
@@ -403,15 +472,4 @@ model Account {
   updatedAt             DateTime
 
   @@map("account")
-}
-
-model Verification {
-  id         String    @id @map("_id")
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  @@map("verification")
 }
