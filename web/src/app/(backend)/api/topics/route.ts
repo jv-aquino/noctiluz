@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllTopicos, createTopico } from '@/backend/services/topico';
-import { createTopicoSchema } from '@/backend/schemas/topico.schema';
+import { getAllTopics, createTopic } from '@/backend/services/topic';
+import { createTopicSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
@@ -10,8 +10,8 @@ const allowedRoles: AllowedRoutes = {
 
 export async function GET() {
   try {
-    const topicos = await getAllTopicos();
-    return NextResponse.json(topicos, { status: 200 });
+    const topics = await getAllTopics();
+    return NextResponse.json(topics, { status: 200 });
   } catch {
     return NextResponse.json(
       toErrorMessage('Falha ao buscar tópicos'),
@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
       return forbidden;
     }
     const body = await validBody(request);
-    const validationResult = createTopicoSchema.safeParse(body);
+    const validationResult = createTopicSchema.safeParse(body);
     if (!validationResult.success) {
       return returnInvalidDataErrors(validationResult.error);
     }
     const validatedData = validationResult.data;
-    const topico = await createTopico(validatedData);
-    return NextResponse.json(topico, { status: 201 });
+    const topic = await createTopic(validatedData);
+    return NextResponse.json(topic, { status: 201 });
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;

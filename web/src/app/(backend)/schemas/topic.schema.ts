@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { slugSchema, idSchema, nameSchema, archivedSchema } from './base.schema';
 
-export const createTopicoSchema = z.object({
+export const createTopicSchema = z.object({
   name: nameSchema,
-  descricao: z.string().min(2, 'Descrição obrigatória'),
+  description: z.string().min(2, 'Descrição obrigatória'),
   slug: slugSchema,
   archived: archivedSchema,
-  materiaId: idSchema,
+  subjectId: idSchema,
 });
 
-export const patchTopicoSchema = createTopicoSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
+export const patchTopicSchema = createTopicSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
   error: "Pelo menos um campo precisa ser fornecido para atualização",
 }); 

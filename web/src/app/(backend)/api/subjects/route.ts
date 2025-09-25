@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createMateria, getAllMaterias } from '@/backend/services/materia'
+import { createMateria, getAllMaterias } from '@/app/(backend)/services/subject'
 import { createMateriaSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';

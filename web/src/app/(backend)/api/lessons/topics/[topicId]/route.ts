@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLessonsByTopicoId, removeLessonFromTopico } from '@/backend/services/lesson';
+import { getLessonsByTopicId, removeLessonFromTopic } from '@/backend/services/lesson';
 import { idSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, zodErrorHandler } from '@/utils';
 import { AllowedRoutes } from '@/types';
@@ -10,16 +10,16 @@ const allowedRoles: AllowedRoutes = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ topicoId: string }> }
+  { params }: { params: Promise<{ topicId: string }> }
 ) {
   try {
-    const { topicoId } = await params;
-    const validationResult = idSchema.safeParse(topicoId);
+    const { topicId } = await params;
+    const validationResult = idSchema.safeParse(topicId);
     if (!validationResult.success) {
       return returnInvalidDataErrors(validationResult.error)
     }
 
-    const lessons = await getLessonsByTopicoId(topicoId);
+    const lessons = await getLessonsByTopicId(topicId);
     return NextResponse.json(lessons, { status: 200 });
   } catch (error) {
     if (error instanceof NextResponse) {
@@ -31,7 +31,7 @@ export async function GET(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: Promise<{ topicoId: string }> }
+    { params }: { params: Promise<{ topicId: string }> }
 ) {
     try {
         const forbidden = await blockForbiddenRequests(request, allowedRoles.DELETE);
@@ -39,10 +39,10 @@ export async function DELETE(
             return forbidden;
         }
 
-        const { topicoId } = await params;
-        const topicoIdValidation = idSchema.safeParse(topicoId);
-        if (!topicoIdValidation.success) {
-            return returnInvalidDataErrors(topicoIdValidation.error);
+        const { topicId } = await params;
+        const topicIdValidation = idSchema.safeParse(topicId);
+        if (!topicIdValidation.success) {
+            return returnInvalidDataErrors(topicIdValidation.error);
         }
         
         const { searchParams } = new URL(request.url);
@@ -56,7 +56,7 @@ export async function DELETE(
             return returnInvalidDataErrors(lessonIdValidation.error);
         }
 
-        await removeLessonFromTopico(lessonId, topicoId);
+        await removeLessonFromTopic(lessonId, topicId);
         return NextResponse.json({ message: 'Lição desvinculada com sucesso' }, { status: 200 });
     } catch (error) {
         if (error instanceof NextResponse) {
