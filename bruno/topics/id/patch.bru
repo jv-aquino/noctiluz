@@ -5,7 +5,7 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/topico/{{topicoId}}
+  url: {{baseUrl}}/{{folder}}/{{topicId}}
   body: json
   auth: inherit
 }
@@ -17,6 +17,6 @@ headers {
 body:json {
   {
     "name": "Tópico Atualizado",
-    "descricao": "Descrição atualizada do tópico"
+    "description": "Descrição atualizada do tópico"
   }
 }

@@ -1,11 +1,11 @@
 meta {
-  name: getById
+  name: getAll
   type: http
   seq: 1
 }
- 
+
 get {
-  url: {{baseUrl}}/topico/{{topicoId}}
+  url: {{baseUrl}}/{{folder}}
   body: none
   auth: none
-} 
+}

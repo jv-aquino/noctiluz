@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/curso
+  url: {{baseUrl}}/{{folder}}
   body: json
   auth: none
 }
@@ -13,14 +13,14 @@ post {
 body:json {
   {
     "name": "Nova Curso",
-    "descricao": "Descriçã2 do curso",
+    "description": "Descriçã2 do curso",
     "slug": "teste-nova"
   }
 }
 
 script:post-response {
   if (res.body && res.body.id) {
-    bru.setVar("cursoId", res.body.id);
+    bru.setVar("courseId", res.body.id);
   } else {
     console.log("No ID found in response");
   }

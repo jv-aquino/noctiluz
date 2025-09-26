@@ -5,23 +5,24 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/topico
+  url: {{baseUrl}}/{{folder}}
   body: json
   auth: none
 }
 
 body:json {
   {
-    "name": "Novo Tópico",
-    "descricao": "Descrição do tópico",
-    "slug": "novo-topico",
-    "materiaId": "{{materiaId}}"
+    "name": "Nova Matéri2",
+    "description": "Descriçã2 da matéria",
+    "cor": "#FF0002",
+    "slug": "nova-materia23",
+    "imgUrl": ""
   }
 }
 
 script:post-response {
   if (res.body && res.body.id) {
-    bru.setVar("topicoId", res.body.id);
+    bru.setVar("subjectId", res.body.id);
   } else {
     console.log("No ID found in response");
   }
