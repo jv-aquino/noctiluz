@@ -1,12 +1,11 @@
 'use client'
-import type { MateriaWithTopico } from "@/types";
 import { LibraryBig, Plus } from "lucide-react";
 import { useState } from "react";
 import { fetcher } from "@/utils";
 import useSWR from 'swr'
 import AdminHeader from "../components/header/AdminHeader";
-import MateriaCard from "./MateriaCard";
-import { MateriaForm } from "./MateriaForm";
+import SubjectCard from "./SubjectCard";
+import SubjectForm from "./SubjectForm";
 
 import {
   Dialog,
@@ -16,26 +15,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
-import { Materia } from "@/generated/prisma";
+import type { SubjectWithTopic } from "@/types";
+import { Subject } from "@/generated/prisma";
 
 
-function MateriasPage() {
-  const { data: materias, error, isLoading, mutate } = useSWR<MateriaWithTopico[]>('/api/materias', (url: string) => fetcher(url, 'Erro ao criar matéria'))
+function SubjectsPage() {
+  const { data: subjects, error, isLoading, mutate } = useSWR<SubjectWithTopic[]>('/api/subjects', (url: string) => fetcher(url, 'Erro ao criar matéria'))
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingMateria, setEditingMateria] = useState<MateriaWithTopico | null>(null);
+  const [editingSubject, setEditingSubject] = useState<SubjectWithTopic | null>(null);
   
-  const handleSubmit = async (data: Omit<Materia, 'id'>) => {
+  const handleSubmit = async (data: Omit<Subject, 'id'>) => {
     try {
       let response;
-      if (editingMateria) {
-        response = await fetch(`/api/materias/${editingMateria.id}`, {
+      if (editingSubject) {
+        response = await fetch(`/api/subjects/${editingSubject.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
       } else {
-        response = await fetch('/api/materias', {
+        response = await fetch('/api/subjects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -48,7 +48,7 @@ function MateriasPage() {
       }
 
       mutate();
-      setEditingMateria(null);
+      setEditingSubject(null);
       setIsDialogOpen(false);
       toast.success('Matéria salva com sucesso!');
     } catch (error) {
@@ -58,12 +58,12 @@ function MateriasPage() {
   };
 
   const handleCancel = () => {
-    setEditingMateria(null);
+    setEditingSubject(null);
     setIsDialogOpen(false);
   };
 
-  const handleEdit = (materia: MateriaWithTopico) => {
-    setEditingMateria(materia);
+  const handleEdit = (subject: SubjectWithTopic) => {
+    setEditingSubject(subject);
     setIsDialogOpen(true);
   };
 
@@ -93,15 +93,15 @@ function MateriasPage() {
           <DialogContent className="sm:max-w-[500px] rounded-lg">
             <DialogHeader className="flex flex-row items-center justify-between pb-4">
               <DialogTitle className="text-xl font-semibold">
-                {editingMateria ? 'Editar Matéria' : 'Adicionar Matéria'}
+                {editingSubject ? 'Editar Matéria' : 'Adicionar Matéria'}
               </DialogTitle>
             </DialogHeader>
             
-            <MateriaForm
-              editingMateria={editingMateria}
+            <SubjectForm
+              editingSubject={editingSubject}
               onSubmit={handleSubmit}
               onCancel={handleCancel}
-              submitText={editingMateria ? "Salvar Alterações →" : "Adicionar Matéria →"}
+              submitText={editingSubject ? "Salvar Alterações →" : "Adicionar Matéria →"}
             />
           </DialogContent>
         </Dialog>
@@ -110,10 +110,10 @@ function MateriasPage() {
       <main className="grid gap-4 justify-center grid-cols-[repeat(auto-fit,_minmax(0,_260px))]">
         {isLoading && <p>Carregando matérias...</p>}
         {error && <p>Erro ao carregar matérias.</p>}
-        {materias?.map(materia => (
-          <MateriaCard 
-            key={materia.id} 
-            materia={materia} 
+        {subjects?.map(subject => (
+          <SubjectCard
+            key={subject.id}
+            subject={subject}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
@@ -123,4 +123,4 @@ function MateriasPage() {
    );
 }
 
-export default MateriasPage;
+export default SubjectsPage;

@@ -12,11 +12,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { ReorderableList } from '@/components/common/ReorderableList';
-import { TopicoLesson, Lesson } from '@/generated/prisma';
+import { TopicLesson, Lesson } from '@/generated/prisma';
 import toast from 'react-hot-toast';
 
 interface LessonsListProps {
-  topicoId: string;
+  topicId: string;
 }
 
 function LessonItem({ lesson, onRemove }: { lesson: Lesson; onRemove: (lessonId: string) => void }) {
@@ -38,9 +38,9 @@ function LessonItem({ lesson, onRemove }: { lesson: Lesson; onRemove: (lessonId:
   );
 }
 
-export default function LessonsList({ topicoId }: LessonsListProps) {
-  const { data: topicoLessons, error: topicoLessonsError, mutate: mutateTopicoLessons } = useSWR(
-    `/api/lessons/topicos/${topicoId}`,
+export default function LessonsList({ topicId }: LessonsListProps) {
+  const { data: topicLessons, error: topicLessonsError, mutate: mutateTopicLessons } = useSWR(
+    `/api/lessons/topics/${topicId}`,
     (url: string) => fetcher(url, 'Erro ao buscar lições do tópico'),
     { revalidateOnFocus: false }
   );
@@ -59,12 +59,12 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
 
   useEffect(() => {
-    if (topicoLessons) {
-      const sortedLessons = [...topicoLessons as TopicoLessonWithLesson[]].sort((a, b) => a.order - b.order);
-      setLessonOrder(sortedLessons.filter((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id).map((l: TopicoLessonWithLesson) => l.lesson!.id));
+    if (topicLessons) {
+      const sortedLessons = [...topicLessons as TopicLessonWithLesson[]].sort((a, b) => a.order - b.order);
+      setLessonOrder(sortedLessons.filter((l: TopicLessonWithLesson) => l.lesson && l.lesson.id).map((l: TopicLessonWithLesson) => l.lesson!.id));
       setOrderChanged(false);
     }
-  }, [topicoLessons]);
+  }, [topicLessons]);
 
   const handleOrderChange = (newOrder: string[]) => {
     setLessonOrder(newOrder);
@@ -73,14 +73,14 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
 
   const handleSaveOrder = async () => {
     try {
-      await fetch(`/api/lessons/topicos`, {
+      await fetch(`/api/lessons/topics`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topicoId, lessonIds: lessonOrder }),
+        body: JSON.stringify({ topicId, lessonIds: lessonOrder }),
       });
       toast.success('Ordem das lições salva!');
       setOrderChanged(false);
-      mutateTopicoLessons();
+      mutateTopicLessons();
     } catch (e: unknown) {
       if (e instanceof Error) {
         toast.error(e.message || 'Erro ao salvar ordem');
@@ -96,14 +96,14 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
       return;
     }
     try {
-      await fetch(`/api/lessons/topicos`, {
+      await fetch(`/api/lessons/topics`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topicoId, lessonId: selectedLesson }),
+        body: JSON.stringify({ topicId, lessonId: selectedLesson }),
       });
       toast.success('Lição adicionada!');
       setAddDialogOpen(false);
-      mutateTopicoLessons();
+      mutateTopicLessons();
     } catch (e: unknown) {
       if (e instanceof Error) {
         toast.error(e.message || 'Erro ao adicionar lição');
@@ -117,11 +117,11 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
     if (!confirm('Tem certeza que deseja desvincular esta lição?')) return;
 
     try {
-      await fetch(`/api/lessons/topicos/${topicoId}?lessonId=${lessonId}`, {
+      await fetch(`/api/lessons/topics/${topicId}?lessonId=${lessonId}`, {
         method: 'DELETE',
       });
       toast.success('Lição desvinculada!');
-      mutateTopicoLessons();
+      mutateTopicLessons();
     } catch (e: unknown) {
       if (e instanceof Error) {
         toast.error(e.message || 'Erro ao desvincular lição');
@@ -131,25 +131,25 @@ export default function LessonsList({ topicoId }: LessonsListProps) {
     }
   };
 
-  type TopicoLessonWithLesson = TopicoLesson & { lesson?: Lesson };
+  type TopicLessonWithLesson = TopicLesson & { lesson?: Lesson };
 
   const availableLessons = allLessons?.filter(
-    (lesson: Lesson) => !(topicoLessons as TopicoLessonWithLesson[])?.some((tl: TopicoLessonWithLesson) => tl.lesson && tl.lesson.id === lesson.id)
+    (lesson: Lesson) => !(topicLessons as TopicLessonWithLesson[])?.some((tl: TopicLessonWithLesson) => tl.lesson && tl.lesson.id === lesson.id)
   ) || [];
 
   const filteredLessons = availableLessons.filter((lesson: Lesson) =>
     lesson.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (topicoLessonsError || allLessonsError) return <div>Falha ao carregar.</div>;
-  if (!topicoLessons || !allLessons) return <div>Carregando lições...</div>;
+  if (topicLessonsError || allLessonsError) return <div>Falha ao carregar.</div>;
+  if (!topicLessons || !allLessons) return <div>Carregando lições...</div>;
 
   return (
     <div className="space-y-4">
-      {(topicoLessons as TopicoLessonWithLesson[]).filter((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id).length > 0 ? (
+      {(topicLessons as TopicLessonWithLesson[]).filter((l: TopicLessonWithLesson) => l.lesson && l.lesson.id).length > 0 ? (
         <ReorderableList
           items={lessonOrder.map(id => {
-            const found = (topicoLessons as TopicoLessonWithLesson[]).find((l: TopicoLessonWithLesson) => l.lesson && l.lesson.id === id);
+            const found = (topicLessons as TopicLessonWithLesson[]).find((l: TopicLessonWithLesson) => l.lesson && l.lesson.id === id);
             return found?.lesson;
           }).filter((l): l is Lesson => Boolean(l))}
           onOrderChange={handleOrderChange}

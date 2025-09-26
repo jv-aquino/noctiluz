@@ -12,67 +12,67 @@ import {
 import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
 import { GraduationCap } from "lucide-react";
-import CursosTable from './CursosTable';
-import { Curso, Materia, Topico } from '@/generated/prisma';
+import CoursesTable from './CoursesTable';
+import { Course, Subject, Topic } from '@/generated/prisma';
 import { useState } from "react";
-import { CursoForm } from "./CursoForm";
-import { CursoWithMateria } from "@/types";
+import { CourseForm } from "./CourseForm";
+import { CourseWithSubject } from "@/types";
 
-type CursoCompleto = CursoWithMateria & { alunosAtivos?: number; topicos?: Topico[] };
+type CompleteCourse = CourseWithSubject & { alunosAtivos?: number; topicos?: Topic[] };
 
-function CursosPage() {
-  const { data: cursos, error: cursosError, isLoading: cursosLoading, mutate: mutateCursos } = useSWR<Curso[]>(
+function CoursesPage() {
+  const { data: courses, error: coursesError, isLoading: coursesLoading, mutate: mutateCourses } = useSWR<CompleteCourse[]>(
     '/api/cursos',
     (url: string) => fetcher(url, 'Erro ao buscar cursos')
   );
-  const { data: materias, error: materiasError, isLoading: materiasLoading } = useSWR<Materia[]>(
+  const { data: subjects, error: subjectsError, isLoading: subjectsLoading } = useSWR<Subject[]>(
     '/api/materias',
     (url: string) => fetcher(url, 'Erro ao buscar matérias')
   );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCurso, setEditingCurso] = useState<CursoCompleto | null>(null);
+  const [editingCourse, setEditingCourse] = useState<CompleteCourse | null>(null);
 
-  const handleSubmit = async (data: Omit<Curso, 'id'>, materiaIds: string[]) => {
+  const handleSubmit = async (data: Omit<Course, 'id'>, subjectIds: string[]) => {
     try {
       let response;
-      let cursoId: string | undefined;
-      if (editingCurso) {
-        response = await fetch(`/api/cursos/${editingCurso.id}`, {
+      let courseId: string | undefined;
+      if (editingCourse) {
+        response = await fetch(`/api/courses/${editingCourse.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-        cursoId = editingCurso.id;
+        courseId = editingCourse.id;
       } else {
-        response = await fetch('/api/cursos', {
+        response = await fetch('/api/courses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
         if (response.ok) {
           const created = await response.json();
-          cursoId = created.id;
+          courseId = created.id;
         }
       }
-      if (!response.ok || !cursoId) {
+      if (!response.ok || !courseId) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error.message);
       }
-      // Link materias after curso creation/update
-      if (materiaIds && materiaIds.length > 0) {
+      // Link subjects after course creation/update
+      if (subjectIds && subjectIds.length > 0) {
         await Promise.all(
-          materiaIds.map(materiaId =>
-            fetch(`/api/cursos/materias/${materiaId}`, {
+          subjectIds.map(subjectId =>
+            fetch(`/api/courses/subjects/${subjectId}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ cursoId })
+              body: JSON.stringify({ courseId })
             })
           )
         );
       }
-      mutateCursos();
-      setEditingCurso(null);
+      mutateCourses();
+      setEditingCourse(null);
       setIsDialogOpen(false);
       toast.success('Curso salvo com sucesso!');
     } catch (error) {
@@ -82,32 +82,32 @@ function CursosPage() {
   };
 
   const handleCancel = () => {
-    setEditingCurso(null);
+    setEditingCourse(null);
     setIsDialogOpen(false);
   };
 
-  const handleEdit = (curso: CursoCompleto) => {
-    setEditingCurso(curso);
+  const handleEdit = (course: CompleteCourse) => {
+    setEditingCourse(course);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (curso: CursoWithMateria) => {
-    const response = await fetch(`/api/cursos/${curso.id}`, {
+  const handleDelete = async (course: CompleteCourse) => {
+    const response = await fetch(`/api/courses/${course.id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error.message || 'Erro ao deletar curso');
     }
-    mutateCursos();
+    mutateCourses();
   };
-  const handleTagsUpdate = async (curso: CursoCompleto, tags: string[]) => {
-    await fetch(`/api/cursos/${curso.id}`, {
+  const handleTagsUpdate = async (course: CompleteCourse, tags: string[]) => {
+    await fetch(`/api/courses/${course.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tags })
     });
-    mutateCursos();
+    mutateCourses();
   };
 
   const Paragraph = () => (
@@ -126,32 +126,32 @@ function CursosPage() {
           <DialogContent className="sm:max-w-[500px] rounded-lg text-foreground">
             <DialogHeader className="flex flex-row items-center justify-between pb-4">
               <DialogTitle className="text-xl font-semibold">
-                {editingCurso ? 'Editar Curso' : 'Adicionar Curso'}
+                {editingCourse ? 'Editar Curso' : 'Adicionar Curso'}
               </DialogTitle>
             </DialogHeader>
-            {materias && (
-              <CursoForm
-                editingCurso={editingCurso}
+            {subjects && (
+              <CourseForm
+                editingCourse={editingCourse}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
-                submitText={editingCurso ? "Salvar Alterações →" : "Adicionar Curso →"}
-                materias={materias.map(m => ({ id: m.id, name: m.name }))}
-                initialRelatedMaterias={editingCurso ? (editingCurso.materiasRelacionadas?.map(rel => rel.materiaId) || []) : []}
+                submitText={editingCourse ? "Salvar Alterações →" : "Adicionar Curso →"}
+                subjects={subjects.map(m => ({ id: m.id, name: m.name }))}
+                initialRelatedSubjects={editingCourse ? (editingCourse.relatedSubjects?.map(rel => rel.subjectId) || []) : []}
               />
             )}
           </DialogContent>
         </Dialog>
       </AdminHeader>
-      {(cursosLoading || materiasLoading) && <p>Carregando...</p>}
-      {(cursosError || materiasError) && <p>Erro ao carregar dados.</p>}
-      {cursos && materias && (
-        <CursosTable
-          cursos={cursos.map(c => ({
+      {(coursesLoading || subjectsLoading) && <p>Carregando...</p>}
+      {(coursesError || subjectsError) && <p>Erro ao carregar dados.</p>}
+      {courses && subjects && (
+        <CoursesTable
+          courses={courses.map(c => ({
             ...c,
             alunosAtivos: 0,
-            materiasRelacionadas: Array.isArray((c as CursoWithMateria).materiasRelacionadas) ? (c as CursoWithMateria).materiasRelacionadas : [],
+            materiasRelacionadas: Array.isArray((c as CourseWithSubject).relatedSubjects) ? (c as CourseWithSubject).relatedSubjects : [],
           }))}
-          materias={materias}
+          subjects={subjects}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onTagsUpdate={handleTagsUpdate}
@@ -161,4 +161,4 @@ function CursosPage() {
   );
 }
 
-export default CursosPage;
+export default CoursesPage;

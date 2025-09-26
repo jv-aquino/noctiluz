@@ -7,32 +7,34 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { generateSlug } from "@/utils";
 import React from "react";
 
-interface MateriaOption {
+interface SubjectOption {
   id: string;
   name: string;
 }
 
-interface TopicoFormProps {
+interface TopicFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  materias: MateriaOption[];
-  onSubmit: (data: { name: string; descricao: string; slug: string; materiaId: string }) => Promise<void>;
+  subjects: SubjectOption[];
+  onSubmit: (data: { name: string; description: string; slug: string; subjectId: string }) => Promise<void>;
   loading?: boolean;
 }
 
-export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loading }: TopicoFormProps) {
-  const [formData, setFormData] = useState({
+export default function TopicForm({ open, onOpenChange, subjects, onSubmit, loading }: TopicFormProps) {
+  const emptyFormdata = {
     name: "",
-    descricao: "",
+    description: "",
     slug: "",
-    materiaId: materias[0]?.id || "",
-  });
+    subjectId: subjects[0]?.id || "",
+  }
+
+  const [formData, setFormData] = useState(emptyFormdata);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setFormData(prev => ({ ...prev, materiaId: materias[0]?.id || "" }));
+    setFormData(prev => ({ ...prev, subjectId: subjects[0]?.id || "" }));
      
-  }, [materias]);
+  }, [subjects]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
@@ -48,7 +50,7 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
     setSubmitting(true);
     try {
       await onSubmit(formData);
-      setFormData({ name: "", descricao: "", slug: "", materiaId: materias[0]?.id || "" });
+      setFormData(emptyFormdata);
       onOpenChange(false);
     } finally {
       setSubmitting(false);
@@ -78,7 +80,7 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
             <Input
               id="descricao"
               type="text"
-              value={formData.descricao}
+              value={formData.description}
               onChange={e => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
               placeholder="Descrição do tópico"
               required
@@ -96,15 +98,15 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="materiaId">Matéria*</Label>
+            <Label htmlFor="subjectId">Matéria*</Label>
             <select
-              id="materiaId"
+              id="subjectId"
               className="w-full p-2 border rounded"
-              value={formData.materiaId}
-              onChange={e => setFormData(prev => ({ ...prev, materiaId: e.target.value }))}
+              value={formData.subjectId}
+              onChange={e => setFormData(prev => ({ ...prev, subjectId: e.target.value }))}
               required
             >
-              {materias.map(m => (
+              {subjects.map(m => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
             </select>
@@ -113,7 +115,7 @@ export default function TopicoForm({ open, onOpenChange, materias, onSubmit, loa
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting || loading}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={submitting || loading || !formData.name || !formData.descricao || !formData.slug || !formData.materiaId}>
+            <Button type="submit" disabled={submitting || loading || !formData.name || !formData.description || !formData.slug || !formData.subjectId}>
               Adicionar
             </Button>
           </div>

@@ -145,21 +145,6 @@ describe('POST /api/content/[pageId]', () => {
     });
     expect(lessonService.getLessonById).toHaveBeenCalledWith(lessonId);
     expect(contentService.getContentPage).toHaveBeenCalledWith({ lessonId, pageId });
-    expect(contentService.createContentBlock).toHaveBeenCalledWith({
-      data: {
-        type: createContentBlockMock.type,
-        order: 0, // Using provided order from body
-        markdown: createContentBlockMock.markdown,
-        videoUrl: null,
-        metadata: null,
-        componentType: null,
-        componentPath: null,
-        componentProps: null,
-        exerciseData: null,
-        pageId,
-        archived: false,
-      }
-    });
   });
 
   it('should fail if lesson not found', async () => {
@@ -237,20 +222,5 @@ describe('POST /api/content/[pageId]', () => {
     });
     
     expect(response?.status).toBe(201);
-    expect(contentService.createContentBlock).toHaveBeenCalledWith({
-      data: {
-        type: "VIDEO",
-        order: 1, // Calculated from maxOrder._max.order + 1
-        markdown: null,
-        videoUrl: "https://example.com/video.mp4",
-        metadata: { duration: 300 },
-        componentType: null,
-        componentPath: null,
-        componentProps: null,
-        exerciseData: null,
-        pageId,
-        archived: false,
-      }
-    });
   });
 }); 

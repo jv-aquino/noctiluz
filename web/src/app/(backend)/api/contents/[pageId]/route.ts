@@ -177,6 +177,7 @@ export async function POST(
       exerciseData: exerciseData || null,
       pageId,
       archived: false,
+      exerciseId: null, // Add this line to satisfy the required property
     }
 
     const contentBlock = await createContentBlock({ data });

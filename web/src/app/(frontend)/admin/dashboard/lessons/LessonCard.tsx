@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, Clock, BarChart3, Tag, BookOpen, MoreVertical } from 'lucide-react';
-import { Lesson } from '@/generated/prisma';
+import { Lesson, LessonType } from '@/generated/prisma';
 import Link from 'next/link';
 
 interface LessonCardProps {
@@ -10,30 +10,30 @@ interface LessonCardProps {
   onDelete?: (lessonId: string) => void;
 }
 
-const getTypeLabel = (type: 'GERAL' | 'EXERCICIOS' | 'REVISAO' | 'SIMULACAO') => {
+const getTypeLabel = (type: LessonType) => {
   switch (type) {
-    case 'GERAL':
+    case 'GENERAL':
       return 'Geral';
-    case 'EXERCICIOS':
+    case 'EXERCISE':
       return 'Exercícios';
-    case 'REVISAO':
+    case 'REVIEW':
       return 'Revisão';
-    case 'SIMULACAO':
+    case 'SIMULATION':
       return 'Simulação';
     default:
       return type;
   }
 };
 
-const getTypeColor = (type: 'GERAL' | 'EXERCICIOS' | 'REVISAO' | 'SIMULACAO') => {
+const getTypeColor = (type: LessonType) => {
   switch (type) {
-    case 'GERAL':
+    case 'GENERAL':
       return 'bg-blue-100 text-blue-800';
-    case 'EXERCICIOS':
+    case 'EXERCISE':
       return 'bg-green-100 text-green-800';
-    case 'REVISAO':
+    case 'REVIEW':
       return 'bg-orange-100 text-orange-800';
-    case 'SIMULACAO':
+    case 'SIMULATION':
       return 'bg-purple-100 text-purple-800';
     default:
       return 'bg-gray-100 text-gray-800';
@@ -79,9 +79,9 @@ export function LessonCard({ lesson, onEdit, onDelete }: LessonCardProps) {
               {getTypeLabel(lesson.type)}
             </span>
           </div>
-          
-          {lesson.descricao && (
-            <p className="text-gray-600 text-sm mb-3">{lesson.descricao}</p>
+
+          {lesson.description && (
+            <p className="text-gray-600 text-sm mb-3">{lesson.description}</p>
           )}
         </div>
 

@@ -1,4 +1,4 @@
-import type { MateriaWithTopico } from "@/types";
+import type { SubjectWithTopic } from "@/types";
 import { Pencil, Trash2, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface MateriaCardProps {
-  materia: MateriaWithTopico;
-  onEdit?: (materia: MateriaWithTopico) => void;
-  onDelete?: (materiaId: string) => void;
+interface SubjectCardProps {
+  subject: SubjectWithTopic;
+  onEdit?: (subject: SubjectWithTopic) => void;
+  onDelete?: (subjectId: string) => void;
 }
 
-function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
+function SubjectCard({ subject, onEdit, onDelete }: SubjectCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -45,7 +45,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/materias/${materia.id}`, {
+      const response = await fetch(`/api/subjects/${subject.id}`, {
         method: 'DELETE',
       });
 
@@ -55,9 +55,9 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
       }
 
       toast.success('Matéria deletada com sucesso!');
-      onDelete?.(materia.id);
+      onDelete?.(subject.id);
     } catch (error) {
-      console.error('Error deleting materia:', error);
+      console.error('Error deleting subject:', error);
       toast.error('Erro ao deletar matéria: ' + String(error));
     } finally {
       setIsDeleting(false);
@@ -67,7 +67,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-center gap-4 p-4 rounded-xl border-2 bg-cardBg/80 relative" style={{ borderColor: materia.cor }}>
+      <div className="flex flex-col justify-center items-center gap-4 p-4 rounded-xl border-2 bg-cardBg/80 relative" style={{ borderColor: subject.color }}>
         {/* Menu Button */}
         <div className="absolute top-2 right-2" ref={menuRef}>
           <button
@@ -85,7 +85,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
               <button
                 type="button"
                 onClick={() => {
-                  onEdit?.(materia);
+                  onEdit?.(subject);
                   setShowMenu(false);
                 }}
                 className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
@@ -108,19 +108,19 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
           )}
         </div>
 
-        <h3 className="font-bold">{materia.name}</h3>
+        <h3 className="font-bold">{subject.name}</h3>
 
         <Image 
-          src={materia.imgUrl} 
-          alt={`Ícone de ${materia.name}`} 
+          src={subject.imageUrl} 
+          alt={`Ícone de ${subject.name}`} 
           width={140} 
           height={140}
           className="object-contain"
         />
 
         <div className="flex flex-col gap-0.5">
-          <p>cor - <span className="border border-black inline-block align-middle h-3.5 w-4.5" style={{ backgroundColor: materia.cor }}></span></p>
-          <p><span className="font-bold">{materia.topicos.length}</span> tópicos</p>
+          <p>cor - <span className="border border-black inline-block align-middle h-3.5 w-4.5" style={{ backgroundColor: subject.color }}></span></p>
+          <p><span className="font-bold">{subject.topics.length}</span> tópicos</p>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
           <DialogHeader>
             <DialogTitle>Deletar Matéria</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja deletar a matéria &quot;{materia.name}&quot;? 
+              Tem certeza que deseja deletar a matéria &quot;{subject.name}&quot;? 
               Esta ação não pode ser desfeita e também deletará o arquivo de imagem associado.
             </DialogDescription>
           </DialogHeader>
@@ -156,4 +156,4 @@ function MateriaCard({ materia, onEdit, onDelete }: MateriaCardProps) {
    );
 }
 
-export default MateriaCard;
+export default SubjectCard;

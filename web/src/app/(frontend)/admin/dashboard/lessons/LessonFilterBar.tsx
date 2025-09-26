@@ -12,10 +12,10 @@ interface LessonFilterBarProps {
 
 const lessonTypes = [
   { value: '', label: 'Todos os tipos' },
-  { value: 'GERAL', label: 'Geral' },
-  { value: 'EXERCICIOS', label: 'Exercícios' },
-  { value: 'REVISAO', label: 'Revisão' },
-  { value: 'SIMULACAO', label: 'Simulação' }
+  { value: 'GENERAL', label: 'Geral' },
+  { value: 'EXERCISE', label: 'Exercícios' },
+  { value: 'REVIEW', label: 'Revisão' },
+  { value: 'SIMULATION', label: 'Simulação' }
 ];
 
 const difficultyRanges = [

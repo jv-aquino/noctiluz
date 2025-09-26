@@ -19,8 +19,8 @@ interface LessonFormProps {
 const EMPTY_LESSON: LessonFormData = {
   name: '',
   identifier: "",
-  descricao: '',
-  type: 'GERAL',
+  description: '',
+  type: 'GENERAL',
   difficulty: 2.5,
   estimatedDuration: 5,
   knowledgeComponents: [],
@@ -50,8 +50,8 @@ export function LessonForm({
     setFormData(prev => ({ ...prev, identifier: e.target.value }));
   };
 
-  const handleDescricaoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, descricao: e.target.value }));
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, description: e.target.value }));
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -134,11 +134,11 @@ export function LessonForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
+            <Label htmlFor="description">Descrição</Label>
             <Input
-              id="descricao"
-              value={formData.descricao}
-              onChange={handleDescricaoChange}
+              id="description"
+              value={formData.description}
+              onChange={handleDescriptionChange}
               placeholder="Breve descrição da lição"
             />
           </div>
@@ -159,10 +159,10 @@ export function LessonForm({
               onChange={handleTypeChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
             >
-              <option value="GERAL">Geral</option>
-              <option value="EXERCICIOS">Exercícios</option>
-              <option value="REVISAO">Revisão</option>
-              <option value="SIMULACAO">Simulação</option>
+              <option value="GENERAL">Geral</option>
+              <option value="EXERCISE">Exercícios</option>
+              <option value="REVIEW">Revisão</option>
+              <option value="SIMULATION">Simulação</option>
             </select>
           </div>
           <div className="space-y-2">

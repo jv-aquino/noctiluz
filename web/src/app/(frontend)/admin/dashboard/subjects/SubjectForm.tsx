@@ -6,43 +6,43 @@ import FileUploadInput from "@/components/input/FileUpload";
 import { MultiStepForm, type Step } from "@/components/ui/multi-step-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { MateriaWithTopico } from "@/types";
+import type { SubjectWithTopic } from "@/types";
 import TagEditor from '@/components/common/TagEditor';
 
-const EMPTY_MATERIA = {
+const EMPTY_SUBJECT = {
   name: '',
   slug: '',
-  cor: '#ffffff',
-  descricao: '',
-  imgUrl: '' as string,
+  color: '#ffffff',
+  description: '',
+  imageUrl: '' as string,
   tags: [] as string[],
 };
 
-interface MateriaFormProps {
-  editingMateria?: MateriaWithTopico | null;
-  onSubmit: (data: typeof EMPTY_MATERIA) => Promise<void>;
+interface SubjectFormProps {
+  editingSubject?: SubjectWithTopic | null;
+  onSubmit: (data: typeof EMPTY_SUBJECT) => Promise<void>;
   onCancel: () => void;
   submitText?: string;
 }
 
-export function MateriaForm({ 
-  editingMateria, 
+export default function SubjectForm({ 
+  editingSubject, 
   onSubmit, 
   onCancel, 
   submitText = "Adicionar Matéria →" 
-}: MateriaFormProps) {
+}: SubjectFormProps) {
   const [formData, setFormData] = useState(() => {
-    if (editingMateria) {
+    if (editingSubject) {
       return {
-        name: editingMateria.name,
-        slug: editingMateria.slug,
-        cor: editingMateria.cor,
-        descricao: editingMateria.descricao,
-        imgUrl: editingMateria.imgUrl,
-        tags: editingMateria.tags || [],
+        name: editingSubject.name,
+        slug: editingSubject.slug,
+        color: editingSubject.color,
+        description: editingSubject.description,
+        imageUrl: editingSubject.imageUrl,
+        tags: editingSubject.tags || [],
       };
     }
-    return EMPTY_MATERIA;
+    return EMPTY_SUBJECT;
   });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +61,7 @@ export function MateriaForm({
     }));
   };
 
-  const handleSubmit = async (data: typeof EMPTY_MATERIA) => {
+  const handleSubmit = async (data: typeof EMPTY_SUBJECT) => {
     try {
       await onSubmit(data);
     } catch (error) {
@@ -74,7 +74,7 @@ export function MateriaForm({
     {
       id: 'basic-info',
       title: 'Informações Básicas',
-      validation: () => !!(formData.name && formData.slug && formData.descricao),
+      validation: () => !!(formData.name && formData.slug && formData.description),
       content: (
         <>
           {/* Nome da Matéria */}
@@ -100,7 +100,7 @@ export function MateriaForm({
             <Input
               id="descricao"
               type="text"
-              value={formData.descricao}
+              value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
               placeholder="Descrição da matéria"
               className="w-full"
@@ -128,7 +128,7 @@ export function MateriaForm({
     {
       id: 'appearance',
       title: 'Aparência',
-      validation: () => !!formData.imgUrl,
+      validation: () => !!formData.imageUrl,
       content: (
         <>
           <div className="space-y-2">
@@ -141,7 +141,7 @@ export function MateriaForm({
                 <Input
                   id="cor"
                   type="text"
-                  value={formData.cor.replace('#', '')}
+                  value={formData.color.replace('#', '')}
                   onChange={(e) => setFormData(prev => ({ 
                     ...prev, 
                     cor: '#' + e.target.value.replace('#', '') 
@@ -154,7 +154,7 @@ export function MateriaForm({
               <div className="flex items-center">
                 <input
                   type="color"
-                  value={formData.cor}
+                  value={formData.color}
                   onChange={(e) => setFormData(prev => ({ ...prev, cor: e.target.value }))}
                   className="w-10 h-10 border border-gray-300 rounded cursor-pointer"
                 />
@@ -163,7 +163,7 @@ export function MateriaForm({
           </div>
 
           <FileUploadInput
-            arquivo={formData.imgUrl ? { name: formData.imgUrl.split('/').pop() || '', url: formData.imgUrl } : null}
+            arquivo={formData.imageUrl ? { name: formData.imageUrl.split('/').pop() || '', url: formData.imageUrl } : null}
             handleFileUpload={handleFileUpload}
             accept=".svg,.webp,.avif,.png,.jpg,.jpeg"
             maxSize={5}

@@ -6,7 +6,7 @@ import useSWR from "swr";
 import { fetcher } from "@/utils";
 import AdminHeader from "../../components/header/AdminHeader";
 import { List } from "lucide-react";
-import TopicoForm from "./TopicoForm";
+import TopicoForm from "./TopicForm";
 import { Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
@@ -14,14 +14,14 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ReorderableList } from "@/components/common/ReorderableList";
-import { TopicoItem } from "./TopicoItem";
+import { TopicItem } from "./TopicItem";
 
-function TopicosCursoPage() {
+function TopicsCursoPage() {
   const router = useRouter();
   const params = useParams();
-  const cursoId = params?.cursoId as string;
-  const { data: curso, error, isLoading, mutate } = useSWR(
-    cursoId ? `/api/cursos/${cursoId}` : null,
+  const courseId = params?.courseId as string;
+  const { data: course, error, isLoading, mutate } = useSWR(
+    courseId ? `/api/courses/${courseId}` : null,
     (url: string) => fetcher(url, "Erro ao buscar curso")
   );
   const [formOpen, setFormOpen] = useState(false);
@@ -29,31 +29,31 @@ function TopicosCursoPage() {
   const [topicosOrder, setTopicosOrder] = useState<string[]>([]);
   const [orderChanged, setOrderChanged] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [topicoToDelete, setTopicoToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [topicToDelete, setTopicToDelete] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (curso?.cursoTopicos) {
-      // Sort topicos by order before setting the state
-      const sortedTopicos = [...curso.cursoTopicos].sort((a, b) => a.order - b.order);
-      setTopicosOrder(sortedTopicos.map((ct: any) => ct.topico.id));
+    if (course?.courseTopics) {
+      // Sort topics by order before setting the state
+      const sortedTopics = [...course.courseTopics].sort((a, b) => a.order - b.order);
+      setTopicosOrder(sortedTopics.map((ct: any) => ct.topic.id));
       setOrderChanged(false);
     }
-  }, [curso?.cursoTopicos]);
+  }, [course?.courseTopics]);
 
   useEffect(() => {
-    if (curso && (!Array.isArray(curso.materiasRelacionadas) || curso.materiasRelacionadas.length === 0)) {
+    if (course && (!Array.isArray(course.relatedSubjects) || course.relatedSubjects.length === 0)) {
       toast.error("Adicione uma ou mais matérias para o curso");
-      router.replace("/admin/dashboard/cursos");
+      router.replace("/admin/dashboard/courses");
     }
-  }, [curso, router]);
+  }, [course, router]);
 
-  // Replace handleAddTopico to do both steps (create topico, then associate)
-  const handleAddTopico = async (data: { name: string; descricao: string; slug: string; materiaId: string }) => {
+  // Replace handleAddTopic to do both steps (create topic, then associate)
+  const handleAddTopic = async (data: { name: string; description: string; slug: string; subjectId: string }) => {
     setLoading(true);
     try {
-      // 1. Create the topico
-      const res = await fetch("/api/topicos", {
+      // 1. Create the topic
+      const res = await fetch("/api/topics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -62,18 +62,18 @@ function TopicosCursoPage() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Erro ao criar tópico");
       }
-      const topico = await res.json();
-      // 2. Associate with curso (order = last)
-      const relRes = await fetch(`/api/cursos/topicos`, {
+      const topic = await res.json();
+      // 2. Associate with course (order = last)
+      const relRes = await fetch(`/api/courses/topics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cursoId, topicoId: topico.id }),
+        body: JSON.stringify({ courseId, topicId: topic.id }),
       });
       if (!relRes.ok) {
         const err = await relRes.json().catch(() => ({}));
         throw new Error(err.error || "Erro ao associar tópico ao curso");
       }
-      setTopicosOrder((prev) => [...prev, topico.id]);
+      setTopicosOrder((prev) => [...prev, topic.id]);
       toast.success("Tópico criado com sucesso!");
       mutate();
     } catch (e: any) {
@@ -94,7 +94,7 @@ function TopicosCursoPage() {
       await fetch("/api/cursos/topicos/order", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cursoId, topicoIds: topicosOrder }),
+        body: JSON.stringify({ courseId, topicIds: topicosOrder }),
       });
       toast.success("Ordem dos tópicos salva!");
       setOrderChanged(false);
@@ -104,16 +104,16 @@ function TopicosCursoPage() {
     }
   };
 
-  const handleDeleteTopico = async (topicoId: string) => {
+  const handleDeleteTopic = async (topicId: string) => {
     try {
-      const res = await fetch(`/api/topicos/${topicoId}`, {
+      const res = await fetch(`/api/topics/${topicId}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "Erro ao deletar tópico");
       }
-      setTopicosOrder((prev) => prev.filter(id => id !== topicoId));
+      setTopicosOrder((prev) => prev.filter(id => id !== topicId));
       toast.success("Tópico deletado com sucesso!");
       mutate();
     } catch (e: any) {
@@ -121,26 +121,26 @@ function TopicosCursoPage() {
     }
   };
 
-  const confirmDelete = (topico: { id: string; name: string }) => {
-    setTopicoToDelete(topico);
+  const confirmDelete = (topic: { id: string; name: string }) => {
+    setTopicToDelete(topic);
     setDeleteDialogOpen(true);
   };
 
   const executeDelete = async () => {
-    if (!topicoToDelete) return;
+    if (!topicToDelete) return;
     setDeleting(true);
     try {
-      await handleDeleteTopico(topicoToDelete.id);
+      await handleDeleteTopic(topicToDelete.id);
     } finally {
       setDeleting(false);
       setDeleteDialogOpen(false);
-      setTopicoToDelete(null);
+      setTopicToDelete(null);
     }
   };
 
-  const renderTopicoItem = (topico: any) => {
+  const renderTopicItem = (topic: any) => {
     return (
-     <TopicoItem topico={topico} onDelete={() => confirmDelete({ id: topico.id, name: topico.name })} />
+     <TopicItem topic={topic} onDelete={() => confirmDelete({ id: topic.id, name: topic.name })} />
     );
   };
 
@@ -150,7 +150,7 @@ function TopicosCursoPage() {
 
   return (
     <>
-      <AdminHeader Icon={List} Paragraph={Paragraph} title={curso ? `Tópicos de ${curso.name}` : "Tópicos"}>
+      <AdminHeader Icon={List} Paragraph={Paragraph} title={course ? `Tópicos de ${course.name}` : "Tópicos"}>
         <button
           type="button"
           className="admin-header-button colorTransition"
@@ -161,8 +161,8 @@ function TopicosCursoPage() {
         <TopicoForm
           open={formOpen}
           onOpenChange={setFormOpen}
-          materias={curso?.materiasRelacionadas?.map((rel: any) => rel.materia) || []}
-          onSubmit={handleAddTopico}
+          subjects={course?.relatedSubjects?.map((rel: any) => rel.subject) || []}
+          onSubmit={handleAddTopic}
           loading={loading}
         />
       </AdminHeader>
@@ -170,12 +170,12 @@ function TopicosCursoPage() {
         <h2 className="text-lg font-semibold mb-4">Tópicos em ordem:</h2>
         {isLoading && <p>Carregando curso...</p>}
         {error && <p>Erro ao carregar curso.</p>}
-        {curso && curso.cursoTopicos && curso.cursoTopicos.length > 0 ? (
+        {course && course.courseTopics && course.courseTopics.length > 0 ? (
           <>
             <ReorderableList
-              items={topicosOrder.map(id => curso.cursoTopicos.find((ct: any) => ct.topico.id === id)?.topico).filter(Boolean)}
+              items={topicosOrder.map(id => course.courseTopics.find((ct: any) => ct.topic.id === id)?.topic).filter(Boolean)}
               onOrderChange={handleOrderChange}
-              renderItem={renderTopicoItem}
+              renderItem={renderTopicItem}
               className="space-y-2"
             />
             {orderChanged && (
@@ -196,7 +196,7 @@ function TopicosCursoPage() {
           <DialogHeader>
             <DialogTitle>Deletar Tópico</DialogTitle>
           </DialogHeader>
-          <p>Tem certeza que deseja deletar o tópico &quot;{topicoToDelete?.name}&quot;? Esta ação não pode ser desfeita.</p>
+          <p>Tem certeza que deseja deletar o tópico &quot;{topicToDelete?.name}&quot;? Esta ação não pode ser desfeita.</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
               Cancelar
@@ -211,4 +211,4 @@ function TopicosCursoPage() {
   );
 }
 
-export default TopicosCursoPage; 
+export default TopicsCursoPage; 

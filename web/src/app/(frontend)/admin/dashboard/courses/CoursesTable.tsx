@@ -1,53 +1,53 @@
 import { useState, useMemo } from "react";
 import { Pencil, Check, X, List } from "lucide-react";
-import { CursoMateriaRelacionada, Topico } from "@/generated/prisma";
+import { CourseSubjectRelation, Topic } from "@/generated/prisma";
 import TagEditor from '@/components/common/TagEditor';
 import RowMenu from '@/components/table/RowMenu';
 import DataTable, { DataTableColumn } from '@/components/table/DataTable';
 import { Button } from "@/components/ui/button";
-import CursoFilterBar from './CursoFilterBar';
-import { CursoWithMateria } from "@/types";
+import CourseFilterBar from './CourseFilterBar';
+import { CourseWithSubject } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 
-interface Materia {
+interface Subject {
   id: string;
   name: string;
 }
-type CursoCompleto = CursoWithMateria & {
+type CompleteCourse = CourseWithSubject & {
   alunosAtivos?: number;
-  topicos?: Topico[];
+  topics?: Topic[];
 }
 
-interface CursosTableProps {
-  cursos: CursoCompleto[];
-  materias: Materia[];
-  onEdit: (curso: CursoCompleto) => void;
-  onDelete: (curso: CursoCompleto) => void;
-  onTagsUpdate: (curso: CursoCompleto, tags: string[]) => void;
+interface CoursesTableProps {
+  courses: CompleteCourse[];
+  subjects: Subject[];
+  onEdit: (curso: CompleteCourse) => void;
+  onDelete: (curso: CompleteCourse) => void;
+  onTagsUpdate: (curso: CompleteCourse, tags: string[]) => void;
 }
 
-const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: CursosTableProps) => {
+const CoursesTable = ({ courses, subjects, onEdit, onDelete, onTagsUpdate }: CoursesTableProps) => {
   const [editingTagsId, setEditingTagsId] = useState<string | null>(null);
   const [tagsDraft, setTagsDraft] = useState<string[]>([]);
   const [tagsLoading, setTagsLoading] = useState(false);
-  const [materiaFilter, setMateriaFilter] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("");
   const [search, setSearch] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [cursoToDelete, setCursoToDelete] = useState<CursoWithMateria | null>(null);
+  const [cursoToDelete, setCursoToDelete] = useState<CourseWithSubject | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const filteredCursos = useMemo(() => {
-    return cursos.filter(c =>
-      (!materiaFilter ||
-        (Array.isArray(c.materiasRelacionadas) &&
-          c.materiasRelacionadas.some((rel: CursoMateriaRelacionada) => rel.materiaId === materiaFilter))
+    return courses.filter(c =>
+      (!subjectFilter ||
+        (Array.isArray(c.relatedSubjects) &&
+          c.relatedSubjects.some((rel: CourseSubjectRelation) => rel.subjectId === subjectFilter))
       ) &&
       (!search || c.name.toLowerCase().includes(search.toLowerCase()))
     );
-  }, [cursos, materiaFilter, search]);
+  }, [courses, subjectFilter, search]);
 
-  const startEditTags = (curso: CursoCompleto) => {
+  const startEditTags = (curso: CompleteCourse) => {
     setEditingTagsId(curso.id);
     setTagsDraft(curso.tags || []);
   };
@@ -55,7 +55,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
     setEditingTagsId(null);
     setTagsDraft([]);
   };
-  const saveTags = async (curso: CursoCompleto) => {
+  const saveTags = async (curso: CompleteCourse) => {
     setTagsLoading(true);
     try {
       await onTagsUpdate(curso, tagsDraft);
@@ -80,7 +80,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
     }
   };
 
-  const columns: DataTableColumn<CursoCompleto>[] = [
+  const columns: DataTableColumn<CompleteCourse>[] = [
     {
       key: "name",
       header: "Nome",
@@ -90,7 +90,7 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
       key: "topicos",
       header: "Nº de Tópicos",
       className: "text-center",
-      render: (curso) => curso.topicos?.length ?? 0,
+      render: (curso) => curso.topics?.length ?? 0,
     },
     {
       key: "alunosAtivos",
@@ -121,10 +121,10 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
 
   return (
     <>
-      <CursoFilterBar
-        materias={materias}
-        selectedMateria={materiaFilter}
-        onMateriaChange={setMateriaFilter}
+      <CourseFilterBar
+        subjects={subjects}
+        selectedSubject={subjectFilter}
+        onSubjectChange={setSubjectFilter}
         search={search}
         onSearch={setSearch}
       />
@@ -174,4 +174,4 @@ const CursosTable = ({ cursos, materias, onEdit, onDelete, onTagsUpdate }: Curso
   );
 };
 
-export default CursosTable; 
+export default CoursesTable;

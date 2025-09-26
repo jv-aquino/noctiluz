@@ -1,12 +1,12 @@
-import type { Curso, CursoMateriaRelacionada, Materia, Role, Topico } from '@/generated/prisma';
+import type { Course, CourseSubjectRelation, Subject, UserRole, Topic } from '@/generated/prisma';
 
 export type AllowedRoutes = { 
-  GET?: Role[]
-  POST?: Role[]
-  PATCH?: Role[]
-  DELETE?: Role[]
+  GET?: UserRole[]
+  POST?: UserRole[]
+  PATCH?: UserRole[]
+  DELETE?: UserRole[]
 }
 
-export type MateriaWithTopico = Materia & { topicos: Topico[] };
+export type SubjectWithTopic = Subject & { topics: Topic[] };
 
-export type CursoWithMateria = Curso & { materiasRelacionadas?: CursoMateriaRelacionada[] };
+export type CourseWithSubject = Course & { relatedSubjects?: CourseSubjectRelation[] };

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LessonForm } from "./LessonForm";
 import { LessonCard } from "./LessonCard";
 import { LessonFilterBar } from "./LessonFilterBar";
-import { Lesson, TopicoLesson } from "@/generated/prisma";
+import { Lesson, TopicLesson } from "@/generated/prisma";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 
 // Type for the API response which includes related data
 type LessonWithRelations = Lesson & {
-  topicoLessons: TopicoLesson[]
+  topicLessons: TopicLesson[]
 };
 
 type LessonFormData = Omit<Lesson, 'id'>;
@@ -123,7 +123,7 @@ export default function LicoesPage() {
   // Filter lessons based on search and filters
   const filteredLessons = lessons.filter(lesson => {
     const matchesSearch = lesson.name.toLowerCase().includes(search.toLowerCase()) ||
-                         lesson.descricao.toLowerCase().includes(search.toLowerCase());
+                         lesson.description.toLowerCase().includes(search.toLowerCase());
     
     const matchesType = !selectedType || lesson.type === selectedType;
     

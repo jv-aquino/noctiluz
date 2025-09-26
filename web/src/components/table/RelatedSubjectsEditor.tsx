@@ -1,20 +1,20 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 
-export interface MateriaOption {
+export interface SubjectOption {
   id: string;
   name: string;
 }
 
-interface RelatedMateriasEditorProps {
-  materias: MateriaOption[];
+interface RelatedSubjectsEditorProps {
+  subjects: SubjectOption[];
   selected: string[];
   onChange: (selected: string[]) => void;
   disabled?: boolean;
 }
 
-const RelatedMateriasEditor: React.FC<RelatedMateriasEditorProps> = ({ materias, selected, onChange, disabled }) => {
-  const toggleMateria = (id: string) => {
+const RelatedSubjectsEditor: React.FC<RelatedSubjectsEditorProps> = ({ subjects, selected, onChange, disabled }) => {
+  const toggleSubject = (id: string) => {
     if (selected.includes(id)) {
       onChange(selected.filter(m => m !== id));
     } else {
@@ -26,16 +26,16 @@ const RelatedMateriasEditor: React.FC<RelatedMateriasEditorProps> = ({ materias,
     <div className="space-y-2">
       <Label className="text-sm font-medium text-gray-700">Matérias Relacionadas</Label>
       <div className="flex flex-wrap gap-2">
-        {materias.map(materia => (
-          <label key={materia.id} className="flex items-center gap-2 cursor-pointer">
+        {subjects.map(subject => (
+          <label key={subject.id} className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={selected.includes(materia.id)}
-              onChange={() => toggleMateria(materia.id)}
+              checked={selected.includes(subject.id)}
+              onChange={() => toggleSubject(subject.id)}
               disabled={disabled}
               className="accent-pink-600 peer"
             />
-            <span className="text-sm peer-checked:text-pink-500">{materia.name}</span>
+            <span className="text-sm peer-checked:text-pink-500">{subject.name}</span>
           </label>
         ))}
       </div>
@@ -43,4 +43,4 @@ const RelatedMateriasEditor: React.FC<RelatedMateriasEditorProps> = ({ materias,
   );
 };
 
-export default RelatedMateriasEditor; 
+export default RelatedSubjectsEditor;
