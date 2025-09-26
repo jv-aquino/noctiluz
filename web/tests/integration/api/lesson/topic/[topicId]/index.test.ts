@@ -7,7 +7,7 @@ import { createRequest } from '../../../../mocks/requests'
 import { postLessonMock } from '../../../../mocks/lesson'
 
 vi.mock('@/backend/services/lesson', () => ({
-  getLessonsByTopicoId: vi.fn(),
+  getLessonsByTopicId: vi.fn(),
 }))
 
 describe('GET /api/lessons/topicos/[topicoId]', () => {

@@ -7,8 +7,8 @@ import { NextRequest } from 'next/server';
 import { setCurrentRole } from '../../../mocks/auth';
 
 vi.mock('@/backend/services/subject', () => ({
-  getMateriaById: vi.fn(),
-  deleteMateria: vi.fn()
+  getSubjectById: vi.fn(),
+  deleteSubject: vi.fn()
 }))
 
 const mockRequest = {} as NextRequest;
