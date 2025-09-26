@@ -25,7 +25,7 @@ export const nameSchema = z
     .max(100, "Nome não pode ter mais de 100 caracteres")
     .trim()
     
-export const corSchema = z
+export const colorSchema = z
     .string({
       error: (issue) => issue.input === undefined 
       ? "Cor é obrigatória" 

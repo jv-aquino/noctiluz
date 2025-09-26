@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createMateria, getAllMaterias } from '@/app/(backend)/services/subject'
-import { createMateriaSchema } from '@/backend/schemas';
+import { createSubject, getAllSubjects } from '@/backend/services/subject'
+import { createSubjectSchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
@@ -10,9 +10,9 @@ const allowedRoles: AllowedRoutes = {
 
 export async function GET() {
   try {
-    const materias = await getAllMaterias()
+    const subjects = await getAllSubjects()
 
-    return NextResponse.json(materias, { status: 200 })
+    return NextResponse.json(subjects, { status: 200 })
   } catch {
     return NextResponse.json(
       toErrorMessage('Falha ao buscar matérias'),
@@ -31,7 +31,7 @@ export async function POST (request: NextRequest) {
 
     const body = await validBody(request);
 
-    const validationResult = createMateriaSchema.safeParse(body)
+    const validationResult = createSubjectSchema.safeParse(body)
     
     if (!validationResult.success) {
       return returnInvalidDataErrors(validationResult.error);
@@ -39,9 +39,9 @@ export async function POST (request: NextRequest) {
 
     const validatedData = validationResult.data
 
-    const materia = await createMateria(validatedData)
+    const subject = await createSubject(validatedData)
 
-    return NextResponse.json(materia, { status: 201 })
+    return NextResponse.json(subject, { status: 201 })
   } catch (error) {
     if (error instanceof NextResponse) {
       return error;
