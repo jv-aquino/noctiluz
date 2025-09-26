@@ -89,10 +89,10 @@ model CourseTopic {
   id    String @id @default(uuid()) @map("_id")
   order Int    @default(0)
 
-  course   Course  @relation(fields: [courseId], references: [id])
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
 
-  topic   Topic @relation(fields: [topicId], references: [id])
+  topic   Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId String
 
   @@unique([courseId, topicId])
@@ -101,10 +101,10 @@ model CourseTopic {
 model CourseSubjectRelation {
   id String @id @default(uuid()) @map("_id")
 
-  course   Course  @relation(fields: [courseId], references: [id])
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
 
-  subject   Subject @relation(fields: [subjectId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectId String
 
   @@unique([courseId, subjectId])
@@ -113,10 +113,10 @@ model CourseSubjectRelation {
 model UserCourse {
   id        String  @id @default(uuid()) @map("_id")
   completed Boolean @default(false)
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 
-  course   Course  @relation(fields: [courseId], references: [id])
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
 
   enrollmentDate DateTime @default(now())
@@ -144,7 +144,7 @@ model Topic {
   slug        String   @unique
   archived    Boolean? @default(false)
 
-  subject      Subject        @relation(fields: [subjectId], references: [id])
+  subject      Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectId    String
   topicLessons TopicLesson[]
   userProgress UserProgress[]
@@ -179,9 +179,9 @@ model TopicLesson {
   id    String @id @default(uuid()) @map("_id")
   order Int    @default(0)
 
-  topic   Topic  @relation(fields: [topicId], references: [id])
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId String
-  lesson  Lesson  @relation(fields: [lessonId], references: [id])
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId  String
 
   @@unique([topicId, lessonId])
@@ -195,7 +195,7 @@ model LessonVariant {
   
   slug        String?      @unique
   
-  lesson   Lesson  @relation(fields: [lessonId], references: [id])
+  lesson   Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId String
   
   contentPages ContentPage[]
@@ -216,13 +216,13 @@ model University {
 }
 
 model Exercise {
-  id            String        @id @default(uuid()) @map("_id")
-  name          String
-  markdown      String
-  universityId String?
-  university   University? @relation(fields: [universityId], references: [id])
-  type           ExerciseType  @default(MULTIPLE_CHOICE)
-  archived       Boolean       @default(false)
+  id              String        @id @default(uuid()) @map("_id")
+  name            String
+  markdown        String
+  universityId    String?
+  university      University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  type            ExerciseType  @default(MULTIPLE_CHOICE)
+  archived        Boolean       @default(false)
 
   alternatives  Json?
   correctValue  String?
@@ -245,9 +245,9 @@ model ContentPage {
   order    Int    @default(0)
   archived Boolean @default(false)
   
-  lesson         Lesson?        @relation(fields: [lessonId], references: [id])
+  lesson         Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   lessonId       String?
-  lessonVariant  LessonVariant? @relation(fields: [variantId], references: [id])
+  lessonVariant  LessonVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
   variantId     String?
   
   contentBlocks ContentBlock[]
@@ -269,10 +269,10 @@ model ContentBlock {
   
   exerciseData Json?    // Questions, answers, validation rules
   
-  exercise     Exercise? @relation(fields: [exerciseId], references: [id])
+  exercise     Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
   exerciseId   String?
   
-  page     ContentPage @relation(fields: [pageId], references: [id])
+  page     ContentPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
   pageId   String
   
   archived Boolean @default(false)
@@ -282,10 +282,10 @@ model LessonObjective {
   id       String @id @default(uuid()) @map("_id")
   weight   Float  @default(1.0) // How much this objective contributes to overall skill
   
-  lesson   Lesson  @relation(fields: [lessonId], references: [id])
+  lesson   Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId String
   
-  skill   Skill  @relation(fields: [skillId], references: [id])
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId String
   
   @@unique([lessonId, skillId])
@@ -295,10 +295,10 @@ model ExerciseObjective {
   id       String @id @default(uuid()) @map("_id")
   weight   Float  @default(1.0) // How much this exercise contributes to skill assessment
   
-  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   exerciseId String
   
-  skill   Skill  @relation(fields: [skillId], references: [id])
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId String
   
   @@unique([exerciseId, skillId])
@@ -315,7 +315,7 @@ model Skill {
   
   baseDifficulty Float @default(0.0)
   
-  subject   Subject @relation(fields: [subjectId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectId String
   
   lessonObjectives   LessonObjective[]
@@ -327,10 +327,10 @@ model SkillDependency {
   id             String @id @default(uuid()) @map("_id")
   transferWeight Float  @default(0.3)
   
-  prerequisite   Skill  @relation("PrerequisiteSkill", fields: [prerequisiteId], references: [id])
+  prerequisite   Skill  @relation("PrerequisiteSkill", fields: [prerequisiteId], references: [id], onDelete: Cascade)
   prerequisiteId String
   
-  dependent      Skill  @relation("DependentSkill", fields: [dependentId], references: [id])
+  dependent      Skill  @relation("DependentSkill", fields: [dependentId], references: [id], onDelete: Cascade)
   dependentId    String
   
   @@unique([prerequisiteId, dependentId])
@@ -338,10 +338,10 @@ model SkillDependency {
 
 model UserSkillState {
   id     String @id @default(uuid()) @map("_id")
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
-  skill   Skill  @relation(fields: [skillId], references: [id])
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId String
 
   createdAt DateTime @default(now())
@@ -352,10 +352,10 @@ model UserSkillState {
 
 model UserAttempt {
   id        String   @id @default(uuid()) @map("_id")
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 
-  lesson     Lesson    @relation(fields: [lessonId], references: [id])
+  lesson     Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   lessonId   String
 
   skillsTested     String[]
@@ -381,10 +381,10 @@ model UserAttempt {
 
 model ExerciseAttempt {
   id        String   @id @default(uuid()) @map("_id")
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 
-  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+  exercise   Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   exerciseId String
 
   userAnswer       Json
