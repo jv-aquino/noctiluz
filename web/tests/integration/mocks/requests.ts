@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from "next/server";
 
-export function returnParams(params: any) {
+export function returnParams<T>(params: T): { params: Promise<T> } {
   return {
-    params: new Promise((resolve) => {
-        resolve(params);
-    }),
+    params: Promise.resolve(params),
   };
 }
 

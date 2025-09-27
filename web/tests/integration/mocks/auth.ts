@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { vi } from 'vitest';
-import { Role } from '@/generated/prisma';
+import { UserRole } from '@/generated/prisma';
 
-let currentRole: Role | null = null
+let currentRole: UserRole | null = null
 let currentUser: any = null
 let currentSession: any = null
 
 export const getCurrentRole = () => currentRole;
 
-export const setCurrentRole = (role: Role | null) => {
+export const setCurrentRole = (role: UserRole | null) => {
   currentRole = role
   
   if (role) {

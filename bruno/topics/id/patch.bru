@@ -1,0 +1,22 @@
+meta {
+  name: patch
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/{{folder}}/{{topicId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Cookie: better-auth.session_token={{sessionValue}}
+}
+
+body:json {
+  {
+    "name": "Tópico Atualizado",
+    "description": "Descrição atualizada do tópico"
+  }
+}

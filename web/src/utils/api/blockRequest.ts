@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import type { Role } from "@/generated/prisma";
+import type { UserRole } from "@/generated/prisma";
 import { toErrorMessage } from "./toErrorMessage";
 
 export async function blockForbiddenRequests(
   request: NextRequest,
-  allowedRoles: Role[] | undefined
+  allowedRoles: UserRole[] | undefined
 ) {
   const session = await auth.api.getSession(request);
 
@@ -16,7 +16,7 @@ export async function blockForbiddenRequests(
     );
   }
 
-  const userRole = session.role as Role;
+  const userRole = session.role as UserRole;
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return NextResponse.json(

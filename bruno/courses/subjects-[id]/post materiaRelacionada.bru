@@ -1,0 +1,17 @@
+meta {
+  name: post materiaRelacionada
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/{{folder}}/subjects/{{subjectId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "courseId": "e2c91854-a69a-4088-9c3c-789b790d1008"
+  }
+}

@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { nameSchema, archivedSchema, slugSchema } from './base.schema';
+import { LessonType } from '@/generated/prisma';
 
 export const createLessonSchema = z.object({
   name: nameSchema,
-  descricao: z.string().min(1, 'Descrição é obrigatória'),
-  type: z.enum(['GERAL', 'EXERCICIOS', 'REVISAO', 'SIMULACAO']).default('GERAL'),
+  description: z.string().min(1, 'Descrição é obrigatória'),
+  type: z.enum(LessonType).default(LessonType.GENERAL),
   archived: archivedSchema,
   knowledgeComponents: z.array(z.string()).default([]),
   prerequisites: z.array(z.string()).default([]),
@@ -17,9 +18,9 @@ export const patchLessonSchema = createLessonSchema.partial().refine((obj) => Ob
   error: "Pelo menos um campo precisa ser fornecido para atualização",
 });
 
-export const addLessonToTopicoSchema = z.object({
+export const addLessonToTopicSchema = z.object({
   lessonId: z.string().min(1, 'ID da lição é obrigatório'),
-  topicoId: z.string().min(1, 'ID do tópico é obrigatório'),
+  topicId: z.string().min(1, 'ID do tópico é obrigatório'),
   order: z.number().int().min(0).optional(),
 });
 

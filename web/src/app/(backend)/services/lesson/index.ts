@@ -6,9 +6,9 @@ type LessonWithoutId = Omit<Lesson, 'id'>;
 export async function getAllLessons() {
   return prisma.lesson.findMany({
     include: {
-      topicoLessons: {
+      topicLessons: {
         include: {
-          topico: true,
+          topic: true,
         },
       },
       learningObjectives: {
@@ -28,9 +28,9 @@ export async function createLesson(data: LessonWithoutId) {
   return prisma.lesson.create({
     data,
     include: {
-      topicoLessons: {
+      topicLessons: {
         include: {
-          topico: true,
+          topic: true,
         },
       },
       learningObjectives: {
@@ -46,9 +46,9 @@ export async function getLessonById(id: string) {
   return prisma.lesson.findUnique({
     where: { id },
     include: {
-      topicoLessons: {
+      topicLessons: {
         include: {
-          topico: true,
+          topic: true,
         },
       },
       learningObjectives: {
@@ -73,7 +73,7 @@ export async function getLessonById(id: string) {
 
 export async function deleteLesson(id: string) {
   // Remove all related records first
-  await prisma.topicoLesson.deleteMany({ where: { lessonId: id } });
+  await prisma.topicLesson.deleteMany({ where: { lessonId: id } });
   await prisma.lessonObjective.deleteMany({ where: { lessonId: id } });
   await prisma.userProgress.deleteMany({ where: { lessonId: id } });
   await prisma.userAttempt.deleteMany({ where: { lessonId: id } });
@@ -91,9 +91,9 @@ export async function updateLesson(id: string, data: Partial<LessonWithoutId>) {
     where: { id },
     data,
     include: {
-      topicoLessons: {
+      topicLessons: {
         include: {
-          topico: true,
+          topic: true,
         },
       },
       learningObjectives: {
@@ -105,41 +105,41 @@ export async function updateLesson(id: string, data: Partial<LessonWithoutId>) {
   });
 }
 
-export async function getLessonsByTopicoId(topicoId: string) {
-  return prisma.topicoLesson.findMany({
-    where: { topicoId },
+export async function getLessonsByTopicId(topicId: string) {
+  return prisma.topicLesson.findMany({
+    where: { topicId },
     include: { lesson: true },
     orderBy: { order: 'asc' },
   });
 }
 
-export async function addLessonToTopico(lessonId: string, topicoId: string, order?: number) {
-  // Get the current max order for this topico
-  const maxOrder = await prisma.topicoLesson.aggregate({
-    where: { topicoId },
+export async function addLessonToTopic(lessonId: string, topicId: string, order?: number) {
+  // Get the current max order for this topic
+  const maxOrder = await prisma.topicLesson.aggregate({
+    where: { topicId },
     _max: { order: true },
   });
   
   const newOrder = order ?? (maxOrder._max.order ?? 0) + 1;
-  
-  return prisma.topicoLesson.create({
+
+  return prisma.topicLesson.create({
     data: {
       lessonId,
-      topicoId,
+      topicId,
       order: newOrder,
     },
     include: {
       lesson: true,
-      topico: true,
+      topic: true,
     },
   });
 }
 
-export async function removeLessonFromTopico(lessonId: string, topicoId: string) {
-    const relation = await prisma.topicoLesson.findUnique({
+export async function removeLessonFromTopic(lessonId: string, topicId: string) {
+    const relation = await prisma.topicLesson.findUnique({
       where: {
-        topicoId_lessonId: {
-          topicoId,
+        topicId_lessonId: {
+          topicId,
           lessonId,
         }
       }
@@ -149,20 +149,20 @@ export async function removeLessonFromTopico(lessonId: string, topicoId: string)
       throw new Error("Relation Topico-Lesson not found");
     }
   
-    return await prisma.topicoLesson.delete({
+    return await prisma.topicLesson.delete({
       where: {
         id: relation.id,
       },
     });
   }
 
-export async function reorderLessonsInTopico(topicoId: string, lessonIds: string[]) {
+export async function reorderLessonsInTopic(topicId: string, lessonIds: string[]) {
   // Update the order for each lesson in the topico
   const updates = lessonIds.map((lessonId, index) => 
-    prisma.topicoLesson.update({
+    prisma.topicLesson.update({
       where: {
-        topicoId_lessonId: {
-          topicoId,
+        topicId_lessonId: {
+          topicId,
           lessonId,
         },
       },

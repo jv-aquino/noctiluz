@@ -1,4 +1,3 @@
-import LandingPagesNav from "@/components/nav/InitialNav";
 import Embarcar from "./Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";

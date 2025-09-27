@@ -1,0 +1,27 @@
+meta {
+  name: create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/{{folder}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Nova Curso",
+    "description": "Descriçã2 do curso",
+    "slug": "teste-nova"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("courseId", res.body.id);
+  } else {
+    console.log("No ID found in response");
+  }
+}

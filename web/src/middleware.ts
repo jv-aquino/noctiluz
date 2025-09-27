@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "./auth";
-import type { Role } from "./generated/prisma";
+import type { UserRole } from "./generated/prisma";
 
 // Configuration for different page types
 const ROUTE_CONFIG = {
@@ -39,7 +39,7 @@ function matchesAnyPattern(pathname: string, patterns: string[]): boolean {
   });
 }
 
-function hasRequiredRole(userRole: Role | undefined, requiredRoles: Role[]): boolean {
+function hasRequiredRole(userRole: UserRole | undefined, requiredRoles: UserRole[]): boolean {
   if (!userRole) return false;
   return requiredRoles.includes(userRole);
 }
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
     headers: await headers()
   });
   
-  const userRole = session?.role as Role | undefined;
+  const userRole = session?.role as UserRole | undefined;
   const isAuthenticated = !!session?.user;
 
   // Handle /admin special route
