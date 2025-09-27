@@ -1,7 +1,7 @@
-import Embarcar from "./Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
 import Hero from "./Hero";
+import CTA from "./CTA";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -13,7 +13,7 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      <Embarcar isLogged={isLogged} />
+      <CTA isLogged={isLogged}/>
     </>
   );
 }

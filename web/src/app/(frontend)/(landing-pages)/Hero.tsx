@@ -33,7 +33,7 @@ function Hero() {
         </h1>
         
         <p className="text-xl md:text-2xl text-gray-500 mb-12 max-w-3xl mx-auto leading-[1.45]">
-          Plataforma educacional personalizada para estudantes de ensino superior. 
+          Plataforma educacional personalizada para estudantes com <b>rotina apertada</b>. 
           Aprenda matemática, física e engenharia com aulas interativas, feedbacks personalizados e questões resolvidas.
         </p>
         
