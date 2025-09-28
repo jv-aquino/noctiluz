@@ -215,6 +215,13 @@ model University {
   exercises    Exercise[]
 }
 
+type Alternative {
+  markdown    String
+  explanation String
+  isCorrect   Boolean
+  order       Int
+}
+
 model Exercise {
   id              String        @id @default(uuid()) @map("_id")
   name            String
@@ -224,12 +231,12 @@ model Exercise {
   type            ExerciseType  @default(MULTIPLE_CHOICE)
   archived        Boolean       @default(false)
 
-  alternatives  Json?
+  alternatives  Alternative[]
   correctValue  String?
   
   skillsTested  String[]      // Skills this exercise evaluates
   difficulty    Float         @default(1.0)
-  estimatedTime Int          @default(5) // minutes
+  estimatedTime Int           @default(5) // minutes
   tags          String[]      @default([])
   
   exerciseObjectives ExerciseObjective[]
@@ -266,8 +273,6 @@ model ContentBlock {
   componentType ComponentType?
   componentPath String?         // Path to React component
   componentProps Json?          // Props for the component
-  
-  exerciseData Json?    // Questions, answers, validation rules
   
   exercise     Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
   exerciseId   String?
