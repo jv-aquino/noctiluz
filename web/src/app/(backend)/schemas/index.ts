@@ -5,3 +5,4 @@ export * from './course.schema'
 export * from './topic.schema';
 export * from './lesson.schema';
 export * from './content.schema';
+export * from './exercise.schema';
