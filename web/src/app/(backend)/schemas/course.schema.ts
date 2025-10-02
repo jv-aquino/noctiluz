@@ -6,7 +6,7 @@ export const createCourseSchema = z.object({
   description: z.string().min(2, 'Descrição obrigatória'),
   slug: slugSchema,
   tags: tagsSchema,
-  backgroundImage: z.string().url('Deve ser uma URL válida').nullable().optional(),
+  backgroundImage: z.url('Deve ser uma URL válida').nullable().optional(),
 });
 
 export const patchCourseSchema = createCourseSchema.partial().refine((obj) => Object.keys(obj).length > 0, {

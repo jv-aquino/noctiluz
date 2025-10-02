@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { nameSchema, archivedSchema } from './base.schema';
+import { nameSchema, archivedSchema, idSchema } from './base.schema';
 import { ExerciseType } from '@/generated/prisma';
 
 export const alternativeSchema = z.object({
@@ -36,7 +36,7 @@ export const exerciseQuerySchema = z.object({
   limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 10)
     .refine((val) => val > 0 && val <= 100, { message: "Limite deve ser entre 1 e 100" }),
   name: z.string().optional(),
-  universityId: z.string().uuid('ID da universidade inválido').optional(),
+  universityId: idSchema.optional(),
   minDifficulty: z.string().optional().transform((val) => val ? parseFloat(val) : undefined)
     .refine((val) => val === undefined || (val >= 0 && val <= 10), { message: "Dificuldade mínima deve ser entre 0 e 10" }),
   maxDifficulty: z.string().optional().transform((val) => val ? parseFloat(val) : undefined)
