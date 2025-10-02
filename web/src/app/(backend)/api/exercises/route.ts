@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllExercises, createExercise } from '@/backend/services/exercise';
-import { createExerciseSchema } from '@/backend/schemas';
+import { createExerciseSchema, exerciseQuerySchema } from '@/backend/schemas';
 import { blockForbiddenRequests, returnInvalidDataErrors, toErrorMessage, validBody, zodErrorHandler } from '@/utils';
 import type { AllowedRoutes } from '@/types';
 
@@ -8,11 +8,40 @@ const allowedRoles: AllowedRoutes = {
   POST: ["SUPER_ADMIN", "ADMIN"]
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const exercises = await getAllExercises();
-    return NextResponse.json(exercises, { status: 200 });
-  } catch {
+    const { searchParams } = new URL(request.url);
+    
+    // Parse and validate query parameters
+    const queryParams = {
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+      name: searchParams.get('name'),
+      universityId: searchParams.get('universityId'),
+      minDifficulty: searchParams.get('minDifficulty'),
+      maxDifficulty: searchParams.get('maxDifficulty'),
+      type: searchParams.get('type'),
+      archived: searchParams.get('archived'),
+    };
+
+    // Remove null values
+    const cleanParams = Object.fromEntries(
+      Object.entries(queryParams).filter(([, value]) => value !== null)
+    );
+
+    const validationResult = exerciseQuerySchema.safeParse(cleanParams);
+    if (!validationResult.success) {
+      return returnInvalidDataErrors(validationResult.error);
+    }
+
+    const validatedParams = validationResult.data;
+    const result = await getAllExercises(validatedParams);
+    
+    return NextResponse.json(result, { status: 200 });
+  } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     return NextResponse.json(
       toErrorMessage('Falha ao buscar exercícios'),
       { status: 500 }

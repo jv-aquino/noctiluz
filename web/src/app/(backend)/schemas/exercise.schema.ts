@@ -28,3 +28,19 @@ export const createExerciseSchema = z.object({
 export const patchExerciseSchema = createExerciseSchema.partial().refine((obj) => Object.keys(obj).length > 0, {
   error: "Pelo menos um campo precisa ser fornecido para atualização",
 });
+
+// Pagination and search schemas
+export const exerciseQuerySchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1)
+    .refine((val) => val > 0, { message: "Página deve ser maior que 0" }),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 10)
+    .refine((val) => val > 0 && val <= 100, { message: "Limite deve ser entre 1 e 100" }),
+  name: z.string().optional(),
+  universityId: z.string().uuid('ID da universidade inválido').optional(),
+  minDifficulty: z.string().optional().transform((val) => val ? parseFloat(val) : undefined)
+    .refine((val) => val === undefined || (val >= 0 && val <= 10), { message: "Dificuldade mínima deve ser entre 0 e 10" }),
+  maxDifficulty: z.string().optional().transform((val) => val ? parseFloat(val) : undefined)
+    .refine((val) => val === undefined || (val >= 0 && val <= 10), { message: "Dificuldade máxima deve ser entre 0 e 10" }),
+  type: z.nativeEnum(ExerciseType).optional(),
+  archived: z.string().optional().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined),
+});

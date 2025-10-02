@@ -1,9 +1,96 @@
-import { Exercise } from '@/generated/prisma';
+import { Exercise, Prisma } from '@/generated/prisma';
 import prisma from '../db';
 
-export async function getAllExercises() {
+export interface ExerciseSearchParams {
+  page?: number;
+  limit?: number;
+  name?: string;
+  universityId?: string;
+  minDifficulty?: number;
+  maxDifficulty?: number;
+  type?: string;
+  archived?: boolean;
+}
+
+type ExerciseWithIncludes = Prisma.ExerciseGetPayload<{
+  include: {
+    university: true;
+    exerciseObjectives: {
+      include: {
+        skill: true;
+      };
+    };
+    exerciseAttempts: true;
+    contentBlocks: true;
+  };
+}>;
+
+export interface PaginatedExercises {
+  exercises: ExerciseWithIncludes[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+export async function getAllExercises(params: ExerciseSearchParams = {}): Promise<PaginatedExercises> {
   try {
+    const {
+      page = 1,
+      limit = 10,
+      name,
+      universityId,
+      minDifficulty,
+      maxDifficulty,
+      type,
+      archived = false
+    } = params;
+
+    // Build where clause for filtering
+    const where: Prisma.ExerciseWhereInput = {
+      archived: archived,
+    };
+
+    if (name) {
+      where.name = {
+        contains: name,
+        mode: 'insensitive'
+      };
+    }
+
+    if (universityId) {
+      where.universityId = universityId;
+    }
+
+    if (minDifficulty !== undefined || maxDifficulty !== undefined) {
+      where.difficulty = {};
+      if (minDifficulty !== undefined) {
+        where.difficulty.gte = minDifficulty;
+      }
+      if (maxDifficulty !== undefined) {
+        where.difficulty.lte = maxDifficulty;
+      }
+    }
+
+    if (type) {
+      where.type = type as Prisma.EnumExerciseTypeFilter;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await prisma.exercise.count({ where });
+
+    // Get exercises with pagination
     const exercises = await prisma.exercise.findMany({
+      where,
+      skip,
+      take: limit,
       orderBy: {
         name: 'asc'
       },
@@ -18,7 +105,20 @@ export async function getAllExercises() {
         contentBlocks: true,
       }
     });
-    return exercises;
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      exercises,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      }
+    };
   } catch (error) {
     throw new Error(String(error) || 'Falha ao buscar exercícios');
   }
